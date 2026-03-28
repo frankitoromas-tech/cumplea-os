@@ -15,213 +15,86 @@ body {
 .contenedor { z-index: 10; }
 
 .caja-regalo {
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 20px 40px;
+    font-size: 1.5rem; cursor: pointer; padding: 20px 40px;
     background: linear-gradient(135deg, #ff4757, #ff6b81);
-    border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
+    border-radius: 15px; box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.caja-regalo:hover {
-    transform: translateY(-5px) scale(1.05);
-    box-shadow: 0 15px 25px rgba(255, 71, 87, 0.5);
-}
-
-.icono-regalo {
-    font-size: 3rem;
-    display: block;
-    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s;
-}
-
-.abriendo-caja .icono-regalo {
-    transform: translateY(-80px) rotate(20deg) scale(1.5);
-    opacity: 0;
-}
-
-.abriendo-caja #textoRegalo {
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
+.caja-regalo:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 15px 25px rgba(255, 71, 87, 0.5); }
+.icono-regalo { font-size: 3rem; display: block; transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s; }
+.abriendo-caja .icono-regalo { transform: translateY(-80px) rotate(20deg) scale(1.5); opacity: 0; }
+.abriendo-caja #textoRegalo { opacity: 0; transition: opacity 0.3s; }
 .oculto { display: none; }
+.mostrar { display: block; animation: aparecerSuave 1.2s ease-out forwards; }
 
-.mostrar {
-    display: block;
-    animation: aparecerSuave 1.2s ease-out forwards;
-}
+@keyframes aparecerSuave { 0% { opacity: 0; transform: scale(0.8) translateY(30px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 
-@keyframes aparecerSuave {
-    0% { opacity: 0; transform: scale(0.8) translateY(30px); }
-    100% { opacity: 1; transform: scale(1) translateY(0); }
-}
+.mensajes p { font-size: 1.2rem; margin: 15px 0; background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 8px; }
+.firma { font-size: 1.3rem; font-weight: bold; color: #ffcc00; margin-top: 30px; }
 
-.mensajes p {
-    font-size: 1.2rem;
-    margin: 15px 0;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 15px;
-    border-radius: 8px;
-}
+/* --- NUEVO: PASTEL Y VELAS INTERACTIVAS --- */
+.contenedor-pastel { position: relative; display: inline-block; margin-bottom: 20px; }
+.pastel-animado { font-size: 6rem; animation: saltito 2s infinite; }
+@keyframes saltito { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-.firma {
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: #ffcc00;
-    margin-top: 30px;
+.velas { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 2; width: 80px; justify-content: center; height: 40px; }
+.llama { 
+    width: 15px; height: 25px; background: #ff9d00; border-radius: 50% 50% 20% 20%; 
+    box-shadow: 0 0 15px #ff9d00, 0 0 30px #ff3b00; 
+    animation: parpadeoVela 0.5s infinite alternate; transition: opacity 0.3s ease-out; 
 }
-
-.pastel-animado {
-    font-size: 6rem;
-    margin-bottom: 10px;
-    animation: saltito 1.5s infinite;
-}
-
-@keyframes saltito {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); } 
-}
+.llama.apagada { opacity: 0; }
+@keyframes parpadeoVela { 0% { transform: scale(1) translateY(0); opacity: 0.9; } 100% { transform: scale(1.1) translateY(-2px); opacity: 1; } }
+.instruccion-pastel { font-size: 0.9rem; color: #ffcc00; margin-top: -15px; font-weight: bold; text-shadow: 0 0 5px rgba(255,204,0,0.5); transition: opacity 0.5s; }
 
 /* --- EFECTOS: ESTRELLAS Y GLOBOS --- */
-.estrella {
-    position: absolute;
-    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-    z-index: -1; 
-}
+.estrella { position: absolute; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); z-index: -1; }
+@keyframes titilar { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 0.2; transform: scale(0.8); } }
 
-@keyframes titilar {
-    0%, 100% { opacity: 0.8; transform: scale(1); }
-    50% { opacity: 0.2; transform: scale(0.8); }
-}
+.globo { position: absolute; top: -10vh; font-size: 3rem; z-index: 100; animation: caer linear infinite; cursor: pointer; user-select: none; transition: transform 0.1s ease-out; }
+@keyframes caer { to { transform: translateY(120vh) rotate(360deg); } }
+.globo-reventado { animation: reventar 0.3s forwards !important; }
+@keyframes reventar { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.8; } 100% { transform: scale(0); opacity: 0; } }
 
-.globo {
-    position: absolute;
-    top: -10vh;
-    font-size: 3rem;
-    z-index: 100;
-    animation: caer linear infinite;
-    cursor: pointer; /* ESTO ARREGLA QUE PUEDAS HACERLES CLIC */
-    user-select: none; 
-    transition: transform 0.1s ease-out;
-}
+.confeti { position: absolute; width: 10px; height: 20px; z-index: 150; animation: caerConfeti linear forwards; }
+@keyframes caerConfeti { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
 
-@keyframes caer {
-    to { transform: translateY(120vh) rotate(360deg); }
-}
+.cursor-parpadeo { display: inline-block; width: 10px; height: 1.2rem; background-color: #ffcc00; margin-left: 5px; animation: parpadeo 0.8s infinite; vertical-align: text-bottom; }
+@keyframes parpadeo { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-.globo-reventado {
-    animation: reventar 0.3s forwards !important;
+/* --- NUEVO: ESCENA LUNA (NEBULOSA Y NEON) --- */
+#escenaLuna { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% 50%, #1a0b2e 0%, #0b0f24 50%, #050510 100%); z-index: -2; display: none; justify-content: center; align-items: center; }
+/* Efecto de nebulosa moviéndose al fondo */
+#escenaLuna::before {
+    content: ''; position: absolute; top: -50vh; left: -50vw; width: 200vw; height: 200vh;
+    background: radial-gradient(circle at 30% 30%, rgba(128, 0, 128, 0.15) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(0, 50, 255, 0.1) 0%, transparent 50%);
+    animation: rotarNebulosa 60s linear infinite; z-index: -1;
 }
+@keyframes rotarNebulosa { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-@keyframes reventar {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.5); opacity: 0.8; }
-    100% { transform: scale(0); opacity: 0; }
-}
+.activar-luna { display: flex !important; z-index: 100 !important; animation: aparecerSuave 1s ease forwards; }
+#planetaTierra { position: absolute; width: 60vh; height: 60vh; opacity: 0.8; z-index: 101; }
+#planetaLuna { position: absolute; width: 25vh; height: 25vh; left: -30vw; z-index: 102; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #f4f6f0 10%, #9d9d9d 90%); box-shadow: inset -20px -20px 40px rgba(0, 0, 0, 0.6), 0 0 40px rgba(244, 246, 240, 0.4); }
+.animar-luna #planetaLuna { animation: movimientoLuna 4s cubic-bezier(0.25, 0.1, 0.25, 1) 0.5s forwards; }
+@keyframes movimientoLuna { 0% { left: -30vw; transform: scale(0.8); } 50% { left: 50vw; transform: translateX(-50%) scale(1.1); } 100% { left: 50vw; transform: translateX(-50%) scale(1); opacity: 0.9; } }
 
-.cursor-parpadeo {
-    display: inline-block;
-    width: 10px;
-    height: 1.2rem;
-    background-color: #ffcc00;
-    margin-left: 5px;
-    animation: parpadeo 0.8s infinite;
-    vertical-align: text-bottom;
-}
-
-@keyframes parpadeo {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-}
-
-/* --- ESCENA LUNA EASTER EGG --- */
-#escenaLuna {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background-color: #0b0f24; 
-    z-index: -2; 
-    display: none; 
-    justify-content: center;
-    align-items: center;
-}
-
-.activar-luna {
-    display: flex !important;
-    z-index: 100 !important; 
-    animation: aparecerSuave 1s ease forwards;
-}
-
-#planetaTierra {
-    position: absolute;
-    width: 60vh; 
-    height: 60vh;
-    opacity: 0.8; 
-    z-index: 101;
-}
-
-#planetaLuna {
-    position: absolute;
-    width: 25vh; 
-    height: 25vh;
-    left: -30vw; 
-    z-index: 102; 
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #f4f6f0 10%, #9d9d9d 90%);
-    box-shadow: inset -20px -20px 40px rgba(0, 0, 0, 0.6), 0 0 40px rgba(244, 246, 240, 0.4);
-}
-
-.animar-luna #planetaLuna {
-    animation: movimientoLuna 4s cubic-bezier(0.25, 0.1, 0.25, 1) 0.5s forwards;
-}
-
-@keyframes movimientoLuna {
-    0% { left: -30vw; transform: scale(0.8); }
-    50% { left: 50vw; transform: translateX(-50%) scale(1.1); } 
-    100% { left: 50vw; transform: translateX(-50%) scale(1); opacity: 0.9; } 
-}
-
+/* Efecto de Luz de Neón Fucsia/Dorado */
 .nombre-luna {
-    position: absolute;
-    bottom: 10vh; 
-    font-size: 4rem;
-    color: #ffcc00; 
-    z-index: 103;
-    opacity: 0;
-    text-shadow: 0 0 15px rgba(255, 204, 0, 0.6);
+    position: absolute; bottom: 10vh; font-size: 5rem; color: #fff; z-index: 103; opacity: 0;
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #e60073, 0 0 30px #e60073, 0 0 40px #e60073;
 }
-
-.animar-luna .nombre-luna {
-    animation: aparecerSuave 1.5s ease-out 3.5s forwards; 
-}
+.animar-luna .nombre-luna { animation: aparecerSuave 1.5s ease-out 3.5s forwards; }
 
 .frases-luna {
-    position: absolute;
-    top: 65vh; 
-    width: 80%;
-    text-align: center;
-    font-size: 1.8rem;
-    color: #ffffff;
-    font-style: italic;
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8); 
-    z-index: 104;
-    opacity: 0; 
-    transition: opacity 1.5s ease-in-out; 
+    position: absolute; top: 65vh; width: 80%; text-align: center; font-size: 1.8rem; color: #fff; font-style: italic; z-index: 104; opacity: 0; transition: opacity 1.5s ease-in-out;
+    text-shadow: 0 0 5px #fff, 0 0 10px #0fa, 0 0 20px #0fa, 0 0 30px #0fa; /* Neón cyan */
 }
-
 .frases-luna.visible { opacity: 1; }
 
-.corazon-estrella {
-    position: absolute;
-    color: #ffb3c6; 
-    z-index: 101; 
-    opacity: 0; 
-    text-shadow: 0 0 10px rgba(255, 179, 198, 0.8); 
-    pointer-events: none; 
-}
+.corazon-estrella { position: absolute; color: #ffb3c6; z-index: 101; opacity: 0; text-shadow: 0 0 10px rgba(255, 179, 198, 0.8); pointer-events: none; }
+@keyframes titilarCorazon { 0%, 100% { opacity: 0; transform: scale(0.8); } 50% { opacity: 0.8; transform: scale(1.3); } }
 
-@keyframes titilarCorazon {
-    0%, 100% { opacity: 0; transform: scale(0.8); }
-    50% { opacity: 0.8; transform: scale(1.3); } 
-}
+/* Rastro de Polvo de Estrellas (Mouse) */
+.polvo-estrellas { position: absolute; width: 6px; height: 6px; background-color: #fff; border-radius: 50%; box-shadow: 0 0 10px #fff, 0 0 20px #0fa; pointer-events: none; z-index: 105; animation: desvanecerPolvo 1s forwards; }
+@keyframes desvanecerPolvo { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.2); } }
