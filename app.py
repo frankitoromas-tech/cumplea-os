@@ -30,7 +30,7 @@ mi_regalo.agregar_mensaje("¡Disfruta tu día al máximo!")
 @app.route('/')
 def index():
     # Sirve el archivo HTML
-    return render_template('index.html')
+   return render_template('index.html')
 
 @app.route('/api/abrir_regalo')
 def abrir_regalo():

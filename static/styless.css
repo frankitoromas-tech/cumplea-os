@@ -1,0 +1,100 @@
+body {
+    background-color: #1e1e2f;
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    text-align: center;
+}
+
+.caja-regalo {
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 20px 40px;
+    background: linear-gradient(135deg, #ff4757, #ff6b81);
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.caja-regalo:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 25px rgba(255, 71, 87, 0.5);
+}
+
+.oculto {
+    display: none;
+}
+
+.mostrar {
+    display: block;
+    animation: aparecerSuave 1.2s ease-out forwards;
+}
+
+@keyframes aparecerSuave {
+    0% { opacity: 0; transform: scale(0.8) translateY(30px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.mensajes p {
+    font-size: 1.2rem;
+    margin: 15px 0;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.firma {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #ffcc00;
+    margin-top: 30px;
+}
+body {
+    background-color: #0b0f24; 
+    overflow: hidden; /* Evita que las estrellas creen barras de desplazamiento */
+}
+
+/* Animación para que las estrellas brillen */
+@keyframes titilar {
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 0.2; transform: scale(0.8); }
+}
+
+/* Estilo base para las estrellas generadas por JS */
+.estrella {
+    position: absolute;
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    z-index: -1; /* Para que queden detrás del regalo */
+}
+/* El pastel de cumpleaños saltando */
+.pastel-animado {
+    font-size: 6rem; /* Tamaño gigante */
+    margin-bottom: 10px;
+    animation: saltito 1.5s infinite;
+}
+
+@keyframes saltito {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); } /* Sube 20px y baja */
+}
+
+/* Estructura de los globos generados en JavaScript */
+.globo {
+    position: absolute;
+    top: -10vh; /* Empiezan escondidos arriba de la pantalla */
+    font-size: 3rem; /* Tamaño del globo */
+    z-index: 100; /* Para que caigan por delante de todo */
+    animation: caer lineares infinite;
+    pointer-events: none; /* Para que no estorben si haces clic */
+}
+
+/* Animación de caída libre */
+@keyframes caer {
+    to {
+        transform: translateY(120vh) rotate(360deg); /* Caen hasta abajo dando vueltas */
+    }
+}
