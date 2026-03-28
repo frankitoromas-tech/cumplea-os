@@ -8,20 +8,23 @@
 </head>
 <body>
     <div id="escenaLuna" class="oculto-luna">
-        <img id="planetaTierra" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Earth_Western_Hemisphere_transparent_background.png/600px-Earth_Western_Hemisphere_transparent_background.png" alt="Tierra desde el espacio">
+        <img id="planetaTierra" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Earth_Western_Hemisphere_transparent_background.png/600px-Earth_Western_Hemisphere_transparent_background.png" alt="Tierra">
         <div id="planetaLuna"></div>
         <h1 id="nombreLuna" class="nombre-luna oculto">Luna</h1>
         <div id="frasesPoeticas" class="frases-luna"></div>
     </div>
 
-    <audio id="musicaFondo" loop>
-        <source src="{{ url_for('static', filename='cancion.mp3') }}" type="audio/mpeg">
-    </audio>
-    <audio id="musicaLuna" loop>
-        <source src="{{ url_for('static', filename='cancion_luna.mp3') }}" type="audio/mpeg">
-    </audio>
+    <audio id="musicaFondo" loop><source src="{{ url_for('static', filename='cancion.mp3') }}" type="audio/mpeg"></audio>
+    <audio id="musicaLuna" loop><source src="{{ url_for('static', filename='cancion_luna.mp3') }}" type="audio/mpeg"></audio>
 
-    <div class="contenedor">
+    <div id="pantallaBloqueo" class="pantalla-bloqueo oculto">
+        <h2>El regalo está protegido en una cápsula del tiempo ⏳</h2>
+        <p>Se abrirá automáticamente en:</p>
+        <div id="cuentaRegresiva" class="reloj-cuenta">--:--:--</div>
+        <p>Vuelve cuando el contador llegue a cero.</p>
+    </div>
+
+    <div class="contenedor" id="contenedorPrincipal">
         <div class="caja-regalo" id="botonRegalo">
             <div id="tapaRegalo" class="icono-regalo">🎁</div>
             <div id="textoRegalo">Toca aquí para abrir tu regalo</div>
@@ -30,17 +33,24 @@
         <div id="contenidoSorpresa" class="oculto">
             <div id="contenedorPastel" class="contenedor-pastel">
                 <div id="velas" class="velas">
-                    <div class="llama"></div>
-                    <div class="llama"></div>
-                    <div class="llama"></div>
+                    <div class="llama"></div><div class="llama"></div><div class="llama"></div>
                 </div>
                 <div id="pastel" class="pastel-animado">🎂</div>
-                <p id="instruccionPastel" class="instruccion-pastel">¡Pasa el dedo o el mouse sobre las velas para pedir un deseo!</p>
+                <p id="instruccionPastel" class="instruccion-pastel">¡Pasa el dedo sobre las velas para pedir un deseo!</p>
             </div>
             
             <h1 id="tituloMensaje"></h1>
+            <p id="estadisticasAstro" class="estadisticas"></p>
+            
             <div id="listaMensajes" class="mensajes"></div>
             <p id="firmaMensaje" class="firma oculto"></p>
+
+            <div id="buzonSecreto" class="buzon oculto">
+                <h3>Buzón Secreto 💌</h3>
+                <p>¿Qué le dirías a Frank?</p>
+                <textarea id="textoSecreto" placeholder="Escribe tu mensaje aquí..."></textarea>
+                <button id="btnEnviarSecreto">Enviar mensaje</button>
+            </div>
         </div>
     </div>
 

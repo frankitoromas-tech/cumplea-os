@@ -5,12 +5,12 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh; /* CAMBIO 1: Permite que la página crezca hacia abajo */
     margin: 0;
     text-align: center;
-    overflow: hidden; 
+    overflow-x: hidden; /* CAMBIO 2: Oculta la barra horizontal (para que las estrellas no la rompan) */
+    overflow-y: auto;   /* CAMBIO 3: Activa la barra vertical SOLO cuando sea necesario */
 }
-
 /* --- REGALO Y MENSAJES --- */
 .contenedor { z-index: 10; }
 
@@ -25,7 +25,7 @@ body {
 .icono-regalo { font-size: 3rem; display: block; transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s; }
 .abriendo-caja .icono-regalo { transform: translateY(-80px) rotate(20deg) scale(1.5); opacity: 0; }
 .abriendo-caja #textoRegalo { opacity: 0; transition: opacity 0.3s; }
-.oculto { display: none; }
+.oculto { display: none !important; }
 .mostrar { display: block; animation: aparecerSuave 1.2s ease-out forwards; }
 
 @keyframes aparecerSuave { 0% { opacity: 0; transform: scale(0.8) translateY(30px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
@@ -98,3 +98,14 @@ body {
 /* Rastro de Polvo de Estrellas (Mouse) */
 .polvo-estrellas { position: absolute; width: 6px; height: 6px; background-color: #fff; border-radius: 50%; box-shadow: 0 0 10px #fff, 0 0 20px #0fa; pointer-events: none; z-index: 105; animation: desvanecerPolvo 1s forwards; }
 @keyframes desvanecerPolvo { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.2); } }
+/* --- NUEVAS CLASES PARA EL BACKEND (RELOJ, ESTADÍSTICAS Y BUZÓN) --- */
+.pantalla-bloqueo { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; z-index: 200; background-color: #0b0f24; position: fixed; top: 0; left: 0; width: 100vw; }
+.reloj-cuenta { font-size: 4rem; color: #ffcc00; text-shadow: 0 0 20px rgba(255,204,0,0.5); margin: 20px 0; font-family: monospace; }
+.estadisticas { color: #0fa; font-style: italic; margin-bottom: 20px; font-size: 1.1rem; text-shadow: 0 0 10px rgba(0,255,170,0.3); }
+
+.buzon { margin-top: 30px; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); transition: opacity 1s; }
+.buzon h3 { margin-top: 0; color: #ff6b81; }
+.buzon p { font-size: 1rem; }
+.buzon textarea { width: 90%; height: 60px; background: rgba(0,0,0,0.5); color: white; border: 1px solid #ff4757; border-radius: 5px; padding: 10px; font-family: inherit; resize: none; margin-bottom: 10px; }
+.buzon button { background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+.buzon button:hover { background: #ff6b81; transform: scale(1.05); }
