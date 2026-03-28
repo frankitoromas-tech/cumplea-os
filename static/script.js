@@ -1,4 +1,4 @@
-// Función para generar el fondo de estrellas (La sacamos afuera para que inicie de inmediato)
+// 1. Fondo de Estrellas (Se mantiene igual)
 function crearFondoEstrellas() {
     const cantidadEstrellas = 150;
     const colores = ['#ff007f', '#ff1493', '#ffd700', '#ffea00']; 
@@ -17,67 +17,109 @@ function crearFondoEstrellas() {
         document.body.appendChild(estrella);
     }
 }
-crearFondoEstrellas(); // Encendemos las estrellas al cargar la página
+crearFondoEstrellas();
 
-// Función para crear la lluvia de globos
+// 2. Lluvia de Globos INTERACTIVOS
 function crearLluviaDeGlobos() {
-    const cantidadGlobos = 40;
+    const cantidadGlobos = 45;
     const emojisGlobos = ['🎈', '🎊', '🎉', '🎁'];
     
     for (let i = 0; i < cantidadGlobos; i++) {
         let globo = document.createElement('div');
         globo.classList.add('globo');
         globo.innerText = emojisGlobos[Math.floor(Math.random() * emojisGlobos.length)];
-        
-        // Posición horizontal aleatoria
         globo.style.left = `${Math.random() * 100}vw`;
         
-        // Cada globo cae a diferente velocidad y con distinto retraso
-        let duracionCaida = Math.random() * 3 + 4; // Entre 4 y 7 segundos
-        let retrasoCaida = Math.random() * 5; // Retraso de 0 a 5 segundos para que no caigan todos de golpe
-        
+        let duracionCaida = Math.random() * 4 + 5; 
+        let retrasoCaida = Math.random() * 5; 
         globo.style.animation = `caer ${duracionCaida}s ${retrasoCaida}s linear infinite`;
         
+        // ¡LA MAGIA DE REVENTAR GLOBOS!
+        globo.addEventListener('click', function() {
+            this.classList.add('globo-reventado');
+            this.innerText = '💥'; // Cambia el emoji al reventar
+            setTimeout(() => this.remove(), 300); // Lo borra después de la animación
+        });
+
         document.body.appendChild(globo);
     }
 }
 
-// Evento cuando se hace clic en la caja de regalo
+// 3. Efecto Máquina de Escribir Recursivo
+function escribirMaquina(mensajes, contenedor, indexMensaje = 0, callbackFinal = null) {
+    if (indexMensaje >= mensajes.length) {
+        if (callbackFinal) callbackFinal();
+        return;
+    }
+
+    let parrafo = document.createElement('p');
+    contenedor.appendChild(parrafo);
+    
+    let textoCompleto = "✨ " + mensajes[indexMensaje];
+    let indexLetra = 0;
+
+    // Añadimos un cursor temporal
+    let cursor = document.createElement('span');
+    cursor.classList.add('cursor-parpadeo');
+    parrafo.appendChild(cursor);
+
+    let intervalo = setInterval(() => {
+        // Actualizamos el texto y mantenemos el cursor al final
+        parrafo.innerText = textoCompleto.substring(0, indexLetra + 1);
+        parrafo.appendChild(cursor);
+        indexLetra++;
+
+        if (indexLetra === textoCompleto.length) {
+            clearInterval(intervalo);
+            cursor.remove(); // Quitamos el cursor de esta línea
+            
+            // Pausa breve antes de escribir la siguiente línea
+            setTimeout(() => {
+                escribirMaquina(mensajes, contenedor, indexMensaje + 1, callbackFinal);
+            }, 600);
+        }
+    }, 45); // Velocidad de escritura (45ms por letra)
+}
+
+// 4. Evento Principal al hacer clic en el regalo
 document.getElementById('botonRegalo').addEventListener('click', function() {
-    // 1. Ocultamos el botón de la caja
-    this.style.display = 'none';
+    let boton = this;
+    
+    // Animación 3D de la caja abriéndose
+    boton.classList.add('abriendo-caja');
 
-    // 2. REPRODUCIR LA MÚSICA DE FONDO
+    // Reproducir música
     let musica = document.getElementById('musicaFondo');
-    musica.volume = 0.5; // Volumen al 50%
-    musica.play().catch(e => console.log("El navegador bloqueó el autoplay", e));
+    musica.volume = 0.5;
+    musica.play().catch(e => console.log("Autoplay bloqueado", e));
 
-    // 3. ACTIVAR LOS GLOBOS
-    crearLluviaDeGlobos();
+    // Esperamos 800ms a que termine la animación de la caja antes de ocultarla
+    setTimeout(() => {
+        boton.style.display = 'none';
+        crearLluviaDeGlobos();
 
-    // 4. Llamamos a nuestra ruta de Python (Flask)
-    fetch('/api/abrir_regalo')
-        .then(respuesta => respuesta.json())
-        .then(datos => {
-            // Inyectamos los datos del objeto
-            document.getElementById('tituloMensaje').innerText = datos.titulo;
-            
-            const contenedorMensajes = document.getElementById('listaMensajes');
-            contenedorMensajes.innerHTML = ''; // Limpiamos por seguridad
-            datos.mensajes.forEach(mensaje => {
-                let parrafo = document.createElement('p');
-                parrafo.innerText = "✨ " + mensaje;
-                contenedorMensajes.appendChild(parrafo);
-            });
+        // Traemos los datos de Python
+        fetch('/api/abrir_regalo')
+            .then(respuesta => respuesta.json())
+            .then(datos => {
+                document.getElementById('tituloMensaje').innerText = datos.titulo;
+                
+                let sorpresa = document.getElementById('contenidoSorpresa');
+                sorpresa.classList.remove('oculto');
+                sorpresa.classList.add('mostrar');
 
-            document.getElementById('firmaMensaje').innerText = datos.firma;
-            
-            // Mostramos el div con la animación CSS
-            let sorpresa = document.getElementById('contenidoSorpresa');
-            sorpresa.classList.remove('oculto');
-            sorpresa.classList.add('mostrar');
-        })
-        .catch(error => {
-            console.error('Hubo un error al abrir el regalo:', error);
-        });
+                // Iniciamos la máquina de escribir
+                const contenedorMensajes = document.getElementById('listaMensajes');
+                contenedorMensajes.innerHTML = ''; 
+
+                escribirMaquina(datos.mensajes, contenedorMensajes, 0, () => {
+                    // Cuando termina de escribir todos los mensajes, revelamos la firma
+                    let firma = document.getElementById('firmaMensaje');
+                    firma.innerText = datos.firma;
+                    firma.classList.remove('oculto');
+                    firma.classList.add('mostrar'); // Reutilizamos la animación de aparecer
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    }, 800);
 });
