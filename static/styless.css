@@ -1,5 +1,5 @@
 body {
-    background-color: #1e1e2f;
+    background-color: #0b0f24; 
     color: #ffffff;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
@@ -8,7 +8,11 @@ body {
     height: 100vh;
     margin: 0;
     text-align: center;
+    overflow: hidden; 
 }
+
+/* --- REGALO Y MENSAJES --- */
+.contenedor { z-index: 10; }
 
 .caja-regalo {
     font-size: 1.5rem;
@@ -25,9 +29,23 @@ body {
     box-shadow: 0 15px 25px rgba(255, 71, 87, 0.5);
 }
 
-.oculto {
-    display: none;
+.icono-regalo {
+    font-size: 3rem;
+    display: block;
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s;
 }
+
+.abriendo-caja .icono-regalo {
+    transform: translateY(-80px) rotate(20deg) scale(1.5);
+    opacity: 0;
+}
+
+.abriendo-caja #textoRegalo {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.oculto { display: none; }
 
 .mostrar {
     display: block;
@@ -53,81 +71,45 @@ body {
     color: #ffcc00;
     margin-top: 30px;
 }
-body {
-    background-color: #0b0f24; 
-    overflow: hidden; /* Evita que las estrellas creen barras de desplazamiento */
-}
 
-/* Animación para que las estrellas brillen */
-@keyframes titilar {
-    0%, 100% { opacity: 0.8; transform: scale(1); }
-    50% { opacity: 0.2; transform: scale(0.8); }
-}
-
-/* Estilo base para las estrellas generadas por JS */
-.estrella {
-    position: absolute;
-    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-    z-index: -1; /* Para que queden detrás del regalo */
-}
-/* El pastel de cumpleaños saltando */
 .pastel-animado {
-    font-size: 6rem; /* Tamaño gigante */
+    font-size: 6rem;
     margin-bottom: 10px;
     animation: saltito 1.5s infinite;
 }
 
 @keyframes saltito {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); } /* Sube 20px y baja */
+    50% { transform: translateY(-20px); } 
 }
 
-/* Estructura de los globos generados en JavaScript */
-.globo {
+/* --- EFECTOS: ESTRELLAS Y GLOBOS --- */
+.estrella {
     position: absolute;
-    top: -10vh; /* Empiezan escondidos arriba de la pantalla */
-    font-size: 3rem; /* Tamaño del globo */
-    z-index: 100; /* Para que caigan por delante de todo */
-    animation: caer lineares infinite;
-    pointer-events: none; /* Para que no estorben si haces clic */
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    z-index: -1; 
 }
 
-/* Animación de caída libre */
-@keyframes caer {
-    to {
-        transform: translateY(120vh) rotate(360deg); /* Caen hasta abajo dando vueltas */
-    }
-}
-/* --- ANIMACIÓN DE APERTURA DE CAJA --- */
-.icono-regalo {
-    font-size: 3rem;
-    display: block;
-    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s;
+@keyframes titilar {
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 0.2; transform: scale(0.8); }
 }
 
-/* Esta clase se añade con JS cuando hacen clic */
-.abriendo-caja .icono-regalo {
-    transform: translateY(-80px) rotate(20deg) scale(1.5);
-    opacity: 0;
-}
-.abriendo-caja #textoRegalo {
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-/* --- GLOBOS INTERACTIVOS (EXPLOTAN) --- */
 .globo {
     position: absolute;
     top: -10vh;
     font-size: 3rem;
     z-index: 100;
     animation: caer linear infinite;
-    cursor: pointer; /* Cambia el cursor para invitar a hacer clic */
-    user-select: none; /* Evita que se seleccione como texto */
+    cursor: pointer; /* ESTO ARREGLA QUE PUEDAS HACERLES CLIC */
+    user-select: none; 
     transition: transform 0.1s ease-out;
 }
 
-/* Efecto al reventar el globo */
+@keyframes caer {
+    to { transform: translateY(120vh) rotate(360deg); }
+}
+
 .globo-reventado {
     animation: reventar 0.3s forwards !important;
 }
@@ -138,7 +120,6 @@ body {
     100% { transform: scale(0); opacity: 0; }
 }
 
-/* --- EFECTO MÁQUINA DE ESCRIBIR --- */
 .cursor-parpadeo {
     display: inline-block;
     width: 10px;
@@ -153,123 +134,94 @@ body {
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
 }
+
+/* --- ESCENA LUNA EASTER EGG --- */
 #escenaLuna {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: #0b0f24; /* Mismo color oscuro del fondo estrellado */
-    z-index: -2; /* Se mantiene detrás de la caja de regalo inicialmente */
-    display: none; /* Oculto completamente */
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: #0b0f24; 
+    z-index: -2; 
+    display: none; 
     justify-content: center;
     align-items: center;
-    overflow: hidden;
 }
 
-/* Cuando se activa con JS, mostramos la escena */
 .activar-luna {
     display: flex !important;
-    z-index: 100 !important; /* Ahora se pone DELANTE de todo */
+    z-index: 100 !important; 
     animation: aparecerSuave 1s ease forwards;
 }
 
-/* Estilo para la Tierra (centrada y fija) */
 #planetaTierra {
     position: absolute;
-    width: 60vh; /* Tamaño relativo a la pantalla */
+    width: 60vh; 
     height: 60vh;
-    opacity: 0.8; /* Ligeramente translúcida para que se vea más místico */
+    opacity: 0.8; 
     z-index: 101;
 }
 
-/* Estilo para la Luna (que se mueve) */
-#planetaLuna {
-    position: absolute;
-    width: 25vh; /* Más pequeña que la Tierra */
-    height: 25vh;
-    left: -30vw; /* Empieza fuera de la pantalla por la izquierda */
-    z-index: 102; /* Se pone DELANTE de la Tierra */
-}
-
-/* Clase que activa la animación de la Luna con JS */
-.animar-luna #planetaLuna {
-    animation: movimientoLuna 4s cubic-bezier(0.25, 0.1, 0.25, 1) 0.5s forwards;
-}
-
-/* Animación de la Luna cruzando y poniéndose en frente */
-@keyframes movimientoLuna {
-    0% { left: -30vw; transform: scale(0.8); }
-    50% { left: 50vw; transform: translateX(-50%) scale(1.1); } /* Centrada y más grande */
-    100% { left: 50vw; transform: translateX(-50%) scale(1); opacity: 0.9; } /* Posición final */
-}
-
-/* Estilo para el nombre "Luna" */
-.nombre-luna {
-    position: absolute;
-    bottom: 10vh; /* Cerca de la parte inferior */
-    font-size: 4rem;
-    color: #ffcc00; /* Color dorado estrellado */
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    z-index: 103;
-    opacity: 0;
-    text-shadow: 0 0 15px rgba(255, 204, 0, 0.6);
-}
-
-/* Animación de entrada para el nombre */
-.animar-luna .nombre-luna {
-    animation: aparecerSuave 1.5s ease-out 3.5s forwards; /* Aparece después de que la luna se posicione */
-}
-
-/* Reutilizamos la animación de aparecer que ya tienes definida */
-@keyframes aparecerSuave {
-    0% { opacity: 0; transform: translateY(20px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-/* Estilo para la Luna (Dibujada con puro CSS) */
 #planetaLuna {
     position: absolute;
     width: 25vh; 
     height: 25vh;
     left: -30vw; 
     z-index: 102; 
-    /* --- Magia para dibujar la luna --- */
     border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, #f4f6f0 10%, #9d9d9d 90%);
     box-shadow: inset -20px -20px 40px rgba(0, 0, 0, 0.6), 0 0 40px rgba(244, 246, 240, 0.4);
 }
-/* --- ESTILOS PARA LAS FRASES POÉTICAS --- */
+
+.animar-luna #planetaLuna {
+    animation: movimientoLuna 4s cubic-bezier(0.25, 0.1, 0.25, 1) 0.5s forwards;
+}
+
+@keyframes movimientoLuna {
+    0% { left: -30vw; transform: scale(0.8); }
+    50% { left: 50vw; transform: translateX(-50%) scale(1.1); } 
+    100% { left: 50vw; transform: translateX(-50%) scale(1); opacity: 0.9; } 
+}
+
+.nombre-luna {
+    position: absolute;
+    bottom: 10vh; 
+    font-size: 4rem;
+    color: #ffcc00; 
+    z-index: 103;
+    opacity: 0;
+    text-shadow: 0 0 15px rgba(255, 204, 0, 0.6);
+}
+
+.animar-luna .nombre-luna {
+    animation: aparecerSuave 1.5s ease-out 3.5s forwards; 
+}
+
 .frases-luna {
     position: absolute;
-    top: 65vh; /* Se ubican debajo de la luna y la Tierra */
+    top: 65vh; 
     width: 80%;
     text-align: center;
     font-size: 1.8rem;
     color: #ffffff;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-style: italic;
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8); /* Brillo suave */
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8); 
     z-index: 104;
-    opacity: 0; /* Ocultas por defecto */
-    transition: opacity 1.5s ease-in-out; /* El secreto del fundido suave */
+    opacity: 0; 
+    transition: opacity 1.5s ease-in-out; 
 }
 
-/* Clase que JS agregará para que la frase aparezca */
-.frases-luna.visible {
-    opacity: 1;
-}
-/* --- ESTRELLAS EN FORMA DE CORAZÓN --- */
+.frases-luna.visible { opacity: 1; }
+
 .corazon-estrella {
     position: absolute;
-    color: #ffb3c6; /* Un tono rosado muy suave y romántico */
-    z-index: 101; /* Detrás de la Luna, pero delante del espacio oscuro */
-    opacity: 0; /* Ocultos por defecto */
-    text-shadow: 0 0 10px rgba(255, 179, 198, 0.8); /* Brillo mágico */
-    pointer-events: none; /* Para que no interfieran si haces clic */
+    color: #ffb3c6; 
+    z-index: 101; 
+    opacity: 0; 
+    text-shadow: 0 0 10px rgba(255, 179, 198, 0.8); 
+    pointer-events: none; 
 }
 
-/* Animación de latido/parpadeo */
 @keyframes titilarCorazon {
     0%, 100% { opacity: 0; transform: scale(0.8); }
-    50% { opacity: 0.8; transform: scale(1.3); } /* Crecen un poco y brillan */
+    50% { opacity: 0.8; transform: scale(1.3); } 
 }

@@ -1,4 +1,4 @@
-// --- 1. FONDO DE ESTRELLAS ---
+// --- 1. FONDO DE ESTRELLAS Y CORAZONES ---
 function crearFondoEstrellas() {
     const cantidadEstrellas = 150;
     const colores = ['#ff007f', '#ff1493', '#ffd700', '#ffea00']; 
@@ -19,7 +19,26 @@ function crearFondoEstrellas() {
 }
 crearFondoEstrellas();
 
-// --- 2. LLUVIA DE GLOBOS INTERACTIVOS ---
+function crearEstrellasCorazon() {
+    const cantidadCorazones = 40; 
+    const escenaLuna = document.getElementById('escenaLuna');
+
+    for (let i = 0; i < cantidadCorazones; i++) {
+        let corazon = document.createElement('div');
+        corazon.classList.add('corazon-estrella');
+        corazon.innerText = '🤍'; 
+        let tamaño = Math.random() * 1.5 + 0.5; 
+        corazon.style.fontSize = `${tamaño}rem`;
+        corazon.style.left = `${Math.random() * 100}vw`;
+        corazon.style.top = `${Math.random() * 100}vh`;
+        let duracionAnimacion = Math.random() * 3 + 2; 
+        let retraso = Math.random() * 2; 
+        corazon.style.animation = `titilarCorazon ${duracionAnimacion}s ease-in-out ${retraso}s infinite`;
+        escenaLuna.appendChild(corazon);
+    }
+}
+
+// --- 2. LLUVIA DE GLOBOS ---
 function crearLluviaDeGlobos() {
     const cantidadGlobos = 45;
     const emojisGlobos = ['🎈', '🎊', '🎉', '🎁'];
@@ -29,12 +48,11 @@ function crearLluviaDeGlobos() {
         globo.classList.add('globo');
         globo.innerText = emojisGlobos[Math.floor(Math.random() * emojisGlobos.length)];
         globo.style.left = `${Math.random() * 100}vw`;
-        
         let duracionCaida = Math.random() * 4 + 5; 
         let retrasoCaida = Math.random() * 5; 
         globo.style.animation = `caer ${duracionCaida}s ${retrasoCaida}s linear infinite`;
         
-        // Magia para reventar globos
+        // Explotar al hacer clic
         globo.addEventListener('click', function() {
             this.classList.add('globo-reventado');
             this.innerText = '💥'; 
@@ -51,13 +69,10 @@ function escribirMaquina(mensajes, contenedor, indexMensaje = 0, callbackFinal =
         if (callbackFinal) callbackFinal();
         return;
     }
-
     let parrafo = document.createElement('p');
     contenedor.appendChild(parrafo);
-    
     let textoCompleto = "✨ " + mensajes[indexMensaje];
     let indexLetra = 0;
-
     let cursor = document.createElement('span');
     cursor.classList.add('cursor-parpadeo');
     parrafo.appendChild(cursor);
@@ -66,7 +81,6 @@ function escribirMaquina(mensajes, contenedor, indexMensaje = 0, callbackFinal =
         parrafo.innerText = textoCompleto.substring(0, indexLetra + 1);
         parrafo.appendChild(cursor);
         indexLetra++;
-
         if (indexLetra === textoCompleto.length) {
             clearInterval(intervalo);
             cursor.remove(); 
@@ -80,7 +94,7 @@ function escribirMaquina(mensajes, contenedor, indexMensaje = 0, callbackFinal =
 // --- 4. EVENTO PRINCIPAL DEL REGALO ---
 document.getElementById('botonRegalo').addEventListener('click', function() {
     let boton = this;
-    boton.classList.add('abriendo-caja'); // Animación de la caja
+    boton.classList.add('abriendo-caja'); 
 
     let estrellas = document.querySelectorAll('.estrella');
     estrellas.forEach(estrella => estrella.style.animation = 'none');
@@ -97,7 +111,6 @@ document.getElementById('botonRegalo').addEventListener('click', function() {
             .then(respuesta => respuesta.json())
             .then(datos => {
                 document.getElementById('tituloMensaje').innerText = datos.titulo;
-                
                 let sorpresa = document.getElementById('contenidoSorpresa');
                 sorpresa.classList.remove('oculto');
                 sorpresa.classList.add('mostrar');
@@ -116,68 +129,47 @@ document.getElementById('botonRegalo').addEventListener('click', function() {
     }, 800);
 });
 
-// --- 5. CÓDIGO SECRETO (EASTER EGG 'LUNA') ---
+// --- 5. EASTER EGG LUNA Y POESÍA ---
 let entradaTeclado = "";
 
 document.addEventListener('keydown', function(evento) {
     let tecla = evento.key.toLowerCase();
-    
     if (tecla.length === 1 && tecla >= 'a' && tecla <= 'z') {
         entradaTeclado += tecla;
-        
         if (entradaTeclado.length > 4) {
             entradaTeclado = entradaTeclado.substring(entradaTeclado.length - 4);
         }
-        
         if (entradaTeclado === "luna") {
             activarEasterEggLuna();
             entradaTeclado = ""; 
         }
     }
 });
-// Función para crear el fondo de estrellas con forma de corazón
-function crearEstrellasCorazon() {
-    const cantidadCorazones = 40; // Cuántos corazones quieres que aparezcan
-    const escenaLuna = document.getElementById('escenaLuna');
 
-    for (let i = 0; i < cantidadCorazones; i++) {
-        let corazon = document.createElement('div');
-        corazon.classList.add('corazon-estrella');
-        corazon.innerText = '🤍'; // Puedes cambiarlo por '💖' o '✨' si prefieres
-        
-        // Tamaño aleatorio para que se vea más natural
-        let tamaño = Math.random() * 1.5 + 0.5; 
-        corazon.style.fontSize = `${tamaño}rem`;
-        
-        // Posición aleatoria por toda la pantalla
-        corazon.style.left = `${Math.random() * 100}vw`;
-        corazon.style.top = `${Math.random() * 100}vh`;
-        
-        // Cada corazón parpadea a una velocidad ligeramente diferente
-        let duracionAnimacion = Math.random() * 3 + 2; // Entre 2 y 5 segundos
-        let retraso = Math.random() * 2; // No empiezan todos al mismo tiempo
-        corazon.style.animation = `titilarCorazon ${duracionAnimacion}s ease-in-out ${retraso}s infinite`;
-        
-        // Los metemos dentro de la escena de la luna
-        escenaLuna.appendChild(corazon);
+function activarEasterEggLuna() {
+    console.log("¡Easter Egg 'Luna' activado! 🌕");
+
+    // Cambiar música
+    let musicaFondo = document.getElementById('musicaFondo');
+    if (musicaFondo) {
+        musicaFondo.pause();
+        musicaFondo.currentTime = 0; 
     }
-}
-function activarEasterEggLuna() {
-    console.log("¡Easter Egg 'Luna' activado! 🌕");
+    
+    let musicaLuna = document.getElementById('musicaLuna');
+    if (musicaLuna) {
+        musicaLuna.volume = 0.5;
+        musicaLuna.play().catch(e => console.log("Autoplay bloqueado", e));
+    }
 
-    let musica = document.getElementById('musicaFondo');
-    musica.pause();
-    musica.currentTime = 0; 
-
-    // Ocultamos el regalo normal
+    // Ocultar caja y limpiar globos
     let contenedorNormal = document.querySelector('.contenedor');
-    contenedorNormal.style.display = 'none';
-
-    // Limpiamos los globos por si estaban cayendo
+    if (contenedorNormal) contenedorNormal.style.display = 'none';
+    
     let globos = document.querySelectorAll('.globo');
     globos.forEach(globo => globo.remove());
 
-    // Activamos la escena
+    // Mostrar escena
     let escenaLuna = document.getElementById('escenaLuna');
     escenaLuna.classList.add('activar-luna'); 
     
@@ -185,43 +177,11 @@ function activarEasterEggLuna() {
         escenaLuna.classList.add('animar-luna'); 
     }, 100);
 
-}
-function activarEasterEggLuna() {
-    console.log("¡Easter Egg 'Luna' activado! 🌕");
-
-    let musica = document.getElementById('musicaFondo');
-    musica.pause();
-    musica.currentTime = 0; 
-
-    // Ocultamos el regalo normal y limpiamos globos
-    let contenedorNormal = document.querySelector('.contenedor');
-    contenedorNormal.style.display = 'none';
-    let globos = document.querySelectorAll('.globo');
-    globos.forEach(globo => globo.remove());
-
-    // Activamos la escena espacial
-    let escenaLuna = document.getElementById('escenaLuna');
-    escenaLuna.classList.add('activar-luna'); 
-    
-    // Animamos la luna
-    setTimeout(() => {
-        escenaLuna.classList.add('animar-luna'); 
-    }, 100);
-    // (Tu código anterior dentro de la función)
-    setTimeout(() => {
-        escenaLuna.classList.add('animar-luna'); 
-    }, 100);
-
-    // NUEVO: Activamos los corazones de fondo para que aparezcan suavemente
     setTimeout(() => {
         crearEstrellasCorazon();
-    }, 2000); // Aparecen 2 segundos después de teclear, mientras la luna se acomoda
+    }, 2000); 
 
-    // --- MAGIA DE LA POESÍA ---
-    // (El resto de tu código de las frases se mantiene igual...)
-
-    // --- MAGIA DE LA POESÍA ---
-    // Aquí puedes editar las frases como tú quieras
+    // Poesía
     let frases = [
         "Eres mi luna...",
         "La que ilumina mis noches más oscuras.",
@@ -235,31 +195,22 @@ function activarEasterEggLuna() {
     let contenedorFrases = document.getElementById('frasesPoeticas');
     let indexFrase = 0;
 
-    // Esperamos 5 segundos a que la Luna termine de cruzarse para empezar a hablar
     setTimeout(() => {
         mostrarSiguienteFrase();
     }, 5000);
 
     function mostrarSiguienteFrase() {
-        if (indexFrase >= frases.length) return; // Si ya no hay frases, termina
+        if (indexFrase >= frases.length) return; 
 
-        // Colocamos el texto de la frase actual
         contenedorFrases.innerText = frases[indexFrase];
-        
-        // La hacemos aparecer (fade in)
         contenedorFrases.classList.add('visible'); 
 
-        // La dejamos visible en pantalla por 4 segundos
         setTimeout(() => {
-            // La hacemos desaparecer (fade out)
             contenedorFrases.classList.remove('visible'); 
             indexFrase++;
-            
-            // Pausa en total oscuridad de 1.5 segundos antes de mostrar la siguiente
             setTimeout(() => {
                 mostrarSiguienteFrase();
             }, 1500); 
-            
         }, 4000); 
     }
 }
