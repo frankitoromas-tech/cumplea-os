@@ -7,6 +7,17 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styless.css') }}">
 </head>
 <body>
+    <div id="escenaLuna" class="oculto-luna">
+        <img id="planetaTierra" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Earth_Western_Hemisphere_transparent_background.png/600px-Earth_Western_Hemisphere_transparent_background.png" alt="Tierra desde el espacio">
+        
+        <div id="planetaLuna"></div>
+        
+        <h1 id="nombreLuna" class="nombre-luna oculto">Luna</h1>
+
+        <div id="frasesPoeticas" class="frases-luna"></div>
+    </div>
+    <audio id="musicaFondo" loop>
+        </audio>
     <audio id="musicaFondo" loop>
         <source src="{{ url_for('static', filename='cancion.mp3') }}" type="audio/mpeg">
     </audio>
