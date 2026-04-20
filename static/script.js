@@ -1,9 +1,16 @@
-// --- 1. ESTRELLAS Y CORAZONES ---
+/* ==========================================================================
+   🎇 PARTE 1: LA FIESTA DE CUMPLEAÑOS (EFECTOS DINÁMICOS)
+   ========================================================================== */
+
+// 1.1 Fondo de Estrellas de Colores (Para la fiesta)
 function crearFondoEstrellas() {
     const colores = ['#ff007f', '#ff1493', '#ffd700', '#ffea00']; 
     for (let i = 0; i < 150; i++) {
-        let estrella = document.createElement('div'); estrella.classList.add('estrella');
-        let tamaño = Math.random() * 10 + 5; estrella.style.width = `${tamaño}px`; estrella.style.height = `${tamaño}px`;
+        let estrella = document.createElement('div'); 
+        estrella.classList.add('estrella');
+        let tamaño = Math.random() * 10 + 5; 
+        estrella.style.width = `${tamaño}px`; 
+        estrella.style.height = `${tamaño}px`;
         estrella.style.backgroundColor = colores[Math.floor(Math.random() * colores.length)];
         estrella.style.left = `${Math.random() * 100}vw`;
         estrella.style.top = `${Math.random() < 0.7 ? (Math.random() * 40) : (Math.random() * 100)}vh`;
@@ -13,165 +20,195 @@ function crearFondoEstrellas() {
 }
 crearFondoEstrellas();
 
-function crearEstrellasCorazon() {
-    const escenaLuna = document.getElementById('escenaLuna');
-    for (let i = 0; i < 40; i++) {
-        let corazon = document.createElement('div'); corazon.classList.add('corazon-estrella'); corazon.innerText = '🤍'; 
-        corazon.style.fontSize = `${Math.random() * 1.5 + 0.5}rem`;
-        corazon.style.left = `${Math.random() * 100}vw`; corazon.style.top = `${Math.random() * 100}vh`;
-        corazon.style.animation = `titilarCorazon ${Math.random() * 3 + 2}s ease-in-out ${Math.random() * 2}s infinite`;
-        escenaLuna.appendChild(corazon);
-    }
+// 1.2 Confeti Profesional 3D (Cuando sopla las velas)
+function lanzarConfetiProfesional() {
+    if (typeof confetti === 'undefined') return; // Seguridad si falla el internet
+    var duration = 4 * 1000;
+    var end = Date.now() + duration;
+
+    (function frame() {
+        confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ff0a54', '#ff477e', '#ffd166', '#06d6a0'] });
+        confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff0a54', '#ff477e', '#ffd166', '#06d6a0'] });
+        if (Date.now() < end) requestAnimationFrame(frame);
+    }());
 }
 
-// --- 2. JUEGO DE VELAS Y CONFETI ---
-function lanzarConfeti() {
-    const colores = ['#ff0a54', '#ff477e', '#ffd166', '#06d6a0', '#118ab2', '#ffcc00'];
-    for(let i=0; i < 80; i++) {
-        let confeti = document.createElement('div'); confeti.classList.add('confeti');
-        confeti.style.left = Math.random() * 100 + 'vw'; confeti.style.backgroundColor = colores[Math.floor(Math.random() * colores.length)];
-        confeti.style.animationDuration = (Math.random() * 2 + 2) + 's'; confeti.style.animationDelay = (Math.random() * 1) + 's';
-        document.body.appendChild(confeti); setTimeout(() => confeti.remove(), 4000); 
-    }
-}
-
+// 1.3 Velas Interactivas
 function activarVelas() {
-    let apagadas = 0; let llamas = document.querySelectorAll('.llama');
+    let apagadas = 0; 
+    let llamas = document.querySelectorAll('.llama');
+    
     function apagar() {
         if (!this.classList.contains('apagada')) {
-            this.classList.add('apagada'); apagadas++;
-            if (apagadas === llamas.length) { document.getElementById('instruccionPastel').innerText = "¡Deseo Concedido! ✨"; lanzarConfeti(); }
+            this.classList.add('apagada'); 
+            apagadas++;
+            if (apagadas === llamas.length) { 
+                document.getElementById('instruccionPastel').innerText = "¡Deseo Concedido! ✨"; 
+                lanzarConfetiProfesional(); 
+            }
         }
     }
-    llamas.forEach(llama => { llama.addEventListener('mouseenter', apagar); llama.addEventListener('touchmove', apagar); });
+    
+    llamas.forEach(llama => {
+        llama.addEventListener('mouseenter', apagar);
+        llama.addEventListener('touchmove', apagar);
+    });
 }
 
-// --- 3. GLOBOS Y MÁQUINA DE ESCRIBIR ---
+// 1.4 Lluvia de Globos (¡Se pueden reventar!)
 function crearLluviaDeGlobos() {
     const emojis = ['🎈', '🎊', '🎉', '🎁'];
     for (let i = 0; i < 45; i++) {
-        let globo = document.createElement('div'); globo.classList.add('globo');
-        globo.innerText = emojis[Math.floor(Math.random() * emojis.length)]; globo.style.left = `${Math.random() * 100}vw`;
-        globo.style.animation = `caer ${Math.random() * 4 + 5}s ${Math.random() * 5}s linear infinite`;
-        globo.addEventListener('click', function() { this.classList.add('globo-reventado'); this.innerText = '💥'; setTimeout(() => this.remove(), 300); });
+        let globo = document.createElement('div'); 
+        globo.classList.add('globo');
+        globo.innerText = emojis[Math.floor(Math.random() * emojis.length)]; 
+        globo.style.left = `${Math.random() * 100}vw`;
+        globo.style.animationDuration = `${Math.random() * 4 + 5}s`;
+        globo.style.animationDelay = `${Math.random() * 5}s`;
+        
+        // Efecto al hacer clic
+        globo.addEventListener('click', function() { 
+            this.classList.add('globo-reventado'); 
+            this.innerText = '💥'; 
+            setTimeout(() => this.remove(), 300); 
+        });
         document.body.appendChild(globo);
     }
 }
 
+// 1.5 Máquina de Escribir (Mensajes de amor)
 function escribirMaquina(mensajes, contenedor, index = 0, callbackFinal = null) {
     if (index >= mensajes.length) { if (callbackFinal) callbackFinal(); return; }
-    let parrafo = document.createElement('p'); contenedor.appendChild(parrafo);
-    let texto = "✨ " + mensajes[index]; let i = 0;
-    let cursor = document.createElement('span'); cursor.classList.add('cursor-parpadeo'); parrafo.appendChild(cursor);
+    
+    let parrafo = document.createElement('p'); 
+    contenedor.appendChild(parrafo);
+    let texto = "✨ " + mensajes[index]; 
+    let i = 0;
+    
+    let cursor = document.createElement('span'); 
+    cursor.classList.add('cursor-parpadeo'); 
+    parrafo.appendChild(cursor);
 
     let intervalo = setInterval(() => {
-        parrafo.innerText = texto.substring(0, i + 1); parrafo.appendChild(cursor); i++;
-        if (i === texto.length) { clearInterval(intervalo); cursor.remove(); setTimeout(() => { escribirMaquina(mensajes, contenedor, index + 1, callbackFinal); }, 600); }
+        parrafo.innerText = texto.substring(0, i + 1); 
+        parrafo.appendChild(cursor); 
+        i++;
+        if (i === texto.length) { 
+            clearInterval(intervalo); 
+            cursor.remove(); 
+            setTimeout(() => { escribirMaquina(mensajes, contenedor, index + 1, callbackFinal); }, 600); 
+        }
     }, 45); 
 }
 
-// --- 4. CONTROL DE TIEMPO ---
-fetch('/api/estado')
-    .then(res => res.json())
-    .then(data => {
-        if(data.bloqueado) {
-            document.getElementById('contenedorPrincipal').style.display = 'none';
-            document.getElementById('pantallaBloqueo').classList.remove('oculto');
-            
-            let segundos = Math.floor(data.segundos_faltantes);
-            setInterval(() => {
-                if(segundos > 0) {
-                    segundos--;
-                    let h = Math.floor(segundos / 3600);
-                    let m = Math.floor((segundos % 3600) / 60);
-                    let s = Math.floor(segundos % 60);
-                    document.getElementById('cuentaRegresiva').innerText = 
-                        `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-                } else {
-                    location.reload();
-                }
-            }, 1000);
-        } else {
-            document.getElementById('pantallaBloqueo').classList.add('oculto');
-            document.getElementById('contenedorPrincipal').style.display = 'block';
-        }
-    })
-    .catch(err => console.error("Error conectando con el servidor:", err));
 
-// --- 5. EVENTO PRINCIPAL DEL REGALO ---
+/* ==========================================================================
+   ⚙️ PARTE 2: CONEXIÓN CON EL BACKEND (PYTHON)
+   ========================================================================== */
+
+// 2.1 Control del Reloj
+fetch('/api/estado').then(res => res.json()).then(data => {
+    if(data.bloqueado) {
+        document.getElementById('contenedorPrincipal').style.display = 'none';
+        document.getElementById('pantallaBloqueo').classList.remove('oculto');
+        
+        let segundos = Math.floor(data.segundos_faltantes);
+        setInterval(() => {
+            if(segundos > 0) {
+                segundos--;
+                let h = Math.floor(segundos / 3600);
+                let m = Math.floor((segundos % 3600) / 60);
+                let s = Math.floor(segundos % 60);
+                document.getElementById('cuentaRegresiva').innerText = 
+                    `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            } else { location.reload(); }
+        }, 1000);
+    }
+}).catch(err => console.log("Modo desarrollo local activo."));
+
+// 2.2 Botón de Abrir Regalo
 document.getElementById('botonRegalo').addEventListener('click', function() {
-    let boton = this; boton.classList.add('abriendo-caja'); 
+    let boton = this; 
+    boton.classList.add('abriendo-caja'); 
     document.querySelectorAll('.estrella').forEach(e => e.style.animation = 'none');
-    let musica = document.getElementById('musicaFondo'); musica.volume = 0.5; musica.play().catch(e => console.log(e));
+    
+    let musica = document.getElementById('musicaFondo'); 
+    if(musica) { musica.volume = 0.5; musica.play().catch(e => console.log("Audio bloqueado.")); }
 
     setTimeout(() => {
-        boton.style.display = 'none'; crearLluviaDeGlobos();
+        boton.style.display = 'none'; 
+        crearLluviaDeGlobos(); // ¡Lanzamos los globos!
 
-        fetch('/api/abrir_regalo')
-            .then(res => res.json())
-            .then(datos => {
-                document.getElementById('tituloMensaje').innerText = datos.titulo;
-                document.getElementById('estadisticasAstro').innerText = datos.estadisticas; 
-                
-                let sorpresa = document.getElementById('contenidoSorpresa');
-                sorpresa.classList.remove('oculto'); sorpresa.classList.add('mostrar');
-
-                activarVelas(); 
-                const contenedorMensajes = document.getElementById('listaMensajes'); contenedorMensajes.innerHTML = ''; 
-
-                escribirMaquina(datos.mensajes, contenedorMensajes, 0, () => {
-                    let firma = document.getElementById('firmaMensaje'); firma.innerText = datos.firma;
-                    firma.classList.remove('oculto'); firma.classList.add('mostrar'); 
-                    
-                    setTimeout(() => {
-                        let buzon = document.getElementById('buzonSecreto');
-                        buzon.classList.remove('oculto'); buzon.classList.add('mostrar');
-                    }, 1000);
-                });
+        fetch('/api/abrir_regalo').then(res => res.json()).then(datos => mostrarFiesta(datos))
+        .catch(() => {
+            // Datos locales por seguridad
+            mostrarFiesta({
+                titulo: "¡Feliz Cumpleaños!", 
+                estadisticas: "Eres la persona más brillante de mi universo.",
+                mensajes: ["Espero que tengas un día increíble.", "Lleno de amor y paz."], 
+                firma: "Con amor, Frank"
             });
+        });
     }, 800);
 });
 
-// --- 6. ENVÍO AL BUZÓN SECRETO ---
+// Función central para mostrar el contenido
+function mostrarFiesta(datos) {
+    document.getElementById('tituloMensaje').innerText = datos.titulo;
+    document.getElementById('estadisticasAstro').innerText = datos.estadisticas; 
+    
+    let sorpresa = document.getElementById('contenidoSorpresa');
+    sorpresa.classList.remove('oculto'); 
+    sorpresa.classList.add('mostrar');
+    
+    activarVelas(); 
+    const contenedorMensajes = document.getElementById('listaMensajes'); 
+    contenedorMensajes.innerHTML = ''; 
+    
+    escribirMaquina(datos.mensajes, contenedorMensajes, 0, () => {
+        let firma = document.getElementById('firmaMensaje'); 
+        firma.innerText = datos.firma;
+        firma.classList.remove('oculto'); 
+        firma.classList.add('mostrar'); 
+        
+        setTimeout(() => { 
+            let buzon = document.getElementById('buzonSecreto'); 
+            if(buzon) { buzon.classList.remove('oculto'); buzon.classList.add('mostrar'); } 
+        }, 1000);
+    });
+}
+
+// 2.3 Buzón Secreto
 document.getElementById('btnEnviarSecreto').addEventListener('click', function() {
     let mensaje = document.getElementById('textoSecreto').value;
     if(mensaje.trim() === "") return; 
-
-    fetch('/api/responder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mensaje: mensaje })
+    
+    fetch('/api/responder', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mensaje: mensaje }) })
+    .then(res => res.json()).then(datos => { 
+        document.getElementById('buzonSecreto').innerHTML = `<p style="color:#0fa; font-size:1.2rem; text-shadow: 0 0 10px #0fa;">${datos.respuesta}</p>`; 
     })
-    .then(res => res.json())
-    .then(datos => {
-        document.getElementById('buzonSecreto').innerHTML = `<p style="color:#0fa; font-size:1.2rem; text-shadow: 0 0 10px #0fa;">${datos.respuesta}</p>`;
-    });
+    .catch(() => { document.getElementById('buzonSecreto').innerHTML = `<p style="color:#0fa;">Mensaje guardado mágicamente.</p>`; });
 });
 
-// --- 7. EASTER EGG LUNA Y POLVO DE ESTRELLAS (RENOVADO) ---
 
-// 7.1 Generar el Indicio visual dinámicamente debajo del botón
+/* ==========================================================================
+   🌙 PARTE 3: EASTER EGG (LA ESCENA CINEMATOGRÁFICA)
+   ========================================================================== */
+
+// 3.1 El Indicio Mágico
 function crearIndicioMágico() {
-    let indicio = document.createElement('div');
+    let indicio = document.createElement('div'); 
     indicio.id = 'pistaSecreta';
-    indicio.innerHTML = "✨ <i>Escribe en tu teclado el nombre de aquella que ilumina mis noches más oscuras...</i>";
+    indicio.innerHTML = "✨ <i>Escribe en tu teclado el nombre de aquella que ilumina mis noches...</i>";
     
-    // Lo metemos dentro del contenedor principal, justo debajo del botón
     let contenedor = document.getElementById('contenedorPrincipal');
-    if (contenedor) {
-        contenedor.appendChild(indicio);
-    } else {
-        document.body.appendChild(indicio);
-    }
+    if (contenedor) { contenedor.appendChild(indicio); } else { document.body.appendChild(indicio); }
     
-    // Aparece suavemente después de 8 segundos de cargar la página
-    setTimeout(() => {
-        indicio.classList.add('pista-visible');
-    }, 8000);
+    setTimeout(() => { indicio.classList.add('pista-visible'); }, 8000);
 }
 crearIndicioMágico();
 
-// 7.2 Lógica del teclado
+// 3.2 Escucha del Teclado
 let entradaTeclado = "";
 document.addEventListener('keydown', function(evento) {
     let tecla = evento.key.toLowerCase();
@@ -185,40 +222,57 @@ document.addEventListener('keydown', function(evento) {
     }
 });
 
-// 7.3 La Escena Cinematográfica con GSAP
+// 3.3 Efectos Extra de la Luna
+function crearEstrellasCorazon() {
+    const escenaLuna = document.getElementById('escenaLuna');
+    for (let i = 0; i < 30; i++) {
+        let corazon = document.createElement('div'); 
+        corazon.classList.add('corazon-estrella'); 
+        corazon.innerText = '🤍'; 
+        corazon.style.fontSize = `${Math.random() * 1.5 + 0.5}rem`;
+        corazon.style.left = `${Math.random() * 100}vw`; 
+        corazon.style.top = `${Math.random() * 100}vh`;
+        corazon.style.animation = `titilarCorazon ${Math.random() * 3 + 2}s ease-in-out ${Math.random() * 2}s infinite`;
+        escenaLuna.appendChild(corazon);
+    }
+}
+
+function crearLuciernaga() {
+    if(document.getElementById('escenaLuna').style.display !== 'flex') return;
+    let luciernaga = document.createElement('div');
+    luciernaga.classList.add('luciernaga');
+    luciernaga.style.left = `${Math.random() * 100}vw`;
+    luciernaga.style.animationDuration = `${Math.random() * 4 + 4}s`;
+    document.getElementById('escenaLuna').appendChild(luciernaga);
+    setTimeout(() => luciernaga.remove(), 8000);
+}
+
+// 3.4 Interactividad de la Luna
+document.getElementById('lunaInteractiva').addEventListener('click', function() {
+    let onda = document.createElement('div');
+    onda.classList.add('onda-luz');
+    document.getElementById('contenedorLuna').appendChild(onda);
+    setTimeout(() => onda.remove(), 1500); 
+});
+
+// 3.5 Polvo de Estrellas (Mouse)
+document.addEventListener('mousemove', function(e) {
+    if (document.getElementById('escenaLuna').style.display === 'flex') {
+        let polvo = document.createElement('div'); 
+        polvo.classList.add('polvo-estrellas');
+        polvo.style.left = (e.clientX - 4) + 'px'; 
+        polvo.style.top = (e.clientY - 4) + 'px';
+        document.body.appendChild(polvo);
+        setTimeout(() => polvo.remove(), 800);
+    }
+});
+
+// 3.6 La Coreografía Final (GSAP)
 function activarEasterEggLuna() {
-    let pista = document.getElementById('pistaSecreta');
-    if(pista) pista.style.opacity = '0';
-    const escena = document.getElementById('escenaLuna');
-    escena.style.display = 'flex';
-    escena.style.flexDirection = 'column';
-    escena.style.justifyContent = 'center';
-    escena.style.alignItems = 'center';
+    let pista = document.getElementById('pistaSecreta'); if(pista) pista.style.display = 'none';
+    let contNormal = document.getElementById('contenedorPrincipal'); if (contNormal) contNormal.style.display = 'none';
 
-    const tl = gsap.timeline();
-
-    // 1. La Tierra aparece desde la esquina
-    tl.fromTo("#planetaTierra", 
-        { y: 500, opacity: 0, scale: 1.5 }, 
-        { y: 0, opacity: 0.6, scale: 1, duration: 5, ease: "power2.out" }
-    );
-
-    // 2. La Luna se acerca volando
-    tl.fromTo(".luna-realista", 
-        { scale: 0, opacity: 0, rotation: -45 }, 
-        { scale: 1, opacity: 1, rotation: 0, duration: 3, ease: "back.out(1.7)" }, 
-        "-=3" // Empieza antes de que termine la Tierra
-    );
-
-    // 3. El nombre aparece letra por letra o con glow
-    tl.to(".nombre-luna-titulo", {
-        opacity: 1,
-        letterSpacing: "25px",
-        duration: 4,
-        ease: "power1.inOut"
-    });
-
-    // Transición de audios
+    // Transición de audio
     let mFondo = document.getElementById('musicaFondo'); 
     if (mFondo) { 
         let fadeOut = setInterval(() => {
@@ -226,79 +280,44 @@ function activarEasterEggLuna() {
             else { clearInterval(fadeOut); mFondo.pause(); mFondo.currentTime = 0; }
         }, 200);
     }
-    let mLuna = document.getElementById('musicaLuna'); 
-    if (mLuna) { mLuna.volume = 0.6; mLuna.play().catch(e => console.log(e)); }
+    let mLuna = document.getElementById('musicaLuna'); if (mLuna) { mLuna.volume = 0.6; mLuna.play().catch(e => console.log(e)); }
 
-    // Limpiar pantalla principal
-    let contNormal = document.getElementById('contenedorPrincipal'); 
-    if (contNormal) contNormal.style.display = 'none';
-    document.querySelectorAll('.globo, .confeti').forEach(item => item.remove());
+    // Activar Escena
+    const escena = document.getElementById('escenaLuna');
+    if(!escena) return;
+    escena.style.display = 'flex';
 
-    let escena = document.getElementById('escenaLuna'); 
-    escena.classList.add('activar-luna'); 
-    setInterval(crearEstrellaFugaz, 2500); 
+    // Iniciar efectos ambientales
+    crearEstrellasCorazon();
+    setInterval(crearLuciernaga, 300);
 
-    // ---- MAGIA GSAP: LA COREOGRAFÍA ----
-    // Creamos una línea de tiempo (Timeline)
+    // Animación GSAP
+    if(typeof gsap === 'undefined') {
+        document.getElementById('planetaTierra').style.opacity = 0.6;
+        document.querySelector('.nombre-luna-titulo').style.opacity = 1;
+        return;
+    }
+
     const tl = gsap.timeline();
+    
+    tl.to("#planetaTierra", { opacity: 0.6, bottom: "-40vh", duration: 4, ease: "power2.out" });
+    tl.from(".luna-realista", { scale: 0, rotation: -45, duration: 3, ease: "back.out(1.5)" }, "-=2");
+    tl.to(".nombre-luna-titulo", { opacity: 1, letterSpacing: "15px", duration: 3, ease: "power1.inOut" });
 
-    // 1. La luna entra majestuosamente al centro
-    tl.to("#planetaLuna", {
-        left: "50%", 
-        xPercent: -50, 
-        scale: 1, 
-        duration: 4, 
-        ease: "power2.out"
-    });
-
-    // 2. Aparece el nombre brillando suavemente
-    tl.to(".nombre-luna", {
-        opacity: 1,
-        y: -20,
-        duration: 3,
-        ease: "power1.inOut"
-    }, "-=1.5"); // El "-=1.5" hace que empiece 1.5 segundos antes de que termine la luna de moverse
-
-    // 3. Secuencia de frases (Aparecen, se leen, y se desvanecen)
     let frases = [
         "Eres mi luna...", 
         "La que ilumina mis noches más oscuras.", 
-        "Mi refugio y compañera de vida.", 
-        "Gracias por hacer nuestra historia tan hermosa.", 
+        "Quien me guía con su luz inquebrantable.", 
+        "Mi refugio y mi paz.",
+        "Toca la luna para sentir su luz...",
         "Te amo."
     ];
     let contFrases = document.getElementById('frasesPoeticas'); 
 
-    frases.forEach((frase, i) => {
-        // Actualizamos el texto instantáneamente
-        tl.call(() => { contFrases.innerText = frase; });
-        
-        // La frase aparece lentamente (Fade In)
-        tl.to(contFrases, { opacity: 1, y: -10, duration: 2, ease: "power1.out" });
-        
-        // Tiempo en pantalla para leerla (Delay)
-        tl.to(contFrases, { opacity: 1, duration: 2.5 }); // Pausa de lectura
-        
-        // La frase desaparece lentamente (Fade Out)
-        tl.to(contFrases, { opacity: 0, y: -20, duration: 1.5, ease: "power1.in" });
+    frases.forEach((frase) => {
+        tl.call(() => { contFrases.innerText = frase; }); 
+        tl.to(contFrases, { opacity: 1, y: -10, duration: 2, ease: "power1.out" }); 
+        tl.to(contFrases, { opacity: 1, duration: 3.5 }); 
+        tl.to(contFrases, { opacity: 0, y: -20, duration: 1.5, ease: "power1.in" }); 
     });
 }
-
-// 7.4 Efectos visuales de la Luna
-function crearEstrellaFugaz() {
-    if (!document.getElementById('escenaLuna').classList.contains('activar-luna')) return;
-    let estrella = document.createElement('div');
-    estrella.classList.add('estrella-fugaz');
-    estrella.style.top = Math.random() * 30 + 'vh';
-    estrella.style.left = Math.random() * 100 + 'vw';
-    document.getElementById('escenaLuna').appendChild(estrella);
-    setTimeout(() => estrella.remove(), 2000);
-}
-
-function crearPolvoEstrellas(x, y) {
-    let polvo = document.createElement('div'); polvo.classList.add('polvo-estrellas');
-    polvo.style.left = (x - 3) + 'px'; polvo.style.top = (y - 3) + 'px'; document.body.appendChild(polvo);
-    setTimeout(() => polvo.remove(), 800);
-}
-document.addEventListener('mousemove', function(e) { if (document.getElementById('escenaLuna').classList.contains('activar-luna')) crearPolvoEstrellas(e.clientX, e.clientY); });
-document.addEventListener('touchmove', function(e) { if (document.getElementById('escenaLuna').classList.contains('activar-luna')) crearPolvoEstrellas(e.touches[0].clientX, e.touches[0].clientY); });
