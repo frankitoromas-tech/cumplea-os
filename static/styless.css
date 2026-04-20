@@ -109,18 +109,28 @@ body {
 .buzon textarea { width: 90%; height: 60px; background: rgba(0,0,0,0.5); color: white; border: 1px solid #ff4757; border-radius: 5px; padding: 10px; font-family: inherit; resize: none; margin-bottom: 10px; }
 .buzon button { background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
 .buzon button:hover { background: #ff6b81; transform: scale(1.05); }
-/* --- ESTILO DE LA PISTA --- */
-.pista-secreta {
+/* --- 1. EL INDICIO MÁGICO (DEBAJO DEL BOTÓN) --- */
+#pistaSecreta {
+    margin-top: 30px; /* Separación del botón */
+    color: #cbd5e1;
     font-size: 0.95rem;
-    color: #a0aec0;
-    font-style: italic;
-    margin-top: 10px;
-    animation: latido-suave 3s infinite;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: all 1.5s ease;
+    z-index: 1000;
+    pointer-events: none;
+    letter-spacing: 0.5px;
 }
 
-@keyframes latido-suave {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; text-shadow: 0 0 8px rgba(255, 255, 255, 0.4); }
+#pistaSecreta.pista-visible {
+    opacity: 1;
+    transform: translateY(0);
+    animation: resplandor-magico 3s infinite alternate;
+}
+
+@keyframes resplandor-magico {
+    0% { opacity: 0.7; text-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
+    100% { opacity: 1; text-shadow: 0 0 15px rgba(0, 255, 170, 0.8); }
 }
 
 /* --- ESCENA CINEMATOGRÁFICA --- */

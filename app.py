@@ -11,7 +11,7 @@ TELEGRAM_CHAT_ID = "6724969320"
 
 # Configuración del tiempo
 FECHA_NACIMIENTO = datetime(2004, 8, 30)
-FECHA_APERTURA = datetime(2026, 8, 30, 00, 0, 0) # Cambia el año para hacer pruebas
+FECHA_APERTURA = datetime(2025, 8, 30, 00, 0, 0) # Cambia el año para hacer pruebas
 
 class RegaloSorpresa:
     def __init__(self, destinatario, remitente, edad):

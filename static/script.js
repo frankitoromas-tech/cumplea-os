@@ -150,12 +150,19 @@ document.getElementById('btnEnviarSecreto').addEventListener('click', function()
 
 // --- 7. EASTER EGG LUNA Y POLVO DE ESTRELLAS (RENOVADO) ---
 
-// 7.1 Generar el Indicio visual dinámicamente
+// 7.1 Generar el Indicio visual dinámicamente debajo del botón
 function crearIndicioMágico() {
     let indicio = document.createElement('div');
     indicio.id = 'pistaSecreta';
     indicio.innerHTML = "✨ <i>Escribe en tu teclado el nombre de aquella que ilumina mis noches más oscuras...</i>";
-    document.body.appendChild(indicio);
+    
+    // Lo metemos dentro del contenedor principal, justo debajo del botón
+    let contenedor = document.getElementById('contenedorPrincipal');
+    if (contenedor) {
+        contenedor.appendChild(indicio);
+    } else {
+        document.body.appendChild(indicio);
+    }
     
     // Aparece suavemente después de 8 segundos de cargar la página
     setTimeout(() => {
