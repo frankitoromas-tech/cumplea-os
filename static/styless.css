@@ -80,17 +80,40 @@ body {
 @keyframes movimientoLuna { 0% { left: -30vw; transform: scale(0.8); } 50% { left: 50vw; transform: translateX(-50%) scale(1.1); } 100% { left: 50vw; transform: translateX(-50%) scale(1); opacity: 0.9; } }
 
 /* Efecto de Luz de Neón Fucsia/Dorado */
+/* Efecto Volumétrico Elegante (Sin Neón Agresivo) */
 .nombre-luna {
-    position: absolute; bottom: 10vh; font-size: 5rem; color: #fff; z-index: 103; opacity: 0;
-    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #e60073, 0 0 30px #e60073, 0 0 40px #e60073;
+    position: absolute; 
+    bottom: 12vh; 
+    font-family: 'Playfair Display', serif; /* Fuente de película */
+    font-size: 6rem; 
+    color: #ffffff; 
+    z-index: 103; 
+    opacity: 0;
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.4), 0 0 40px rgba(255, 252, 204, 0.2);
 }
-.animar-luna .nombre-luna { animation: aparecerSuave 1.5s ease-out 3.5s forwards; }
 
+/* Texto Poético Clásico */
 .frases-luna {
-    position: absolute; top: 65vh; width: 80%; text-align: center; font-size: 1.8rem; color: #fff; font-style: italic; z-index: 104; opacity: 0; transition: opacity 1.5s ease-in-out;
-    text-shadow: 0 0 5px #fff, 0 0 10px #0fa, 0 0 20px #0fa, 0 0 30px #0fa; /* Neón cyan */
+    position: absolute; 
+    top: 60vh; 
+    width: 100%; 
+    text-align: center; 
+    font-family: 'Cormorant Garamond', serif; /* Fuente de poema clásico */
+    font-size: 2.8rem; 
+    color: #f1f5f9; 
+    font-style: italic; 
+    z-index: 104; 
+    opacity: 0; /* GSAP controlará la opacidad ahora */
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
-.frases-luna.visible { opacity: 1; }
+
+/* Mejora al planeta Luna (Hacerlo más inmersivo) */
+#planetaLuna { 
+    position: absolute; width: 35vh; height: 35vh; left: -30vw; z-index: 102; border-radius: 50%; 
+    background: radial-gradient(circle at 30% 30%, #ffffff 10%, #d4d4d8 60%, #52525b 100%); 
+    box-shadow: inset -30px -30px 50px rgba(0, 0, 0, 0.8), 0 0 80px rgba(255, 255, 255, 0.3); 
+}
 
 .corazon-estrella { position: absolute; color: #ffb3c6; z-index: 101; opacity: 0; text-shadow: 0 0 10px rgba(255, 179, 198, 0.8); pointer-events: none; }
 @keyframes titilarCorazon { 0%, 100% { opacity: 0; transform: scale(0.8); } 50% { opacity: 0.8; transform: scale(1.3); } }

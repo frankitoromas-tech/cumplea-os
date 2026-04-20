@@ -185,16 +185,14 @@ document.addEventListener('keydown', function(evento) {
     }
 });
 
-// 7.3 La Escena Cinematográfica
+// 7.3 La Escena Cinematográfica con GSAP
 function activarEasterEggLuna() {
-    // Ocultar pista si estaba visible
     let pista = document.getElementById('pistaSecreta');
     if(pista) pista.style.opacity = '0';
 
     // Transición de audios
     let mFondo = document.getElementById('musicaFondo'); 
     if (mFondo) { 
-        // Desvanecer música actual
         let fadeOut = setInterval(() => {
             if(mFondo.volume > 0.1) mFondo.volume -= 0.1;
             else { clearInterval(fadeOut); mFondo.pause(); mFondo.currentTime = 0; }
@@ -203,43 +201,59 @@ function activarEasterEggLuna() {
     let mLuna = document.getElementById('musicaLuna'); 
     if (mLuna) { mLuna.volume = 0.6; mLuna.play().catch(e => console.log(e)); }
 
-    // Ocultar el resto de la página
+    // Limpiar pantalla principal
     let contNormal = document.getElementById('contenedorPrincipal'); 
-    if (contNormal) contNormal.style.opacity = '0';
-    setTimeout(() => { if (contNormal) contNormal.style.display = 'none'; }, 1000);
+    if (contNormal) contNormal.style.display = 'none';
     document.querySelectorAll('.globo, .confeti').forEach(item => item.remove());
 
-    // Mostrar escena de la Luna con efectos
     let escena = document.getElementById('escenaLuna'); 
     escena.classList.add('activar-luna'); 
-    
-    setTimeout(() => { escena.classList.add('animar-luna'); }, 100);
-    setTimeout(() => { crearEstrellasCorazon(); }, 2000); 
-    setInterval(crearEstrellaFugaz, 3000); // Lluvia de estrellas fugaces de fondo
+    setInterval(crearEstrellaFugaz, 2500); 
 
+    // ---- MAGIA GSAP: LA COREOGRAFÍA ----
+    // Creamos una línea de tiempo (Timeline)
+    const tl = gsap.timeline();
+
+    // 1. La luna entra majestuosamente al centro
+    tl.to("#planetaLuna", {
+        left: "50%", 
+        xPercent: -50, 
+        scale: 1, 
+        duration: 4, 
+        ease: "power2.out"
+    });
+
+    // 2. Aparece el nombre brillando suavemente
+    tl.to(".nombre-luna", {
+        opacity: 1,
+        y: -20,
+        duration: 3,
+        ease: "power1.inOut"
+    }, "-=1.5"); // El "-=1.5" hace que empiece 1.5 segundos antes de que termine la luna de moverse
+
+    // 3. Secuencia de frases (Aparecen, se leen, y se desvanecen)
     let frases = [
         "Eres mi luna...", 
         "La que ilumina mis noches más oscuras.", 
-        "Quien me guía con su luz inquebrantable.", 
-        "Mi refugio y mi compañera de vida.", 
-        "Cada recuerdo a tu lado es una estrella más en mi universo.", 
+        "Mi refugio y compañera de vida.", 
         "Gracias por hacer nuestra historia tan hermosa.", 
-        "Te amo, Luna."
+        "Te amo."
     ];
     let contFrases = document.getElementById('frasesPoeticas'); 
-    let idx = 0;
 
-    setTimeout(() => { mostrarFrase(); }, 4000);
-    function mostrarFrase() {
-        if (idx >= frases.length) return; 
-        contFrases.innerText = frases[idx]; 
-        contFrases.classList.add('visible'); 
-        setTimeout(() => { 
-            contFrases.classList.remove('visible'); 
-            idx++; 
-            setTimeout(() => { mostrarFrase(); }, 2000); // Pausa entre frases
-        }, 5000); // Tiempo que dura cada frase en pantalla
-    }
+    frases.forEach((frase, i) => {
+        // Actualizamos el texto instantáneamente
+        tl.call(() => { contFrases.innerText = frase; });
+        
+        // La frase aparece lentamente (Fade In)
+        tl.to(contFrases, { opacity: 1, y: -10, duration: 2, ease: "power1.out" });
+        
+        // Tiempo en pantalla para leerla (Delay)
+        tl.to(contFrases, { opacity: 1, duration: 2.5 }); // Pausa de lectura
+        
+        // La frase desaparece lentamente (Fade Out)
+        tl.to(contFrases, { opacity: 0, y: -20, duration: 1.5, ease: "power1.in" });
+    });
 }
 
 // 7.4 Efectos visuales de la Luna
