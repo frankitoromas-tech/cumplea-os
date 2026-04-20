@@ -109,3 +109,88 @@ body {
 .buzon textarea { width: 90%; height: 60px; background: rgba(0,0,0,0.5); color: white; border: 1px solid #ff4757; border-radius: 5px; padding: 10px; font-family: inherit; resize: none; margin-bottom: 10px; }
 .buzon button { background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
 .buzon button:hover { background: #ff6b81; transform: scale(1.05); }
+/* --- ESTILO DE LA PISTA --- */
+.pista-secreta {
+    font-size: 0.95rem;
+    color: #a0aec0;
+    font-style: italic;
+    margin-top: 10px;
+    animation: latido-suave 3s infinite;
+}
+
+@keyframes latido-suave {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; text-shadow: 0 0 8px rgba(255, 255, 255, 0.4); }
+}
+
+/* --- ESCENA CINEMATOGRÁFICA --- */
+.escena-oculta {
+    display: none;
+    opacity: 0;
+}
+
+.escena-activa {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    /* Un fondo azul medianoche muy profundo */
+    background: radial-gradient(circle at center, #0b1021 0%, #000000 100%);
+    z-index: 9999;
+    animation: fundido-entrada 2s ease-in-out forwards;
+}
+
+@keyframes fundido-entrada {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* --- LA LUNA ANIMADA --- */
+.luna-brillante {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    /* Imagen hiperrealista de una luna */
+    background-image: url('https://images.unsplash.com/photo-1532693322450-2cb5c511067d?auto=format&fit=crop&w=600&q=80'); 
+    background-size: cover;
+    background-position: center;
+    /* Efecto de resplandor exterior e interior */
+    box-shadow: 0 0 60px 15px rgba(255, 252, 204, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.6);
+    transform: translateY(100px);
+    opacity: 0;
+    /* Animación combinada: Subir suavemente y latir la luz */
+    animation: 
+        subir-luna 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s forwards,
+        resplandor-lunar 4s ease-in-out infinite alternate;
+}
+
+@keyframes subir-luna {
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes resplandor-lunar {
+    from { box-shadow: 0 0 40px 10px rgba(255, 252, 204, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.4); }
+    to { box-shadow: 0 0 90px 25px rgba(255, 252, 204, 0.8), inset 0 0 30px rgba(255, 255, 255, 0.8); }
+}
+
+/* --- TEXTO ROMÁNTICO --- */
+.mensaje-romantico {
+    color: #ffffff;
+    font-size: 2.5rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+    margin-top: 40px;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    opacity: 0;
+    /* Retrasamos el texto para que aparezca después de la luna */
+    animation: aparecer-texto 3s ease-in-out 2.5s forwards;
+}
+
+@keyframes aparecer-texto {
+    to { opacity: 1; transform: translateY(-10px); }
+}

@@ -70,12 +70,11 @@ function escribirMaquina(mensajes, contenedor, index = 0, callbackFinal = null) 
     }, 45); 
 }
 
-// --- 4. CONTROL DE TIEMPO CON PYTHON (NUEVO) ---
+// --- 4. CONTROL DE TIEMPO ---
 fetch('/api/estado')
     .then(res => res.json())
     .then(data => {
         if(data.bloqueado) {
-            // Si está bloqueado: ocultamos el regalo y encendemos el reloj
             document.getElementById('contenedorPrincipal').style.display = 'none';
             document.getElementById('pantallaBloqueo').classList.remove('oculto');
             
@@ -89,16 +88,16 @@ fetch('/api/estado')
                     document.getElementById('cuentaRegresiva').innerText = 
                         `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
                 } else {
-                    location.reload(); // Recarga cuando llega a cero
+                    location.reload();
                 }
             }, 1000);
         } else {
-            // Si YA es la fecha: Desaparecemos la pantalla negra a la fuerza
             document.getElementById('pantallaBloqueo').classList.add('oculto');
             document.getElementById('contenedorPrincipal').style.display = 'block';
         }
     })
     .catch(err => console.error("Error conectando con el servidor:", err));
+
 // --- 5. EVENTO PRINCIPAL DEL REGALO ---
 document.getElementById('botonRegalo').addEventListener('click', function() {
     let boton = this; boton.classList.add('abriendo-caja'); 
@@ -112,7 +111,7 @@ document.getElementById('botonRegalo').addEventListener('click', function() {
             .then(res => res.json())
             .then(datos => {
                 document.getElementById('tituloMensaje').innerText = datos.titulo;
-                document.getElementById('estadisticasAstro').innerText = datos.estadisticas; // Muestra estadísticas de Python
+                document.getElementById('estadisticasAstro').innerText = datos.estadisticas; 
                 
                 let sorpresa = document.getElementById('contenidoSorpresa');
                 sorpresa.classList.remove('oculto'); sorpresa.classList.add('mostrar');
@@ -124,7 +123,6 @@ document.getElementById('botonRegalo').addEventListener('click', function() {
                     let firma = document.getElementById('firmaMensaje'); firma.innerText = datos.firma;
                     firma.classList.remove('oculto'); firma.classList.add('mostrar'); 
                     
-                    // Mostramos el buzón secreto al final de todo
                     setTimeout(() => {
                         let buzon = document.getElementById('buzonSecreto');
                         buzon.classList.remove('oculto'); buzon.classList.add('mostrar');
@@ -134,10 +132,10 @@ document.getElementById('botonRegalo').addEventListener('click', function() {
     }, 800);
 });
 
-// --- 6. ENVÍO AL BUZÓN SECRETO (NUEVO) ---
+// --- 6. ENVÍO AL BUZÓN SECRETO ---
 document.getElementById('btnEnviarSecreto').addEventListener('click', function() {
     let mensaje = document.getElementById('textoSecreto').value;
-    if(mensaje.trim() === "") return; // No envía si está vacío
+    if(mensaje.trim() === "") return; 
 
     fetch('/api/responder', {
         method: 'POST',
@@ -146,48 +144,112 @@ document.getElementById('btnEnviarSecreto').addEventListener('click', function()
     })
     .then(res => res.json())
     .then(datos => {
-        // Reemplaza el formulario con el mensaje de agradecimiento
-        document.getElementById('buzonSecreto').innerHTML = `<p style="color:#0fa; font-size:1.2rem;">${datos.respuesta}</p>`;
+        document.getElementById('buzonSecreto').innerHTML = `<p style="color:#0fa; font-size:1.2rem; text-shadow: 0 0 10px #0fa;">${datos.respuesta}</p>`;
     });
 });
 
-// --- 7. EASTER EGG LUNA Y POLVO DE ESTRELLAS ---
+// --- 7. EASTER EGG LUNA Y POLVO DE ESTRELLAS (RENOVADO) ---
+
+// 7.1 Generar el Indicio visual dinámicamente
+function crearIndicioMágico() {
+    let indicio = document.createElement('div');
+    indicio.id = 'pistaSecreta';
+    indicio.innerHTML = "✨ <i>Escribe en tu teclado el nombre de aquella que ilumina mis noches más oscuras...</i>";
+    document.body.appendChild(indicio);
+    
+    // Aparece suavemente después de 8 segundos de cargar la página
+    setTimeout(() => {
+        indicio.classList.add('pista-visible');
+    }, 8000);
+}
+crearIndicioMágico();
+
+// 7.2 Lógica del teclado
 let entradaTeclado = "";
 document.addEventListener('keydown', function(evento) {
     let tecla = evento.key.toLowerCase();
     if (tecla.length === 1 && tecla >= 'a' && tecla <= 'z') {
         entradaTeclado += tecla;
         if (entradaTeclado.length > 4) entradaTeclado = entradaTeclado.substring(entradaTeclado.length - 4);
-        if (entradaTeclado === "luna") { activarEasterEggLuna(); entradaTeclado = ""; }
+        if (entradaTeclado === "luna") { 
+            activarEasterEggLuna(); 
+            entradaTeclado = ""; 
+        }
     }
 });
 
+// 7.3 La Escena Cinematográfica
 function activarEasterEggLuna() {
-    let mFondo = document.getElementById('musicaFondo'); if (mFondo) { mFondo.pause(); mFondo.currentTime = 0; }
-    let mLuna = document.getElementById('musicaLuna'); if (mLuna) { mLuna.volume = 0.5; mLuna.play().catch(e => console.log(e)); }
+    // Ocultar pista si estaba visible
+    let pista = document.getElementById('pistaSecreta');
+    if(pista) pista.style.opacity = '0';
 
-    let contNormal = document.getElementById('contenedorPrincipal'); if (contNormal) contNormal.style.display = 'none';
+    // Transición de audios
+    let mFondo = document.getElementById('musicaFondo'); 
+    if (mFondo) { 
+        // Desvanecer música actual
+        let fadeOut = setInterval(() => {
+            if(mFondo.volume > 0.1) mFondo.volume -= 0.1;
+            else { clearInterval(fadeOut); mFondo.pause(); mFondo.currentTime = 0; }
+        }, 200);
+    }
+    let mLuna = document.getElementById('musicaLuna'); 
+    if (mLuna) { mLuna.volume = 0.6; mLuna.play().catch(e => console.log(e)); }
+
+    // Ocultar el resto de la página
+    let contNormal = document.getElementById('contenedorPrincipal'); 
+    if (contNormal) contNormal.style.opacity = '0';
+    setTimeout(() => { if (contNormal) contNormal.style.display = 'none'; }, 1000);
     document.querySelectorAll('.globo, .confeti').forEach(item => item.remove());
 
-    let escena = document.getElementById('escenaLuna'); escena.classList.add('activar-luna'); 
+    // Mostrar escena de la Luna con efectos
+    let escena = document.getElementById('escenaLuna'); 
+    escena.classList.add('activar-luna'); 
+    
     setTimeout(() => { escena.classList.add('animar-luna'); }, 100);
     setTimeout(() => { crearEstrellasCorazon(); }, 2000); 
+    setInterval(crearEstrellaFugaz, 3000); // Lluvia de estrellas fugaces de fondo
 
-    let frases = ["Eres mi luna...", "La que ilumina mis noches más oscuras.", "Quien me guía con su luz inquebrantable.", "Mi refugio y mi compañera de vida.", "Cada recuerdo a tu lado es una estrella más en mi universo.", "Gracias por hacer nuestra historia tan hermosa.", "Te amo."];
-    let contFrases = document.getElementById('frasesPoeticas'); let idx = 0;
+    let frases = [
+        "Eres mi luna...", 
+        "La que ilumina mis noches más oscuras.", 
+        "Quien me guía con su luz inquebrantable.", 
+        "Mi refugio y mi compañera de vida.", 
+        "Cada recuerdo a tu lado es una estrella más en mi universo.", 
+        "Gracias por hacer nuestra historia tan hermosa.", 
+        "Te amo, Luna."
+    ];
+    let contFrases = document.getElementById('frasesPoeticas'); 
+    let idx = 0;
 
-    setTimeout(() => { mostrarFrase(); }, 5000);
+    setTimeout(() => { mostrarFrase(); }, 4000);
     function mostrarFrase() {
         if (idx >= frases.length) return; 
-        contFrases.innerText = frases[idx]; contFrases.classList.add('visible'); 
-        setTimeout(() => { contFrases.classList.remove('visible'); idx++; setTimeout(() => { mostrarFrase(); }, 1500); }, 4000); 
+        contFrases.innerText = frases[idx]; 
+        contFrases.classList.add('visible'); 
+        setTimeout(() => { 
+            contFrases.classList.remove('visible'); 
+            idx++; 
+            setTimeout(() => { mostrarFrase(); }, 2000); // Pausa entre frases
+        }, 5000); // Tiempo que dura cada frase en pantalla
     }
+}
+
+// 7.4 Efectos visuales de la Luna
+function crearEstrellaFugaz() {
+    if (!document.getElementById('escenaLuna').classList.contains('activar-luna')) return;
+    let estrella = document.createElement('div');
+    estrella.classList.add('estrella-fugaz');
+    estrella.style.top = Math.random() * 30 + 'vh';
+    estrella.style.left = Math.random() * 100 + 'vw';
+    document.getElementById('escenaLuna').appendChild(estrella);
+    setTimeout(() => estrella.remove(), 2000);
 }
 
 function crearPolvoEstrellas(x, y) {
     let polvo = document.createElement('div'); polvo.classList.add('polvo-estrellas');
     polvo.style.left = (x - 3) + 'px'; polvo.style.top = (y - 3) + 'px'; document.body.appendChild(polvo);
-    setTimeout(() => polvo.remove(), 1000);
+    setTimeout(() => polvo.remove(), 800);
 }
 document.addEventListener('mousemove', function(e) { if (document.getElementById('escenaLuna').classList.contains('activar-luna')) crearPolvoEstrellas(e.clientX, e.clientY); });
 document.addEventListener('touchmove', function(e) { if (document.getElementById('escenaLuna').classList.contains('activar-luna')) crearPolvoEstrellas(e.touches[0].clientX, e.touches[0].clientY); });
