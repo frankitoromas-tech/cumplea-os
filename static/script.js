@@ -290,7 +290,7 @@ function activarEasterEggLuna() {
     // Iniciar efectos ambientales
     crearEstrellasCorazon();
     setInterval(crearLuciernaga, 300);
-
+    iniciarEfectosAvanzadosLuna();
     // Animación GSAP
     if(typeof gsap === 'undefined') {
         document.getElementById('planetaTierra').style.opacity = 0.6;
@@ -319,5 +319,56 @@ function activarEasterEggLuna() {
         tl.to(contFrases, { opacity: 1, y: -10, duration: 2, ease: "power1.out" }); 
         tl.to(contFrases, { opacity: 1, duration: 3.5 }); 
         tl.to(contFrases, { opacity: 0, y: -20, duration: 1.5, ease: "power1.in" }); 
+    });
+}
+/* ==========================================================================
+   ✨ 6. FUNCIONES DINÁMICAS AVANZADAS PARA LA LUNA (Efecto 3D y Cielo)
+   ========================================================================== */
+
+function iniciarEfectosAvanzadosLuna() {
+    const escena = document.getElementById('escenaLuna');
+    const luna = document.getElementById('contenedorLuna');
+    const tierra = document.getElementById('planetaTierra');
+    const nebulosa = document.querySelector('.nebulosa-fondo');
+
+    // 6.1 Parallax Cósmico (Efecto 3D al mover el mouse)
+    document.addEventListener('mousemove', (e) => {
+        if (escena.style.display !== 'flex') return;
+        
+        // Calculamos el centro de la pantalla
+        let xPos = (e.clientX / window.innerWidth - 0.5) * 30; 
+        let yPos = (e.clientY / window.innerHeight - 0.5) * 30;
+
+        // Movemos los elementos a distintas velocidades (GSAP hace que sea suave)
+        if(typeof gsap !== 'undefined') {
+            gsap.to(luna, { x: xPos * 2, y: yPos * 2, duration: 1, ease: "power2.out" });
+            gsap.to(tierra, { x: xPos * 1, y: yPos * 1, duration: 1.5, ease: "power2.out" });
+            gsap.to(nebulosa, { x: -xPos * 3, y: -yPos * 3, duration: 2, ease: "power1.out" });
+        }
+    });
+
+    // 6.2 Lluvia de Estrellas Fugaces Automática (Cada 3 segundos)
+    setInterval(() => {
+        if (escena.style.display === 'flex') {
+            let fugaz = document.createElement('div');
+            fugaz.classList.add('estrella-fugaz-dinamica');
+            // Nacen en la parte superior derecha
+            fugaz.style.left = `${Math.random() * 50 + 50}vw`; 
+            fugaz.style.top = `${Math.random() * 40}vh`;
+            escena.appendChild(fugaz);
+            setTimeout(() => fugaz.remove(), 1500);
+        }
+    }, 3000); 
+
+    // 6.3 Crear Constelaciones al hacer clic en el cielo
+    escena.addEventListener('click', (e) => {
+        // Evitar que se cree una estrella si toca la luna (eso dispara el pulso de luz)
+        if (e.target.id === 'lunaInteractiva') return;
+        
+        let estrella = document.createElement('div');
+        estrella.classList.add('estrella-fija');
+        estrella.style.left = `${e.clientX - 3}px`;
+        estrella.style.top = `${e.clientY - 3}px`;
+        escena.appendChild(estrella);
     });
 }

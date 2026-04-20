@@ -295,3 +295,41 @@ body {
     0% { opacity: 1; transform: scale(1); } 
     100% { opacity: 0; transform: scale(0.2); } 
 }
+/* ====================================================================
+   NUEVAS FUNCIONES DINÁMICAS (PARALLAX Y ESTRELLAS FUGACES)
+   ==================================================================== */
+
+/* Estrella Fugaz Dinámica */
+.estrella-fugaz-dinamica {
+    position: absolute;
+    width: 150px;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(255,255,255,1), transparent);
+    border-radius: 50%;
+    animation: animar-fugaz 1.5s ease-in forwards;
+    transform: rotate(-45deg);
+    z-index: 100;
+    pointer-events: none;
+    box-shadow: 0 0 20px #fff;
+}
+@keyframes animar-fugaz {
+    0% { transform: rotate(-45deg) translateX(0) scale(1); opacity: 1; }
+    100% { transform: rotate(-45deg) translateX(-1000px) scale(0.5); opacity: 0; }
+}
+
+/* Constelaciones (Al hacer clic en el cielo) */
+.estrella-fija {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #fff, 0 0 20px #0fa;
+    animation: titilar-fija 2s infinite alternate;
+    z-index: 101;
+    pointer-events: none;
+}
+@keyframes titilar-fija {
+    0% { transform: scale(0.8); opacity: 0.5; box-shadow: 0 0 5px #fff; }
+    100% { transform: scale(1.5); opacity: 1; box-shadow: 0 0 15px #fff, 0 0 25px #0fa; }
+}
