@@ -189,6 +189,34 @@ document.addEventListener('keydown', function(evento) {
 function activarEasterEggLuna() {
     let pista = document.getElementById('pistaSecreta');
     if(pista) pista.style.opacity = '0';
+    const escena = document.getElementById('escenaLuna');
+    escena.style.display = 'flex';
+    escena.style.flexDirection = 'column';
+    escena.style.justifyContent = 'center';
+    escena.style.alignItems = 'center';
+
+    const tl = gsap.timeline();
+
+    // 1. La Tierra aparece desde la esquina
+    tl.fromTo("#planetaTierra", 
+        { y: 500, opacity: 0, scale: 1.5 }, 
+        { y: 0, opacity: 0.6, scale: 1, duration: 5, ease: "power2.out" }
+    );
+
+    // 2. La Luna se acerca volando
+    tl.fromTo(".luna-realista", 
+        { scale: 0, opacity: 0, rotation: -45 }, 
+        { scale: 1, opacity: 1, rotation: 0, duration: 3, ease: "back.out(1.7)" }, 
+        "-=3" // Empieza antes de que termine la Tierra
+    );
+
+    // 3. El nombre aparece letra por letra o con glow
+    tl.to(".nombre-luna-titulo", {
+        opacity: 1,
+        letterSpacing: "25px",
+        duration: 4,
+        ease: "power1.inOut"
+    });
 
     // Transición de audios
     let mFondo = document.getElementById('musicaFondo'); 

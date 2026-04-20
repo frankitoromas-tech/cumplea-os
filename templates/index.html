@@ -10,12 +10,20 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styless.css') }}">
 </head>
 <body>
-    <div id="escenaLuna" class="oculto-luna">
-        <img id="planetaTierra" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Earth_Western_Hemisphere_transparent_background.png/600px-Earth_Western_Hemisphere_transparent_background.png" alt="Tierra">
-        <div id="planetaLuna"></div>
-        <h1 id="nombreLuna" class="nombre-luna oculto">Luna</h1>
-        <div id="frasesPoeticas" class="frases-luna"></div>
+ <div id="escenaLuna" class="escena-oculta">
+    <div class="capa-estrellas-lejos"></div>
+    <div class="capa-estrellas-cerca"></div>
+    <div class="nebulosa-fondo"></div>
+    
+    <div id="planetaTierra" class="planeta-tierra"></div>
+    
+    <div id="contenedorLuna">
+        <div class="luna-realista"></div>
+        <h1 class="nombre-luna-titulo">LUNA</h1>
     </div>
+
+    <div id="frasesPoeticas" class="frases-luna"></div>
+</div>
 
     <audio id="musicaFondo" loop><source src="{{ url_for('static', filename='cancion.mp3') }}" type="audio/mpeg"></audio>
     <audio id="musicaLuna" loop><source src="{{ url_for('static', filename='cancion_luna.mp3') }}" type="audio/mpeg"></audio>
