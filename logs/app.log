@@ -308,3 +308,21 @@
 2026-04-21 09:40:33,459 [INFO] 127.0.0.1 - - [21/Apr/2026 09:40:33] "GET /api/estado HTTP/1.1" 200 -
 2026-04-21 09:40:33,867 [INFO] 127.0.0.1 - - [21/Apr/2026 09:40:33] "GET /api/visitas HTTP/1.1" 200 -
 2026-04-21 09:40:33,871 [INFO] 127.0.0.1 - - [21/Apr/2026 09:40:33] "GET /api/frase_del_dia HTTP/1.1" 200 -
+2026-04-21 10:07:31,117 [INFO] Visita #16 registrada
+2026-04-21 10:07:31,139 [INFO] 127.0.0.1 - - [21/Apr/2026 10:07:31] "GET / HTTP/1.1" 200 -
+2026-04-21 10:07:31,291 [INFO] 127.0.0.1 - - [21/Apr/2026 10:07:31] "[36mGET /static/styless.css HTTP/1.1[0m" 304 -
+2026-04-21 10:07:31,293 [INFO] 127.0.0.1 - - [21/Apr/2026 10:07:31] "[36mGET /static/DEFAULT_RECUERDOS/foto1.png HTTP/1.1[0m" 304 -
+2026-04-21 10:07:31,295 [INFO] 127.0.0.1 - - [21/Apr/2026 10:07:31] "[36mGET /static/DEFAULT_RECUERDOS/foto2.png HTTP/1.1[0m" 304 -
+2026-04-21 10:07:31,320 [INFO] 127.0.0.1 - - [21/Apr/2026 10:07:31] "[36mGET /static/DEFAULT_RECUERDOS/foto3.png HTTP/1.1[0m" 304 -
+2026-04-21 10:07:31,331 [INFO] 127.0.0.1 - - [21/Apr/2026 10:07:31] "[36mGET /static/DEFAULT_RECUERDOS/foto4.png HTTP/1.1[0m" 304 -
+2026-04-21 10:07:31,336 [INFO] 127.0.0.1 - - [21/Apr/2026 10:07:31] "[36mGET /static/DEFAULT_RECUERDOS/foto5.png HTTP/1.1[0m" 304 -
+2026-04-21 10:07:31,349 [INFO] 127.0.0.1 - - [21/Apr/2026 10:07:31] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+2026-04-21 10:07:31,415 [INFO] 127.0.0.1 - - [21/Apr/2026 10:07:31] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 10:07:31,415 [INFO] 127.0.0.1 - - [21/Apr/2026 10:07:31] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 10:07:31,454 [INFO] 127.0.0.1 - - [21/Apr/2026 10:07:31] "GET /api/estado HTTP/1.1" 200 -
+2026-04-21 10:07:31,613 [INFO] 127.0.0.1 - - [21/Apr/2026 10:07:31] "GET /api/frase_del_dia HTTP/1.1" 200 -
+2026-04-21 10:07:31,634 [INFO] 127.0.0.1 - - [21/Apr/2026 10:07:31] "GET /api/visitas HTTP/1.1" 200 -
+2026-04-21 10:14:53,939 [INFO]  * Detected change in 'C:\\Users\\user-hp\\cumplea-os\\app.py', reloading
+2026-04-21 10:14:54,173 [INFO]  * Restarting with stat
+2026-04-21 10:14:55,005 [WARNING]  * Debugger is active!
+2026-04-21 10:14:55,013 [INFO]  * Debugger PIN: 880-781-617

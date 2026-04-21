@@ -3,17 +3,6 @@
   🌙 App de Cumpleaños - Backend Flask Mejorado
   Autor: Frank  |  Para: Luyuromo
 =============================================================
-  MEJORAS:
-  - Telegram con diagnóstico y reconexión automática
-  - Variables de entorno (.env) para proteger secretos
-  - 7 nuevas rutas API
-  - Contador de visitas persistente (JSON)
-  - Log completo de actividad
-  - Frases románticas del día (rotan por fecha)
-  - Poema aleatorio generado dinámicamente
-  - Estadísticas de amor detalladas
-  - Sistema de salud del servidor
-=============================================================
 """
 
 import os
@@ -26,26 +15,31 @@ from pathlib import Path
 import requests
 from flask import Flask, render_template, jsonify, request
 
-# --- Cargar .env si existe (sin romper nada si no existe) ---
 try:
     from dotenv import load_dotenv
     load_dotenv()
 except ImportError:
-    pass  # python-dotenv es opcional
+    pass
 
 # ─────────────────────────────────────────────
-#  CONFIGURACIÓN DE LOGGING
+#  CONFIGURACIÓN DE LOGGING (BLINDADO PARA VERCEL)
 # ─────────────────────────────────────────────
 LOG_DIR = Path(__file__).parent / "logs"
-LOG_DIR.mkdir(exist_ok=True)
+
+try:
+    LOG_DIR.mkdir(exist_ok=True)
+    mis_handlers = [
+        logging.FileHandler(LOG_DIR / "app.log", encoding="utf-8"),
+        logging.StreamHandler(),
+    ]
+except OSError:
+    # Si Vercel bloquea la creación del archivo log, usamos solo la consola
+    mis_handlers = [logging.StreamHandler()]
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_DIR / "app.log", encoding="utf-8"),
-        logging.StreamHandler(),
-    ],
+    handlers=mis_handlers,
 )
 logger = logging.getLogger(__name__)
 
@@ -55,7 +49,6 @@ logger = logging.getLogger(__name__)
 # ─────────────────────────────────────────────
 app = Flask(__name__)
 
-# CORS manual (sin dependencia extra) — permite desarrollo local
 @app.after_request
 def agregar_cors(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
@@ -64,31 +57,36 @@ def agregar_cors(response):
 
 
 # ─────────────────────────────────────────────
-#  CREDENCIALES (desde .env o hardcoded como fallback)
+#  CREDENCIALES
 # ─────────────────────────────────────────────
 TELEGRAM_TOKEN   = os.getenv("TELEGRAM_TOKEN",   "8651973448:AAHUDVOSurQb5r0X_OJzmPurvelTVrw_wbI")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "6724969320")
-TELEGRAM_URL     = f"https://api.telegram.org/bot{"8651973448:AAHUDVOSurQb5r0X_OJzmPurvelTVrw_wbI"}"
+TELEGRAM_URL     = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
 
 # ─────────────────────────────────────────────
 #  CONFIGURACIÓN DE FECHAS
 # ─────────────────────────────────────────────
 FECHA_NACIMIENTO  = datetime(2003, 8, 30)
-FECHA_INICIO_AMOR = date(2025, 10, 1)        # ← cambia por la fecha real de su relación
+FECHA_INICIO_AMOR = date(2025, 10, 1)
 FECHA_APERTURA    = datetime(2025, 8, 30, 0, 0, 0)
 
 # ─────────────────────────────────────────────
-#  ARCHIVOS DE DATOS PERSISTENTES
+#  ARCHIVOS DE DATOS PERSISTENTES (BLINDADO)
 # ─────────────────────────────────────────────
-DATA_DIR     = Path(__file__).parent / "data"
-DATA_DIR.mkdir(exist_ok=True)
+DATA_DIR = Path(__file__).parent / "data"
+
+try:
+    DATA_DIR.mkdir(exist_ok=True)
+except OSError:
+    pass # Ignorar en Vercel
+
 BUZON_TXT    = Path(__file__).parent / "buzon_secreto.txt"
 VISITAS_JSON = DATA_DIR / "visitas.json"
 MENSAJES_JSON = DATA_DIR / "mensajes.json"
 
 
 # ─────────────────────────────────────────────
-#  CLASE REGALO (sin cambios, compatible 100%)
+#  CLASE REGALO
 # ─────────────────────────────────────────────
 class RegaloSorpresa:
     def __init__(self, destinatario, remitente, edad):
@@ -120,7 +118,8 @@ mi_regalo.agregar_mensaje("Cada día contigo es el mejor día de mi vida. ¡Disf
 
 
 # ─────────────────────────────────────────────
-#  FRASES ROMÁNTICAS (rotan por día del año)
+#  FRASES Y POEMAS (Omitidos en esta visualización por espacio, pero TÚ DEBES DEJAR LOS TUYOS EXACTAMENTE IGUAL)
+#  (HE INCLUIDO TODO EL BLOQUE PARA QUE SOLO COPIES Y PEGUES)
 # ─────────────────────────────────────────────
 FRASES_ROMANTICAS = [
     "Eres el poema que nunca supe que necesitaba escribir.",
@@ -236,10 +235,9 @@ POEMAS = [
 
 
 # ─────────────────────────────────────────────
-#  UTILIDADES DE TELEGRAM (mejoradas)
+#  UTILIDADES DE TELEGRAM
 # ─────────────────────────────────────────────
 def _enviar_telegram(texto: str, silencioso: bool = False) -> dict:
-    """Envía un mensaje a Telegram con manejo robusto de errores."""
     if not TELEGRAM_TOKEN or TELEGRAM_TOKEN.startswith("PEGA"):
         return {"ok": False, "error": "Token no configurado"}
 
@@ -253,7 +251,7 @@ def _enviar_telegram(texto: str, silencioso: bool = False) -> dict:
         resp = requests.post(
             f"{TELEGRAM_URL}/sendMessage",
             json=payload,
-            timeout=8,  # ← Fix: antes no había timeout
+            timeout=8,
         )
         data = resp.json()
         if not data.get("ok"):
@@ -280,7 +278,11 @@ def _leer_visitas() -> dict:
 
 
 def _guardar_visitas(data: dict):
-    VISITAS_JSON.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    try:
+        VISITAS_JSON.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception as exc:
+        # Vercel lanzará este error silenciosamente sin tumbar la app
+        logger.warning("Vercel bloqueó guardar visitas.json: %s", exc)
 
 
 def _leer_mensajes() -> list:
@@ -293,21 +295,23 @@ def _leer_mensajes() -> list:
 
 
 def _guardar_mensaje_json(mensaje: str):
-    mensajes = _leer_mensajes()
-    mensajes.append({
-        "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "mensaje": mensaje,
-    })
-    MENSAJES_JSON.write_text(json.dumps(mensajes, ensure_ascii=False, indent=2), encoding="utf-8")
+    try:
+        mensajes = _leer_mensajes()
+        mensajes.append({
+            "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "mensaje": mensaje,
+        })
+        MENSAJES_JSON.write_text(json.dumps(mensajes, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception as exc:
+        # Vercel lanzará este error silenciosamente sin tumbar la app
+        logger.warning("Vercel bloqueó guardar mensajes.json: %s", exc)
 
 
 # ─────────────────────────────────────────────
-#  RUTAS EXISTENTES (sin cambios en comportamiento)
+#  RUTAS
 # ─────────────────────────────────────────────
-
 @app.route("/")
 def index():
-    # Contar visita
     visitas = _leer_visitas()
     visitas["total"] += 1
     hoy = date.today().isoformat()
@@ -342,17 +346,17 @@ def responder():
     if not mensaje:
         return jsonify({"status": "error", "detalle": "Mensaje vacío"}), 400
 
-    # 1. Guardar en .txt (compatibilidad original)
+    # 1. Guardar en .txt 
     try:
         with open(BUZON_TXT, "a", encoding="utf-8") as f:
             f.write(f"[{datetime.now():%Y-%m-%d %H:%M:%S}] Luyuromo dice: {mensaje}\n")
     except Exception as exc:
         logger.error("No se pudo escribir buzon_secreto.txt: %s", exc)
 
-    # 2. Guardar en JSON estructurado (nuevo)
+    # 2. Guardar en JSON estructurado (AHORA PROTEGIDO)
     _guardar_mensaje_json(mensaje)
 
-    # 3. Enviar a Telegram (con diagnóstico)
+    # 3. Enviar a Telegram
     texto_tg = (
         f"💌 <b>¡NUEVO MENSAJE DE LUYUROMO!</b>\n\n"
         f"Ella dice:\n<i>«{mensaje}»</i>\n\n"
@@ -370,13 +374,8 @@ def responder():
     })
 
 
-# ─────────────────────────────────────────────
-#  NUEVAS RUTAS API
-# ─────────────────────────────────────────────
-
 @app.route("/api/salud")
 def salud():
-    """Health-check del servidor + diagnóstico de Telegram."""
     tg_status = "desconocido"
     try:
         resp = requests.get(f"{TELEGRAM_URL}/getMe", timeout=6)
@@ -386,10 +385,6 @@ def salud():
             tg_status = f"✅ Conectado como @{bot_name}"
         else:
             tg_status = f"❌ Error: {data.get('description', 'desconocido')}"
-    except requests.exceptions.ConnectionError:
-        tg_status = "❌ Sin conexión a internet"
-    except requests.exceptions.Timeout:
-        tg_status = "⏱️ Timeout (Telegram tardó demasiado)"
     except Exception as exc:
         tg_status = f"❌ Excepción: {exc}"
 
@@ -405,59 +400,39 @@ def salud():
 
 @app.route("/api/test_telegram", methods=["POST"])
 def test_telegram():
-    """Envía un mensaje de prueba a Telegram para verificar la conexión."""
     texto = "🔔 <b>Test de conexión exitoso</b>\n\nLa API está funcionando correctamente. 🎉"
     resultado = _enviar_telegram(texto)
     if resultado.get("ok"):
         return jsonify({"status": "ok", "mensaje": "✅ Mensaje de prueba enviado a Telegram"})
-    return jsonify({
-        "status": "error",
-        "mensaje": "❌ No se pudo enviar",
-        "detalle": resultado.get("error", resultado.get("description", "desconocido")),
-    }), 503
+    return jsonify({"status": "error", "mensaje": "❌ No se pudo enviar", "detalle": resultado.get("error")}), 503
 
 
 @app.route("/api/frase_del_dia")
 def frase_del_dia():
-    """Retorna una frase romántica que rota por día del año."""
     dia_del_año = date.today().timetuple().tm_yday
     indice = dia_del_año % len(FRASES_ROMANTICAS)
     frase  = FRASES_ROMANTICAS[indice]
-    return jsonify({
-        "frase":  frase,
-        "numero": indice + 1,
-        "total":  len(FRASES_ROMANTICAS),
-        "fecha":  date.today().isoformat(),
-    })
+    return jsonify({"frase": frase, "numero": indice + 1, "total": len(FRASES_ROMANTICAS), "fecha": date.today().isoformat()})
 
 
 @app.route("/api/poema")
 def poema_aleatorio():
-    """Retorna un poema romántico aleatorio."""
     p = random.choice(POEMAS)
-    return jsonify({
-        "titulo":  p["titulo"],
-        "versos":  p["versos"],
-        "texto":   "\n".join(p["versos"]),
-        "total_poemas": len(POEMAS),
-    })
+    return jsonify({"titulo": p["titulo"], "versos": p["versos"], "texto": "\n".join(p["versos"]), "total_poemas": len(POEMAS)})
 
 
 @app.route("/api/estadisticas_amor")
 def estadisticas_amor():
-    """Estadísticas detalladas de amor y de vida de Luyuromo."""
     hoy     = date.today()
     ahora   = datetime.now()
     edad    = (hoy - FECHA_NACIMIENTO.date()).days // 365
     dias_vividos   = (ahora - FECHA_NACIMIENTO).days
     horas_vividas  = dias_vividos * 24
-    latidos_vida   = horas_vividas * 60 * 72  # ~72 bpm promedio
+    latidos_vida   = horas_vividas * 60 * 72
 
-    # Días juntos
     dias_juntos = (hoy - FECHA_INICIO_AMOR).days
     horas_juntos = dias_juntos * 24
 
-    # Próximo cumpleaños
     try:
         proximo_cumple = date(hoy.year, 8, 30)
         if proximo_cumple <= hoy:
@@ -482,30 +457,19 @@ def estadisticas_amor():
 
 @app.route("/api/visitas")
 def contador_visitas():
-    """Retorna el número total de visitas a la página."""
     visitas = _leer_visitas()
     hoy     = date.today().isoformat()
-    return jsonify({
-        "total":     visitas.get("total", 0),
-        "hoy":       visitas.get("por_dia", {}).get(hoy, 0),
-        "por_dia":   visitas.get("por_dia", {}),
-    })
+    return jsonify({"total": visitas.get("total", 0), "hoy": visitas.get("por_dia", {}).get(hoy, 0), "por_dia": visitas.get("por_dia", {})})
 
 
 @app.route("/api/mensajes_guardados")
 def mensajes_guardados():
-    """Retorna la cantidad (no el contenido) de mensajes guardados."""
     mensajes = _leer_mensajes()
-    return jsonify({
-        "total": len(mensajes),
-        "primer_mensaje": mensajes[0]["fecha"] if mensajes else None,
-        "ultimo_mensaje":  mensajes[-1]["fecha"] if mensajes else None,
-    })
+    return jsonify({"total": len(mensajes), "primer_mensaje": mensajes[0]["fecha"] if mensajes else None, "ultimo_mensaje": mensajes[-1]["fecha"] if mensajes else None})
 
 
 @app.route("/api/countdown_detallado")
 def countdown_detallado():
-    """Cuenta regresiva con desglose de días, horas, minutos, segundos."""
     ahora  = datetime.now()
     if ahora >= FECHA_APERTURA:
         return jsonify({"abierto": True, "mensaje": "¡Ya es tu cumpleaños! 🎉"})
@@ -517,26 +481,11 @@ def countdown_detallado():
     minutos  = (total_s % 3600) // 60
     segundos = total_s % 60
 
-    return jsonify({
-        "abierto":   False,
-        "dias":      dias,
-        "horas":     horas,
-        "minutos":   minutos,
-        "segundos":  segundos,
-        "total_segundos": total_s,
-        "frase":     f"Faltan {dias} días, {horas}h, {minutos}m y {segundos}s para tu sorpresa 🌙",
-    })
-
-
-# ─────────────────────────────────────────────
-#  ARRANQUE
-# ─────────────────────────────────────────────
-if __name__ == "__main__":
-    logger.info("🌙 Servidor de cumpleaños iniciado")
-    logger.info("📡 Telegram token: %s…", TELEGRAM_TOKEN[:20])
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    return jsonify({"abierto": False, "dias": dias, "horas": horas, "minutos": minutos, "segundos": segundos, "total_segundos": total_s, "frase": f"Faltan {dias} días, {horas}h, {minutos}m y {segundos}s para tu sorpresa 🌙"})
 
 @app.route("/admin")
 def panel_admin():
-    """Panel de control solo para Frank."""
     return render_template("admin.html")
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5000)
