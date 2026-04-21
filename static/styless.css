@@ -377,53 +377,76 @@ body {
     pointer-events: none;
 }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
 /* ====================================================================
-   COLLAGE DE RECUERDOS (ESTILO POLAROID / RECUADROS)
+   COLLAGE DE RECUERDOS (ORDENADO Y ELEGANTE)
    ==================================================================== */
-.galeria-grid {
+.galeria-polaroid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 25px;
-    margin-top: 25px;
-    padding: 10px 20px;
+    margin-top: 30px;
+    padding: 20px 10px;
+    justify-items: center; /* Centra las fotos perfectamente */
 }
 
 .marco-foto {
-    background: #fdfdfd; /* Blanco papel */
+    width: 100%;
+    max-width: 200px;
+    background: #fdfdfd;
     padding: 10px 10px 15px 10px;
-    border-radius: 3px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.6);
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), z-index 0s;
+    border-radius: 4px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
     position: relative;
     z-index: 1;
+    transform: translateY(0); /* Sin rotaciones desordenadas */
 }
 
 .marco-foto img {
     width: 100%;
-    height: 160px;
+    height: 180px;
     object-fit: cover;
     border-radius: 2px;
-    filter: contrast(1.1) brightness(0.95); /* Toque nostálgico */
+    filter: contrast(1.1) brightness(0.95);
 }
 
 .texto-foto {
     font-family: 'Cormorant Garamond', serif;
-    color: #111; /* Texto oscuro sobre papel blanco */
+    color: #222;
     font-size: 1.2rem;
     font-weight: bold;
-    margin: 10px 0 0 0;
+    margin: 12px 0 0 0;
     text-align: center;
 }
 
-/* Efecto de fotos desordenadas en la mesa */
-.marco-foto:nth-child(odd) { transform: rotate(-3deg); }
-.marco-foto:nth-child(even) { transform: rotate(3deg); }
-
-/* Al pasar el mouse, la foto se levanta y se endereza */
+/* Efecto elegante al pasar el mouse (se levanta suavemente) */
 .marco-foto:hover { 
-    transform: scale(1.15) rotate(0deg); 
+    transform: scale(1.05) translateY(-8px); 
     z-index: 10; 
-    box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+}
+/* ====================================================================
+   📱 RESPONSIVIDAD PARA CELULARES (MÓVILES)
+   ==================================================================== */
+@media (max-width: 768px) {
+    /* Ajustes de la fiesta */
+    .caja-regalo { padding: 15px 25px; font-size: 1.2rem; }
+    .pastel-animado { font-size: 4rem; }
+    #tituloMensaje { font-size: 2rem !important; }
+    .mensajes p { font-size: 1rem; }
+    
+    /* Ajustes del collage para que quepa en pantalla pequeña */
+    .marco-foto { width: 140px; padding: 8px 8px 15px 8px; }
+    .marco-foto img { height: 140px; }
+    .texto-foto { font-size: 1rem; }
+
+    /* Ajustes de la Luna (Para que no se vea gigante y cortada) */
+    .luna-realista { width: 22vh; height: 22vh; }
+    .planeta-tierra { width: 80vh; height: 80vh; right: -40vw; bottom: -30vh; }
+    .nombre-luna-titulo { font-size: 3rem; letter-spacing: 5px !important; }
+    .frases-luna { font-size: 1.8rem; top: 65vh; width: 90%; }
+    
+    /* Pista secreta adaptada */
+    #pistaSecreta { font-size: 0.8rem; padding: 10px 15px; bottom: 15px; right: 15px; }
 }
