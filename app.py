@@ -8,8 +8,8 @@ import requests
 app = Flask(__name__)
 
 # --- Configuración por entorno (más segura que hardcodear secretos) ---
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
+TELEGRAM_TOKEN = "8651973448:AAHUDVOSurQb5r0X_OJzmPurvelTVrw_wbI"
+TELEGRAM_CHAT_ID = "6724969320"
 MAX_MESSAGE_LENGTH = int(os.getenv("MAX_MESSAGE_LENGTH", "500"))
 MESSAGE_COOLDOWN_SECONDS = int(os.getenv("MESSAGE_COOLDOWN_SECONDS", "15"))
 
