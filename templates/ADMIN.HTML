@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔧 Panel Admin - Frank</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Cormorant+Garamond&display=swap" rel="stylesheet">
+<style>
+  :root { --rosa: #ff6b81; --verde: #0afab0; --fondo: #080c1e; --glass: rgba(255,255,255,0.05); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--fondo); color: #f0e8ff; font-family: 'Cormorant Garamond', serif; padding: 30px 20px; min-height: 100vh; }
+  h1 { font-family: 'Playfair Display', serif; color: var(--rosa); font-size: 2rem; margin-bottom: 6px; }
+  .subtitle { color: #94a3b8; font-style: italic; margin-bottom: 30px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+  .card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 22px; }
+  .card h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--rosa); margin-bottom: 14px; }
+  .stat { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 1rem; }
+  .stat:last-child { border-bottom: none; }
+  .valor { color: #f5c842; font-weight: bold; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: 0.85rem; }
+  .ok   { background: rgba(10,250,176,0.15); color: var(--verde); }
+  .err  { background: rgba(255,71,87,0.15); color: var(--rosa); }
+  button {
+    background: linear-gradient(135deg, #ff4757, var(--rosa));
+    color: white; border: none; padding: 12px 24px;
+    border-radius: 50px; cursor: pointer; font-family: 'Playfair Display', serif;
+    font-size: 1rem; transition: all 0.3s; width: 100%; margin-top: 12px;
+  }
+  button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,71,87,0.3); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  textarea { width: 100%; background: rgba(0,0,0,0.4); color: #f0e8ff; border: 1px solid rgba(255,107,129,0.3); border-radius: 8px; padding: 10px; font-family: inherit; font-size: 0.9rem; resize: vertical; min-height: 80px; margin-top: 8px; }
+  #log { background: rgba(0,0,0,0.5); border-radius: 8px; padding: 14px; font-size: 0.85rem; color: var(--verde); font-family: monospace; max-height: 200px; overflow-y: auto; white-space: pre-wrap; }
+  .msj-lista { max-height: 220px; overflow-y: auto; }
+  .msj-item { background: rgba(255,255,255,0.04); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; font-size: 0.95rem; }
+  .msj-fecha { font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<h1>🔧 Panel de Control</h1>
+<p class="subtitle">Solo tú puedes ver esto, Frank 🌙</p>
+
+<div class="grid">
+
+  <!-- Salud del servidor -->
+  <div class="card">
+    <h3>🛰️ Estado del Servidor</h3>
+    <div id="estadoServidor"><div class="stat"><span>Cargando...</span></div></div>
+    <button onclick="cargarSalud()">🔄 Actualizar</button>
+  </div>
+
+  <!-- Test Telegram -->
+  <div class="card">
+    <h3>📡 Telegram</h3>
+    <p style="font-size:0.9rem;color:#94a3b8;margin-bottom:10px;">Envía un mensaje de prueba para verificar la conexión con tu bot.</p>
+    <div id="tgStatus"></div>
+    <button onclick="testTelegram()" id="btnTg">📤 Enviar mensaje de prueba</button>
+  </div>
+
+  <!-- Estadísticas de visitas -->
+  <div class="card">
+    <h3>📊 Visitas</h3>
+    <div id="statsVisitas"><div class="stat"><span>Cargando...</span></div></div>
+    <button onclick="cargarVisitas()">🔄 Actualizar</button>
+  </div>
+
+  <!-- Mensajes de Luyuromo -->
+  <div class="card">
+    <h3>💌 Mensajes de Luyuromo</h3>
+    <div id="msgInfo" style="margin-bottom:10px;font-size:0.9rem;color:#94a3b8;"></div>
+    <div id="msgLista" class="msj-lista"></div>
+    <button onclick="cargarMensajes()">📬 Ver mensajes</button>
+  </div>
+
+  <!-- Estadísticas de amor -->
+  <div class="card">
+    <h3>💞 Estadísticas de Amor</h3>
+    <div id="statsAmor"><div class="stat"><span>Cargando...</span></div></div>
+    <button onclick="cargarAmor()">🔄 Actualizar</button>
+  </div>
+
+  <!-- Frase del día -->
+  <div class="card">
+    <h3>✨ Frase del Día</h3>
+    <div id="fraseDia" style="font-style:italic;color:#f5c842;margin-bottom:10px;"></div>
+    <button onclick="cargarFrase()">🔄 Cargar frase</button>
+  </div>
+
+</div>
+
+<script>
+async function cargarSalud() {
+  const d = await (await fetch('/api/salud')).json();
+  document.getElementById('estadoServidor').innerHTML = `
+    <div class="stat"><span>Servidor</span><span class="badge ok">${d.servidor}</span></div>
+    <div class="stat"><span>Telegram</span><span class="valor" style="font-size:0.85rem;">${d.telegram}</span></div>
+    <div class="stat"><span>Visitas totales</span><span class="valor">${d.visitas_totales}</span></div>
+    <div class="stat"><span>Mensajes guardados</span><span class="valor">${d.mensajes_guardados}</span></div>
+    <div class="stat"><span>Timestamp</span><span style="font-size:0.8rem;color:#94a3b8;">${d.timestamp}</span></div>
+  `;
+}
+
+async function testTelegram() {
+  const btn = document.getElementById('btnTg');
+  btn.disabled = true; btn.innerText = 'Enviando...';
+  try {
+    const r = await fetch('/api/test_telegram', { method: 'POST' });
+    const d = await r.json();
+    document.getElementById('tgStatus').innerHTML =
+      `<div class="badge ${r.ok ? 'ok' : 'err'}" style="display:block;margin-bottom:8px;">${d.mensaje}</div>`;
+  } catch(e) {
+    document.getElementById('tgStatus').innerHTML = `<div class="badge err">Error de red</div>`;
+  }
+  btn.disabled = false; btn.innerText = '📤 Enviar mensaje de prueba';
+}
+
+async function cargarVisitas() {
+  const d = await (await fetch('/api/visitas')).json();
+  const porDia = Object.entries(d.por_dia).slice(-5).reverse();
+  let html = `<div class="stat"><span>Total</span><span class="valor">${d.total}</span></div>
+              <div class="stat"><span>Hoy</span><span class="valor">${d.hoy}</span></div>`;
+  porDia.forEach(([fecha, n]) => {
+    html += `<div class="stat"><span>${fecha}</span><span class="valor">${n}</span></div>`;
+  });
+  document.getElementById('statsVisitas').innerHTML = html;
+}
+
+async function cargarMensajes() {
+  const r  = await fetch('/api/mensajes_guardados');
+  const d  = await r.json();
+  document.getElementById('msgInfo').innerText =
+    `${d.total} mensajes guardados. Primero: ${d.primer_mensaje || 'ninguno'}`;
+  
+  // Leer el txt para mostrar mensajes (usando el endpoint de responder no expone el contenido)
+  document.getElementById('msgLista').innerHTML =
+    `<div class="msj-item" style="color:#94a3b8;font-style:italic;">
+      Los mensajes están guardados en buzon_secreto.txt y data/mensajes.json en tu servidor 🔒
+    </div>`;
+}
+
+async function cargarAmor() {
+  const d = await (await fetch('/api/estadisticas_amor')).json();
+  document.getElementById('statsAmor').innerHTML = `
+    <div class="stat"><span>Días vividos</span><span class="valor">${d.dias_vividos}</span></div>
+    <div class="stat"><span>Semanas de vida</span><span class="valor">${d.semanas_vividas}</span></div>
+    <div class="stat"><span>Días juntos</span><span class="valor">${d.dias_juntos}</span></div>
+    <div class="stat"><span>Órbitas al sol</span><span class="valor">${d.orbitas_al_sol}</span></div>
+    <div class="stat"><span>Próximo cumpleaños</span><span class="valor">${d.dias_para_cumple} días</span></div>
+  `;
+}
+
+async function cargarFrase() {
+  const d = await (await fetch('/api/frase_del_dia')).json();
+  document.getElementById('fraseDia').innerText = `"${d.frase}"`;
+}
+
+// Auto-cargar al abrir
+cargarSalud(); cargarVisitas(); cargarAmor(); cargarFrase();
+</script>
+</body>
+</html>

@@ -535,3 +535,253 @@ function showToast(msg, duration = 3500) {
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), duration);
 }
+/* ==========================================================================
+   🆕 PARTE 5: NUEVAS FUNCIONES DE LAS APIS PYTHON
+   ========================================================================== */
+ 
+// 5.1 — Frase romántica del día (se carga al inicio)
+async function cargarFraseDia() {
+    try {
+        const res  = await fetch('/api/frase_del_dia');
+        const data = await res.json();
+ 
+        // Si ya existe un contenedor de frase, actualízalo
+        let fraseCont = document.getElementById('fraseDia');
+        if (!fraseCont) {
+            fraseCont = document.createElement('div');
+            fraseCont.id = 'fraseDia';
+            fraseCont.style.cssText = `
+                margin: 12px auto; max-width: 600px;
+                background: rgba(255,255,255,0.04);
+                border: 1px solid rgba(255,107,129,0.2);
+                border-radius: 12px; padding: 14px 22px;
+                font-family: 'IM Fell English', serif;
+                font-style: italic; font-size: 1.05rem;
+                color: #f0e8ff; opacity: 0;
+                transition: opacity 1.5s ease;
+                text-shadow: 0 0 8px rgba(255,107,129,0.3);
+            `;
+            const cont = document.getElementById('contenedorPrincipal');
+            if (cont) cont.prepend(fraseCont);
+        }
+        fraseCont.innerHTML = `✨ <em>"${data.frase}"</em>`;
+        setTimeout(() => { fraseCont.style.opacity = '1'; }, 300);
+    } catch (_) { /* falla silenciosa */ }
+}
+ 
+// 5.2 — Estadísticas de amor (se inyectan en el contenido sorpresa)
+async function cargarEstadisticasAmor() {
+    try {
+        const res  = await fetch('/api/estadisticas_amor');
+        const data = await res.json();
+ 
+        // Crear un bloque de stats visuales debajo de #estadisticasAstro
+        const target = document.getElementById('estadisticasAstro');
+        if (!target) return;
+ 
+        const bloque = document.createElement('div');
+        bloque.id = 'bloqueStatsAmor';
+        bloque.style.cssText = `
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px; margin: 22px auto; max-width: 640px;
+        `;
+ 
+        const stats = [
+            { icono: '🌙', valor: data.dias_vividos, etiqueta: 'días vividos' },
+            { icono: '💓', valor: data.semanas_vividas, etiqueta: 'semanas de vida' },
+            { icono: '💞', valor: data.dias_juntos, etiqueta: 'días juntos' },
+            { icono: '🌍', valor: data.orbitas_al_sol, etiqueta: 'órbitas al sol' },
+        ];
+ 
+        stats.forEach(s => {
+            const tarjeta = document.createElement('div');
+            tarjeta.style.cssText = `
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,107,129,0.2);
+                border-radius: 12px; padding: 14px 10px;
+                text-align: center; font-family: 'Playfair Display', serif;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                cursor: default;
+            `;
+            tarjeta.innerHTML = `
+                <div style="font-size:2rem;">${s.icono}</div>
+                <div style="font-size:1.5rem;font-weight:bold;color:#f5c842;margin:4px 0;">${s.valor}</div>
+                <div style="font-size:0.8rem;color:#cbd5e1;opacity:0.8;">${s.etiqueta}</div>
+            `;
+            tarjeta.addEventListener('mouseenter', () => {
+                tarjeta.style.transform = 'translateY(-5px)';
+                tarjeta.style.boxShadow = '0 10px 30px rgba(255,107,129,0.2)';
+            });
+            tarjeta.addEventListener('mouseleave', () => {
+                tarjeta.style.transform = '';
+                tarjeta.style.boxShadow = '';
+            });
+            bloque.appendChild(tarjeta);
+        });
+ 
+        target.after(bloque);
+    } catch (_) { /* falla silenciosa */ }
+}
+ 
+// 5.3 — Poema al tocar la luna (reemplaza el toast genérico)
+async function mostrarPoemaLuna() {
+    try {
+        const res  = await fetch('/api/poema');
+        const data = await res.json();
+ 
+        // Crear el modal del poema si no existe
+        let modal = document.getElementById('modalPoema');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'modalPoema';
+            modal.style.cssText = `
+                position: fixed; inset: 0; z-index: 99999;
+                background: rgba(2,4,10,0.92);
+                display: flex; flex-direction: column;
+                justify-content: center; align-items: center;
+                padding: 30px; opacity: 0;
+                transition: opacity 0.8s ease;
+                backdrop-filter: blur(12px);
+            `;
+            modal.innerHTML = `
+                <div id="poemaContenido" style="
+                    max-width: 500px; width: 100%;
+                    background: rgba(255,255,255,0.04);
+                    border: 1px solid rgba(255,255,255,0.1);
+                    border-radius: 18px; padding: 35px 32px;
+                    font-family: 'IM Fell English', serif;
+                    text-align: center; position: relative;
+                ">
+                    <h2 id="poema-titulo" style="font-family:'Playfair Display',serif;color:#ff6b81;font-size:1.6rem;margin-bottom:20px;"></h2>
+                    <div id="poema-versos" style="line-height:2;font-size:1.05rem;color:#f0e8ff;font-style:italic;"></div>
+                    <div style="margin-top:28px;">
+                        <button id="btnOtroPoema" style="
+                            background: rgba(255,107,129,0.2); color: #ff6b81;
+                            border: 1px solid rgba(255,107,129,0.4);
+                            padding: 10px 22px; border-radius: 50px;
+                            cursor: pointer; font-family: 'Playfair Display',serif;
+                            font-size: 0.95rem; margin-right: 10px;
+                            transition: all 0.3s;
+                        ">Otro poema ✨</button>
+                        <button id="btnCerrarPoema" style="
+                            background: rgba(255,255,255,0.06); color: #cbd5e1;
+                            border: 1px solid rgba(255,255,255,0.1);
+                            padding: 10px 22px; border-radius: 50px;
+                            cursor: pointer; font-size: 0.9rem;
+                            transition: all 0.3s;
+                        ">Cerrar</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+ 
+            document.getElementById('btnCerrarPoema').addEventListener('click', () => {
+                modal.style.opacity = '0';
+                setTimeout(() => { modal.style.display = 'none'; }, 600);
+            });
+            document.getElementById('btnOtroPoema').addEventListener('click', mostrarPoemaLuna);
+        }
+ 
+        document.getElementById('poema-titulo').innerText = data.titulo;
+        const versosDiv = document.getElementById('poema-versos');
+        versosDiv.innerHTML = data.versos
+            .map(v => v === '' ? '<br>' : `<p style="margin:2px 0;">${v}</p>`)
+            .join('');
+ 
+        modal.style.display = 'flex';
+        setTimeout(() => { modal.style.opacity = '1'; }, 10);
+    } catch (_) {
+        showToast('🌙 Tu luz llega hasta mí...');
+    }
+}
+ 
+// 5.4 — Contador de visitas discreto en la esquina
+async function mostrarContadorVisitas() {
+    try {
+        const res  = await fetch('/api/visitas');
+        const data = await res.json();
+ 
+        const badge = document.createElement('div');
+        badge.style.cssText = `
+            position: fixed; bottom: 16px; right: 16px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px; padding: 6px 14px;
+            font-size: 0.75rem; color: #94a3b8;
+            z-index: 500; cursor: default;
+            backdrop-filter: blur(8px);
+            transition: opacity 0.3s;
+        `;
+        badge.title = `Visitas totales: ${data.total}`;
+        badge.innerHTML = `🌙 ${data.total} visitas`;
+        badge.addEventListener('mouseenter', () => { badge.style.opacity = '0.5'; });
+        badge.addEventListener('mouseleave', () => { badge.style.opacity = '1'; });
+        document.body.appendChild(badge);
+    } catch (_) { /* falla silenciosa */ }
+}
+ 
+// 5.5 — Cuenta regresiva detallada (reemplaza la simple en pantalla de bloqueo)
+async function iniciarCountdownDetallado() {
+    const reloj = document.getElementById('cuentaRegresiva');
+    if (!reloj) return;
+ 
+    async function actualizar() {
+        try {
+            const res  = await fetch('/api/countdown_detallado');
+            const data = await res.json();
+            if (data.abierto) { location.reload(); return; }
+            reloj.innerHTML = `
+                <span style="font-size:0.6em;display:block;margin-bottom:4px;color:#ff6b81;">
+                    ${data.frase}
+                </span>
+                ${String(data.dias).padStart(2,'0')}d
+                ${String(data.horas).padStart(2,'0')}h
+                ${String(data.minutos).padStart(2,'0')}m
+                ${String(data.segundos).padStart(2,'0')}s
+            `;
+        } catch (_) {
+            // fallback al modo simple (el original)
+        }
+    }
+    actualizar();
+    setInterval(actualizar, 1000);
+}
+ 
+// 5.6 — Sobreescribir click de la luna para mostrar el poema
+const lunaBtn = document.getElementById('lunaInteractiva');
+if (lunaBtn) {
+    // Remover el listener anterior y poner el nuevo
+    const nuevoLuna = lunaBtn.cloneNode(true);
+    lunaBtn.parentNode.replaceChild(nuevoLuna, lunaBtn);
+    nuevoLuna.addEventListener('click', function(e) {
+        e.stopPropagation();
+        // Onda de luz (efecto visual)
+        const onda = document.createElement('div');
+        onda.classList.add('onda-luz');
+        document.getElementById('contenedorLuna').appendChild(onda);
+        setTimeout(() => onda.remove(), 1500);
+        // Mostrar poema
+        mostrarPoemaLuna();
+    });
+}
+ 
+// 5.7 — Inicialización de todo
+window.addEventListener('load', () => {
+    cargarFraseDia();
+    mostrarContadorVisitas();
+ 
+    // Si hay pantalla de bloqueo activa, usar countdown detallado
+    const bloqueo = document.getElementById('pantallaBloqueo');
+    if (bloqueo && !bloqueo.classList.contains('oculto')) {
+        iniciarCountdownDetallado();
+    }
+});
+ 
+// 5.8 — Cargar estadísticas cuando se abra el regalo
+const btnOrig = document.getElementById('botonRegalo');
+if (btnOrig) {
+    btnOrig.addEventListener('click', function onceHandler() {
+        setTimeout(cargarEstadisticasAmor, 4000); // después de la animación
+        btnOrig.removeEventListener('click', onceHandler);
+    }, { once: true });
+}
