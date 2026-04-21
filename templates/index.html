@@ -3,34 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Para mi Luna</title>
-    
+    <title>Para mi Luna 🌙</title>
+    <meta name="theme-color" content="#0b0f24">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,600&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="static/styless.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styless.css') }}">
 </head>
 <body>
+
     <div id="cursor"></div>
     <div id="cursor-ring"></div>
     <div id="toast"></div>
 
-    <audio id="musicaFondo" src="static/cancion.mp3" loop></audio>
-    <audio id="musicaLuna" src="static/cancion_luna.mp3" loop></audio>
+    <audio id="musicaFondo" src="{{ url_for('static', filename='cancion.mp3') }}" loop></audio>
+    <audio id="musicaLuna" src="{{ url_for('static', filename='cancion_luna.mp3') }}" loop></audio>
 
+    <!-- PANTALLA DE BLOQUEO -->
     <div id="pantallaBloqueo" class="pantalla-bloqueo oculto">
-        <h1 style="font-family: 'Playfair Display', serif;">Falta poco para tu sorpresa...</h1>
-        <div id="cuentaRegresiva" class="reloj-cuenta">00:00:00</div>
+        <div class="bloqueo-contenido">
+            <div class="luna-espera">🌙</div>
+            <h1 class="bloqueo-titulo">Falta poco para tu sorpresa...</h1>
+            <p class="bloqueo-subtitulo">Cada segundo que pasa, te pienso más.</p>
+            <div id="cuentaRegresiva" class="reloj-cuenta">00:00:00</div>
+            <div class="buzon buzon-bloqueo">
+                <h3>Buzón Secreto 💌</h3>
+                <p>Mientras esperas, puedes dejarme un mensaje...</p>
+                <textarea id="textoSecretoBloqueo" placeholder="Escribe tu mensaje mágico aquí..."></textarea>
+                <br>
+                <button id="btnEnviarBloqueo">Enviar a las estrellas ✨</button>
+            </div>
+        </div>
     </div>
 
+    <!-- CONTENEDOR PRINCIPAL -->
     <div id="contenedorPrincipal" class="contenedor">
+
         <div id="botonRegalo" class="caja-regalo">
             <span class="icono-regalo">🎁</span>
-            <span id="textoRegalo" style="font-weight: bold;">Toca para abrir tu sorpresa</span>
+            <span id="textoRegalo">Toca para abrir tu sorpresa</span>
         </div>
 
         <div id="contenidoSorpresa" class="oculto">
+
             <div class="contenedor-pastel">
                 <div class="velas">
                     <div class="llama"></div>
@@ -38,23 +55,21 @@
                     <div class="llama"></div>
                 </div>
                 <div class="pastel-animado">🎂</div>
-                <p id="instruccionPastel" class="instruccion-pastel">Sopla las velas (pasa el dedo/mouse)</p>
+                <p id="instruccionPastel" class="instruccion-pastel">Sopla las velas (pasa el dedo o el mouse)</p>
             </div>
 
-            <h1 id="tituloMensaje" style="font-family: 'Playfair Display', serif; color: #ff6b81; font-size: 2.5rem;"></h1>
+            <h1 id="tituloMensaje" class="titulo-mensaje"></h1>
             <p id="estadisticasAstro" class="estadisticas"></p>
-            
             <div id="listaMensajes" class="mensajes"></div>
             <p id="firmaMensaje" class="firma oculto"></p>
 
-            <p id="firmaMensaje" class="firma oculto"></p>
-
-           <div id="collageMemorias" class="oculto">
-                <h3 style="font-family: 'Playfair Display', serif; color: #ff6b81; margin-top: 40px; font-size: 2rem;">Nuestra Historia</h3>
-                <div class="galeria-grid">
+            <!-- Collage: BUG FIX - clase galeria-grid → galeria-polaroid + nesting roto arreglado -->
+            <div id="collageMemorias" class="oculto">
+                <h3 class="titulo-seccion">Nuestra Historia</h3>
+                <div class="galeria-polaroid">
                     <div class="marco-foto">
                         <img src="/static/DEFAULT_RECUERDOS/foto1.png" alt="Recuerdo 1">
-                        <p class="texto-foto">nuestra diversion</p>
+                        <p class="texto-foto">Nuestra diversión</p>
                     </div>
                     <div class="marco-foto">
                         <img src="/static/DEFAULT_RECUERDOS/foto2.png" alt="Recuerdo 2">
@@ -63,14 +78,14 @@
                     <div class="marco-foto">
                         <img src="/static/DEFAULT_RECUERDOS/foto3.png" alt="Recuerdo 3">
                         <p class="texto-foto">Siempre juntos</p>
-                        <div class="marco-foto">
+                    </div>
+                    <div class="marco-foto">
                         <img src="/static/DEFAULT_RECUERDOS/foto4.png" alt="Recuerdo 4">
                         <p class="texto-foto">Nuestras locuras</p>
-                        <div class="marco-foto">
+                    </div>
+                    <div class="marco-foto">
                         <img src="/static/DEFAULT_RECUERDOS/foto5.png" alt="Recuerdo 5">
-                        <p class="texto-foto">Te seguire a cada instante, hasta mi ultimo suspiro</p>
-                    </div>
-                    </div>
+                        <p class="texto-foto">Hasta mi último suspiro</p>
                     </div>
                 </div>
             </div>
@@ -80,25 +95,45 @@
                 <p>Escribe algo aquí, solo yo podré leerlo después...</p>
                 <textarea id="textoSecreto" placeholder="Escribe tu mensaje mágico aquí..."></textarea>
                 <br>
-                <button id="btnEnviarSecreto">Enviar a las estrellas</button>
+                <button id="btnEnviarSecreto">Enviar a las estrellas ✨</button>
             </div>
 
+            <div id="pistaSecreta">
+                ✨ <i>Escribe en tu teclado el nombre de aquella que ilumina mis noches...</i>
+            </div>
+
+        </div><!-- fin #contenidoSorpresa -->
+    </div><!-- fin #contenedorPrincipal -->
+
+
+    <!-- =================================================================
+         EASTER EGG: ESCENA LUNA
+         *** BUG FIX PRINCIPAL ***
+         Movido FUERA de #contenedorPrincipal para que al hacer
+         contenedorPrincipal.style.display = 'none' NO se oculte también.
+         ================================================================= -->
     <div id="escenaLuna">
         <div class="capa-estrellas-lejos"></div>
         <div class="capa-estrellas-cerca"></div>
         <div class="nebulosa-fondo"></div>
-        
         <div id="planetaTierra" class="planeta-tierra"></div>
-        
-        <div id="contenedorLuna" style="text-align: center; position: relative; z-index: 102;">
-            <div class="luna-realista"></div>
+
+        <div id="contenedorLuna">
+            <div id="lunaInteractiva" class="luna-realista">
+                <div class="crater" style="width:18%;height:18%;top:20%;left:25%;"></div>
+                <div class="crater" style="width:10%;height:10%;top:50%;left:60%;"></div>
+                <div class="crater" style="width:14%;height:14%;top:65%;left:30%;"></div>
+            </div>
             <h1 class="nombre-luna-titulo">LUNA</h1>
         </div>
 
         <div id="frasesPoeticas" class="frases-luna"></div>
+
+        <button id="btnCerrarLuna" title="Cerrar la escena">✕</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="static/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
