@@ -1,789 +1,1006 @@
-/* ==========================================================================
-   🎇 PARTE 1: LA FIESTA DE CUMPLEAÑOS
-   ========================================================================== */
+/* ══════════════════════════════════════════════════════════════
+   🌙 Script Principal — Cumpleaños de Luyuromo
+   Versión 3.0 — Reescrito limpio, bugs corregidos
+   ══════════════════════════════════════════════════════════════ */
 
-// 1.1 Estrellas de fondo
-function crearFondoEstrellas() {
-    const colores = ['#ff007f','#ff1493','#ffd700','#ffea00','#ff6b81'];
-    for (let i = 0; i < 120; i++) {
-        const estrella = document.createElement('div');
-        estrella.classList.add('estrella');
-        const tamaño = Math.random() * 10 + 4;
-        Object.assign(estrella.style, {
-            width: `${tamaño}px`, height: `${tamaño}px`,
-            backgroundColor: colores[Math.floor(Math.random() * colores.length)],
-            left: `${Math.random() * 100}vw`,
-            top: `${Math.random() < 0.7 ? Math.random() * 40 : Math.random() * 100}vh`,
-            animation: `titilar ${Math.random() * 3 + 1.5}s ease-in-out infinite`,
-            animationDelay: `${Math.random() * 2}s`,
-            position: 'fixed', zIndex: '-1'
-        });
-        document.body.appendChild(estrella);
-    }
+'use strict';
+
+/* ──────────────────────────────────────────────────────────────
+   UTILIDADES GLOBALES
+   ────────────────────────────────────────────────────────────── */
+function $(id) { return document.getElementById(id); }
+function showToast(msg, dur = 3500) {
+  const t = $('toast'); if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
 }
-crearFondoEstrellas();
+function raf(fn) { requestAnimationFrame(fn); }
 
-// 1.2 Confeti profesional
-function lanzarConfetiProfesional() {
-    if (typeof confetti === 'undefined') return;
-    const colors = ['#ff0a54','#ff477e','#ffd166','#06d6a0','#f5c842'];
-    const end = Date.now() + 4500;
-    (function frame() {
-        confetti({ particleCount: 5, angle: 60,  spread: 55, origin: { x: 0 }, colors });
-        confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors });
-        if (Date.now() < end) requestAnimationFrame(frame);
-    }());
-}
+/* ══════════════════════════════════════════════════════════════
+   1 · CANVAS DE PARTÍCULAS — Pantalla de Bloqueo
+   ══════════════════════════════════════════════════════════════ */
+class CanvasBloqueo {
+  constructor(canvasId) {
+    this.canvas = $(canvasId);
+    if (!this.canvas) return;
+    this.ctx = this.canvas.getContext('2d');
+    this.particles = [];
+    this.shooting  = [];
+    this.running   = false;
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+    this._buildParticles();
+  }
 
-// 1.3 Velas interactivas
-function activarVelas() {
-    let apagadas = 0;
-    const llamas = document.querySelectorAll('.llama');
+  resize() {
+    if (!this.canvas) return;
+    this.W = this.canvas.width  = window.innerWidth;
+    this.H = this.canvas.height = window.innerHeight;
+  }
 
-    function apagar() {
-        if (!this.classList.contains('apagada')) {
-            this.classList.add('apagada');
-            apagadas++;
-            if (apagadas === llamas.length) {
-                document.getElementById('instruccionPastel').innerText = '¡Deseo Concedido! ✨';
-                lanzarConfetiProfesional();
-                showToast('🎂 ¡Deseo concedido! Que se cumpla...');
-            }
-        }
+  _buildParticles() {
+    this.particles = [];
+    const n = Math.min(200, Math.floor(this.W * this.H / 8000));
+    for (let i = 0; i < n; i++) {
+      this.particles.push({
+        x: Math.random() * this.W,
+        y: Math.random() * this.H,
+        r: Math.random() * 1.5 + .3,
+        a: Math.random(),
+        da: (Math.random() * .004 + .001) * (Math.random() < .5 ? 1 : -1),
+        hue: Math.random() * 60 + 200,   // azul-violeta
+      });
     }
+  }
 
-    llamas.forEach(llama => {
-        llama.addEventListener('mouseenter', apagar);
-        llama.addEventListener('touchstart', apagar, { passive: true });
+  _spawnShooting() {
+    if (Math.random() > .015) return;
+    this.shooting.push({
+      x: Math.random() * this.W * .8 + this.W * .2,
+      y: Math.random() * this.H * .4,
+      len: 0, maxLen: 120 + Math.random() * 100,
+      speed: 8 + Math.random() * 6, life: 1,
     });
-}
+  }
 
-// 1.4 Globos
-function crearLluviaDeGlobos() {
-    const emojis = ['🎈','🎊','🎉','🎁','💕','🌟'];
-    for (let i = 0; i < 40; i++) {
-        const globo = document.createElement('div');
-        globo.classList.add('globo');
-        globo.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-        Object.assign(globo.style, {
-            left: `${Math.random() * 100}vw`,
-            animationDuration: `${Math.random() * 4 + 5}s`,
-            animationDelay: `${Math.random() * 5}s`,
-            fontSize: `${Math.random() * 1.5 + 2}rem`
-        });
-        globo.addEventListener('click', function() {
-            this.classList.add('globo-reventado');
-            this.innerText = '💥';
-            setTimeout(() => this.remove(), 350);
-        });
-        document.body.appendChild(globo);
-    }
-}
-
-// 1.5 Máquina de escribir
-function escribirMaquina(mensajes, contenedor, index = 0, callbackFinal = null) {
-    if (index >= mensajes.length) { if (callbackFinal) callbackFinal(); return; }
-
-    const parrafo = document.createElement('p');
-    contenedor.appendChild(parrafo);
-    const texto = '✨ ' + mensajes[index];
-    let i = 0;
-
-    const cursor = document.createElement('span');
-    cursor.classList.add('cursor-parpadeo');
-    parrafo.appendChild(cursor);
-
-    const intervalo = setInterval(() => {
-        parrafo.innerText = texto.substring(0, i + 1);
-        parrafo.appendChild(cursor);
-        i++;
-        if (i === texto.length) {
-            clearInterval(intervalo);
-            cursor.remove();
-            setTimeout(() => escribirMaquina(mensajes, contenedor, index + 1, callbackFinal), 700);
-        }
-    }, 42);
-}
-
-
-/* ==========================================================================
-   ⚙️ PARTE 2: BACKEND (FLASK)
-   ========================================================================== */
-
-// 2.1 Reloj de cuenta regresiva
-fetch('/api/estado')
-    .then(res => res.json())
-    .then(data => {
-        if (data.bloqueado) {
-            document.getElementById('contenedorPrincipal').style.display = 'none';
-            document.getElementById('pantallaBloqueo').classList.remove('oculto');
-
-            let segundos = Math.floor(data.segundos_faltantes);
-            const reloj = document.getElementById('cuentaRegresiva');
-
-            const tick = setInterval(() => {
-                if (segundos > 0) {
-                    segundos--;
-                    const h = Math.floor(segundos / 3600);
-                    const m = Math.floor((segundos % 3600) / 60);
-                    const s = segundos % 60;
-                    reloj.innerText =
-                        `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-                } else {
-                    clearInterval(tick);
-                    location.reload();
-                }
-            }, 1000);
-        }
-    })
-    .catch(() => console.log('Modo desarrollo local activo.'));
-
-// 2.2 Buzón en pantalla de bloqueo
-document.getElementById('btnEnviarBloqueo')?.addEventListener('click', function() {
-    const input = document.getElementById('textoSecretoBloqueo');
-    const msg = input.value.trim();
-    if (!msg) { showToast('✍️ Escribe un mensaje primero...'); return; }
-
-    this.innerText = 'Enviando... ✨';
-    this.disabled = true;
-
-    fetch('/api/responder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mensaje: msg })
-    })
-    .then(res => res.json())
-    .then(datos => { showToast('💌 ' + datos.respuesta); input.value = ''; })
-    .catch(() => { showToast('✨ Mensaje guardado mágicamente.'); input.value = ''; })
-    .finally(() => { this.innerText = 'Enviar a las estrellas ✨'; this.disabled = false; });
-});
-
-// 2.3 Abrir el regalo
-document.getElementById('botonRegalo').addEventListener('click', function() {
-    this.classList.add('abriendo-caja');
-    document.querySelectorAll('.estrella').forEach(e => e.style.animationPlayState = 'paused');
-
-    const musica = document.getElementById('musicaFondo');
-    if (musica) { musica.volume = 0.5; musica.play().catch(() => {}); }
-
-    setTimeout(() => {
-        this.style.display = 'none';
-        crearLluviaDeGlobos();
-
-        fetch('/api/abrir_regalo')
-            .then(res => res.json())
-            .then(datos => mostrarFiesta(datos))
-            .catch(() => mostrarFiesta({
-                titulo: '¡Feliz Cumpleaños!',
-                estadisticas: 'Eres la persona más brillante de mi universo.',
-                mensajes: ['Espero que tengas un día increíble.', 'Lleno de amor y paz.'],
-                firma: 'Con amor, Frank'
-            }));
-    }, 850);
-});
-
-// Función central
-function mostrarFiesta(datos) {
-    document.getElementById('tituloMensaje').innerText = datos.titulo;
-    document.getElementById('estadisticasAstro').innerText = datos.estadisticas;
-
-    const sorpresa = document.getElementById('contenidoSorpresa');
-    sorpresa.classList.remove('oculto');
-    sorpresa.classList.add('mostrar');
-
-    activarVelas();
-
-    const contenedorMensajes = document.getElementById('listaMensajes');
-    contenedorMensajes.innerHTML = '';
-
-    escribirMaquina(datos.mensajes, contenedorMensajes, 0, () => {
-        const firma = document.getElementById('firmaMensaje');
-        firma.innerText = datos.firma;
-        firma.classList.remove('oculto');
-        firma.classList.add('mostrar');
-
-        setTimeout(() => {
-            const collage = document.getElementById('collageMemorias');
-            if (collage) { collage.classList.remove('oculto'); collage.classList.add('mostrar'); }
-
-            setTimeout(() => {
-                const buzon = document.getElementById('buzonSecreto');
-                if (buzon) { buzon.classList.remove('oculto'); buzon.classList.add('mostrar'); }
-
-                // Mostrar pista del Easter Egg
-                setTimeout(() => {
-                    const pista = document.getElementById('pistaSecreta');
-                    if (pista) pista.classList.add('pista-visible');
-                }, 5000);
-            }, 800);
-        }, 1200);
-    });
-}
-
-// 2.4 Buzón Secreto (fiesta)
-document.getElementById('btnEnviarSecreto')?.addEventListener('click', function() {
-    const input = document.getElementById('textoSecreto');
-    const msg = input.value.trim();
-
-    if (!msg) { showToast('✍️ Escribe un mensaje primero...'); return; }
-
-    this.innerText = 'Enviando... ✨';
-    this.disabled = true;
-
-    fetch('/api/responder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mensaje: msg })
-    })
-    .then(res => res.json())
-    .then(datos => {
-        showToast('🌙 ' + datos.respuesta);
-        const normalized = msg.toLowerCase();
-        if (normalized.includes('luna') || normalized.includes('easter')) {
-            setTimeout(activarEasterEggLuna, 600);
-        }
-        input.value = '';
-    })
-    .catch(() => { showToast('✨ Mensaje guardado mágicamente.'); input.value = ''; })
-    .finally(() => { this.innerText = 'Enviar a las estrellas ✨'; this.disabled = false; });
-});
-
-
-/* ==========================================================================
-   🌙 PARTE 3: EASTER EGG – LA ESCENA CINEMATOGRÁFICA
-   ========================================================================== */
-
-// 3.1 Activar con teclado ("luna")
-let entradaTeclado = '';
-document.addEventListener('keydown', function(e) {
-    const tecla = e.key.toLowerCase();
-    if (tecla.length === 1 && tecla >= 'a' && tecla <= 'z') {
-        entradaTeclado = (entradaTeclado + tecla).slice(-4);
-        if (entradaTeclado === 'luna') {
-            activarEasterEggLuna();
-            entradaTeclado = '';
-        }
-    }
-});
-
-// 3.2 Efectos de corazones en la escena
-function crearEstrellasCorazon() {
-    const escena = document.getElementById('escenaLuna');
-    for (let i = 0; i < 30; i++) {
-        const corazon = document.createElement('div');
-        corazon.classList.add('corazon-estrella');
-        corazon.innerText = ['🤍','💙','🌙'][Math.floor(Math.random()*3)];
-        Object.assign(corazon.style, {
-            fontSize: `${Math.random() * 1.5 + 0.5}rem`,
-            left: `${Math.random() * 100}vw`,
-            top: `${Math.random() * 100}vh`,
-            animation: `titilarCorazon ${Math.random() * 3 + 2}s ease-in-out ${Math.random() * 2}s infinite`
-        });
-        escena.appendChild(corazon);
-    }
-}
-
-// 3.3 Luna interactiva (onda de luz al tocar)
-document.getElementById('lunaInteractiva')?.addEventListener('click', function(e) {
-    const onda = document.createElement('div');
-    onda.classList.add('onda-luz');
-    const rect = this.getBoundingClientRect();
-    const size = Math.max(rect.width, rect.height);
-    Object.assign(onda.style, { width: size + 'px', height: size + 'px' });
-    document.getElementById('contenedorLuna').appendChild(onda);
-    setTimeout(() => onda.remove(), 1500);
-    showToast('🌙 Tu luz llega hasta mí...');
-});
-
-// 3.4 Polvo de estrellas al mover el mouse (solo en la escena luna)
-document.addEventListener('mousemove', function(e) {
-    const escena = document.getElementById('escenaLuna');
-    if (escena.style.display !== 'flex') return;
-    if (Math.random() > 0.35) return; // Limitar a 35% de frames
-
-    const polvo = document.createElement('div');
-    polvo.classList.add('polvo-estrellas');
-    Object.assign(polvo.style, {
-        left: (e.clientX - 3) + 'px',
-        top: (e.clientY - 3) + 'px'
-    });
-    document.body.appendChild(polvo);
-    setTimeout(() => polvo.remove(), 900);
-});
-
-// 3.5 Botón cerrar la escena luna
-document.getElementById('btnCerrarLuna')?.addEventListener('click', function() {
-    const escena = document.getElementById('escenaLuna');
-    const musLuna = document.getElementById('musicaLuna');
-
-    if (typeof gsap !== 'undefined') {
-        gsap.to(escena, { opacity: 0, duration: 1.5, ease: 'power2.in', onComplete: () => {
-            escena.style.display = 'none';
-            escena.style.opacity = '';
-        }});
-    } else {
-        escena.style.display = 'none';
-    }
-
-    if (musLuna) { musLuna.pause(); musLuna.currentTime = 0; }
-
-    // Reactivar contenedor principal si existe
-    const cont = document.getElementById('contenedorPrincipal');
-    if (cont) cont.style.display = '';
-});
-
-// 3.6 Efectos avanzados de parallax en la luna
-function iniciarEfectosAvanzadosLuna() {
-    const escena = document.getElementById('escenaLuna');
-    const luna = document.getElementById('contenedorLuna');
-    const tierra = document.getElementById('planetaTierra');
-    const nebulosa = document.querySelector('.nebulosa-fondo');
-
-    // Parallax con el mouse
-    document.addEventListener('mousemove', (e) => {
-        if (escena.style.display !== 'flex') return;
-        const xPos = (e.clientX / window.innerWidth - 0.5) * 30;
-        const yPos = (e.clientY / window.innerHeight - 0.5) * 30;
-
-        if (typeof gsap !== 'undefined') {
-            gsap.to(luna,    { x: xPos * 2,  y: yPos * 2,  duration: 1.2, ease: 'power2.out' });
-            gsap.to(tierra,  { x: xPos * 1,  y: yPos * 1,  duration: 1.8, ease: 'power2.out' });
-            gsap.to(nebulosa,{ x: -xPos * 3, y: -yPos * 3, duration: 2.5, ease: 'power1.out' });
-        }
-    });
-
-    // Estrellas fugaces periódicas
-    setInterval(() => {
-        if (escena.style.display !== 'flex') return;
-        const fugaz = document.createElement('div');
-        fugaz.classList.add('estrella-fugaz-dinamica');
-        Object.assign(fugaz.style, {
-            left: `${Math.random() * 50 + 50}vw`,
-            top: `${Math.random() * 40}vh`
-        });
-        escena.appendChild(fugaz);
-        setTimeout(() => fugaz.remove(), 1800);
-    }, 3500);
-
-    // Estrellas al hacer clic en la escena
-    escena.addEventListener('click', (e) => {
-        if (e.target.id === 'lunaInteractiva' || e.target.closest('#lunaInteractiva')) return;
-        if (e.target.id === 'btnCerrarLuna') return;
-
-        const estrella = document.createElement('div');
-        estrella.classList.add('estrella-fija');
-        Object.assign(estrella.style, {
-            left: `${e.clientX - 2}px`,
-            top: `${e.clientY - 2}px`,
-            position: 'fixed'
-        });
-        escena.appendChild(estrella);
-    });
-}
-
-// 3.7 La coreografía principal (GSAP)
-let easterEggActivo = false;
-
-function activarEasterEggLuna() {
-    if (easterEggActivo) return;
-    easterEggActivo = true;
-
-    // Ocultar pista y contenedor principal
-    const pista = document.getElementById('pistaSecreta');
-    if (pista) pista.style.display = 'none';
-    const contNormal = document.getElementById('contenedorPrincipal');
-    if (contNormal) contNormal.style.display = 'none';
-
-    // Fade-out de la música de fondo
-    const mFondo = document.getElementById('musicaFondo');
-    if (mFondo) {
-        const fadeOut = setInterval(() => {
-            if (mFondo.volume > 0.08) mFondo.volume = Math.max(0, mFondo.volume - 0.08);
-            else { clearInterval(fadeOut); mFondo.pause(); mFondo.currentTime = 0; }
-        }, 180);
-    }
-
-    // Música de la luna
-    const mLuna = document.getElementById('musicaLuna');
-    if (mLuna) {
-        mLuna.volume = 0;
-        mLuna.play().catch(() => {});
-        const fadeIn = setInterval(() => {
-            if (mLuna.volume < 0.55) mLuna.volume = Math.min(0.6, mLuna.volume + 0.06);
-            else clearInterval(fadeIn);
-        }, 200);
-    }
-
-    // Mostrar escena
-    const escena = document.getElementById('escenaLuna');
-    if (!escena) { console.error('No se encontró #escenaLuna'); return; }
-    escena.style.display = 'flex';
-
-    crearEstrellasCorazon();
-    iniciarEfectosAvanzadosLuna();
-
-    // GSAP Timeline
-    if (typeof gsap === 'undefined') {
-        // Fallback sin GSAP
-        document.getElementById('planetaTierra').style.opacity = '0.6';
-        document.querySelector('.luna-realista').style.opacity = '1';
-        document.querySelector('.nombre-luna-titulo').style.opacity = '1';
-        return;
-    }
-
-    const tl = gsap.timeline();
-
-    // 1. Tierra sube desde abajo
-    tl.to('#planetaTierra', {
-        opacity: 0.55, bottom: '-38vh', duration: 4, ease: 'power2.out'
-    });
-
-    // 2. Luna aparece con escala y rotación
-    tl.fromTo('.luna-realista',
-        { scale: 0, opacity: 0, rotation: -45 },
-        { scale: 1, opacity: 1, rotation: 0, duration: 3, ease: 'back.out(1.7)' },
-        '-=2.5'
+  _drawNebulaBackground() {
+    const g = this.ctx.createRadialGradient(
+      this.W * .3, this.H * .3, 0,
+      this.W * .3, this.H * .3, this.W * .6
     );
+    g.addColorStop(0, 'rgba(80,0,100,.07)');
+    g.addColorStop(1, 'transparent');
+    this.ctx.fillStyle = g;
+    this.ctx.fillRect(0, 0, this.W, this.H);
 
-    // 3. Título "LUNA" aparece con letra-espaciado
-    tl.to('.nombre-luna-titulo', {
-        opacity: 1,
-        letterSpacing: window.innerWidth < 768 ? '8px' : '18px',
-        duration: 3, ease: 'power1.inOut'
-    }, '-=1');
+    const g2 = this.ctx.createRadialGradient(
+      this.W * .7, this.H * .6, 0,
+      this.W * .7, this.H * .6, this.W * .5
+    );
+    g2.addColorStop(0, 'rgba(0,40,120,.08)');
+    g2.addColorStop(1, 'transparent');
+    this.ctx.fillStyle = g2;
+    this.ctx.fillRect(0, 0, this.W, this.H);
+  }
 
-    // 4. Frases poéticas
-    const frases = [
-        'Eres mi luna...',
-        'La que ilumina mis noches más oscuras.',
-        'Quien me guía con su luz inquebrantable.',
-        'Mi refugio y mi paz.',
-        'Cada vez que la miro, te veo a ti.',
-        'Toca la luna para sentir su luz...',
-        'Te amo.'
+  frame() {
+    if (!this.running) return;
+    const ctx = this.ctx;
+    ctx.clearRect(0, 0, this.W, this.H);
+    this._drawNebulaBackground();
+
+    // Partículas twinkling
+    this.particles.forEach(p => {
+      p.a = Math.max(.05, Math.min(1, p.a + p.da));
+      if (p.a >= 1 || p.a <= .05) p.da *= -1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.hue},80%,90%,${p.a})`;
+      ctx.fill();
+    });
+
+    // Estrellas fugaces
+    this._spawnShooting();
+    this.shooting = this.shooting.filter(s => s.life > 0);
+    this.shooting.forEach(s => {
+      s.len = Math.min(s.len + s.speed, s.maxLen);
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      ctx.rotate(-Math.PI / 4);
+      const g = ctx.createLinearGradient(0, 0, -s.len, 0);
+      g.addColorStop(0, `rgba(255,255,255,${s.life})`);
+      g.addColorStop(1, 'transparent');
+      ctx.strokeStyle = g;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-s.len, 0);
+      ctx.stroke(); ctx.restore();
+      s.x -= s.speed * .7; s.y += s.speed * .7;
+      if (s.len >= s.maxLen) s.life -= .05;
+    });
+
+    raf(() => this.frame());
+  }
+
+  start() { this.running = true; this.frame(); }
+  stop()  { this.running = false; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   2 · FLIP COUNTER — BUG FIX: único countdown, sin conflictos
+   ══════════════════════════════════════════════════════════════ */
+class FlipCounter {
+  constructor() {
+    this._prevValues = {};
+  }
+
+  _setDigito(prefijo, valor, pad) {
+    const str = String(valor).padStart(pad, '0');
+    for (let i = 0; i < str.length; i++) {
+      const key  = `${prefijo}${i+1}`;
+      const digit = str[i];
+      const topEl = $(`${prefijo}-t${i > 0 ? i+1 : ''}`);  // ids: ft-t, ft2-t ...
+      const botEl = $(`${prefijo}-b${i > 0 ? i+1 : ''}`);
+
+      // Simplificado: actualizar texto directamente con micro-flip
+      const cardEl = topEl?.parentElement;
+      if (!cardEl) continue;
+      if (this._prevValues[key] !== digit) {
+        this._prevValues[key] = digit;
+        if (topEl) topEl.textContent = digit;
+        if (botEl) botEl.textContent = digit;
+        cardEl.classList.add('flipping');
+        setTimeout(() => cardEl.classList.remove('flipping'), 600);
+      }
+    }
+  }
+
+  _updateGroup(idTop, idBot, digit) {
+    const top = $(idTop);
+    const bot = $(idBot);
+    if (top && top.textContent !== digit) {
+      const card = top.parentElement;
+      top.textContent = digit;
+      bot.textContent = digit;
+      card.classList.remove('flipping');
+      void card.offsetWidth; // reflow
+      card.classList.add('flipping');
+      setTimeout(() => card.classList.remove('flipping'), 600);
+    }
+  }
+
+  update(dias, horas, minutos, segundos) {
+    const d = String(dias).padStart(3,'0');
+    const h = String(horas).padStart(2,'0');
+    const m = String(minutos).padStart(2,'0');
+    const s = String(segundos).padStart(2,'0');
+
+    this._updateGroup('fd-t','fd-b',   d[0]);
+    this._updateGroup('fd2-t','fd2-b', d[1]);
+    this._updateGroup('fd3-t','fd3-b', d[2]);
+    this._updateGroup('fh-t','fh-b',   h[0]);
+    this._updateGroup('fh2-t','fh2-b', h[1]);
+    this._updateGroup('fm-t','fm-b',   m[0]);
+    this._updateGroup('fm2-t','fm2-b', m[1]);
+    this._updateGroup('fs-t','fs-b',   s[0]);
+    this._updateGroup('fs2-t','fs2-b', s[1]);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   3 · MINI-JUEGO: CONSTELACIÓN DEL AMOR (Canvas)
+   ══════════════════════════════════════════════════════════════ */
+class JuegoConstelacion {
+  constructor(canvasId) {
+    this.canvas   = $(canvasId);
+    if (!this.canvas) return;
+    this.ctx      = this.canvas.getContext('2d');
+    this.W        = this.canvas.width;
+    this.H        = this.canvas.height;
+    this.completado = false;
+    this.siguienteIdx = 0;
+    this.lineas   = [];     // segmentos ya conectados
+    this.animFrame = null;
+
+    // Estrellas que forman un CORAZÓN al conectarlas en orden 1→2→...→9
+    // Coordenadas normalizadas (0–1), calibradas en 320×280
+    const pts = [
+      [.50, .22],   // 1 top center
+      [.72, .14],   // 2 top-right bulge
+      [.88, .30],   // 3 right side
+      [.82, .50],   // 4 right-lower
+      [.62, .68],   // 5 mid-right
+      [.50, .82],   // 6 bottom tip
+      [.38, .68],   // 7 mid-left
+      [.18, .50],   // 8 left-lower
+      [.12, .30],   // 9 left side
+      [.28, .14],   // 10 top-left bulge  → cierra en 1
     ];
 
-    const contFrases = document.getElementById('frasesPoeticas');
-    frases.forEach((frase) => {
-        tl.call(() => { contFrases.innerText = frase; });
-        tl.fromTo(contFrases,
-            { opacity: 0, y: 25 },
-            { opacity: 1, y: 0, duration: 2, ease: 'power1.out' }
-        );
-        tl.to(contFrases, { opacity: 1, duration: 4 }); // pausa de lectura
-        tl.to(contFrases, { opacity: 0, y: -20, duration: 1.5, ease: 'power1.in' });
+    this.estrellas = pts.map(([nx, ny], i) => ({
+      x: nx * this.W, y: ny * this.H,
+      r: 6, num: i + 1, tocada: false,
+      parpadeoCiclo: Math.random() * Math.PI * 2,
+    }));
+
+    this._bindEvents();
+    this._animate();
+  }
+
+  _bindEvents() {
+    const handle = (e) => {
+      if (this.completado) return;
+      e.preventDefault();
+      const rect  = this.canvas.getBoundingClientRect();
+      const scaleX = this.W / rect.width;
+      const scaleY = this.H / rect.height;
+      const cx = e.type.includes('touch')
+        ? (e.touches[0].clientX - rect.left) * scaleX
+        : (e.clientX - rect.left) * scaleX;
+      const cy = e.type.includes('touch')
+        ? (e.touches[0].clientY - rect.top) * scaleY
+        : (e.clientY - rect.top) * scaleY;
+      this._checkClick(cx, cy);
+    };
+    this.canvas.addEventListener('click',     handle);
+    this.canvas.addEventListener('touchstart', handle, { passive: false });
+  }
+
+  _checkClick(cx, cy) {
+    const esperada = this.estrellas[this.siguienteIdx];
+    if (!esperada) return;
+    const dist = Math.hypot(cx - esperada.x, cy - esperada.y);
+    if (dist < 28) {  // radio amplio para móvil
+      esperada.tocada = true;
+      if (this.siguienteIdx > 0) {
+        const prev = this.estrellas[this.siguienteIdx - 1];
+        this.lineas.push({ x1: prev.x, y1: prev.y, x2: esperada.x, y2: esperada.y, alpha: 0 });
+      }
+      this.siguienteIdx++;
+      const statusEl = $('juegoStatus');
+      const numEl    = $('juegoNumActual');
+      if (this.siguienteIdx < this.estrellas.length) {
+        if (numEl) numEl.textContent = this.siguienteIdx + 1;
+      } else {
+        // Cerrar corazón
+        const last  = this.estrellas[this.estrellas.length - 1];
+        const first = this.estrellas[0];
+        this.lineas.push({ x1: last.x, y1: last.y, x2: first.x, y2: first.y, alpha: 0 });
+        this.completado = true;
+        if (statusEl) {
+          statusEl.innerHTML = '💖 ¡Lo lograste! ¡Formaste el corazón!';
+          statusEl.style.color = '#ff6b81';
+          statusEl.style.fontSize = '1rem';
+        }
+        // Notificar al backend
+        fetch('/api/constelacion_completada', { method: 'POST' }).catch(() => {});
+        // Explotar corazón
+        setTimeout(() => this._celebrar(), 800);
+      }
+    } else {
+      // Parpadeo de error en la estrella correcta
+      esperada._error = 8;
+    }
+  }
+
+  _celebrar() {
+    if (typeof confetti === 'undefined') return;
+    confetti({ particleCount: 80, spread: 100, origin: { y: .6 },
+               colors: ['#ff6b81','#f5c842','#0afab0','#ffffff'] });
+  }
+
+  _animate() {
+    const ctx = this.ctx;
+    const t   = performance.now() / 1000;
+    ctx.clearRect(0, 0, this.W, this.H);
+
+    // Fade-in de las líneas
+    this.lineas.forEach(l => {
+      l.alpha = Math.min(1, l.alpha + .04);
+      ctx.save();
+      ctx.globalAlpha = l.alpha;
+      const grad = ctx.createLinearGradient(l.x1, l.y1, l.x2, l.y2);
+      grad.addColorStop(0, '#ff6b81');
+      grad.addColorStop(1, '#f5c842');
+      ctx.strokeStyle = grad; ctx.lineWidth = 1.5;
+      ctx.shadowColor = '#ff6b81'; ctx.shadowBlur = 8;
+      ctx.beginPath(); ctx.moveTo(l.x1, l.y1); ctx.lineTo(l.x2, l.y2);
+      ctx.stroke(); ctx.restore();
     });
-}
 
+    // Estrellas
+    this.estrellas.forEach((s, i) => {
+      s.parpadeoCiclo += .04;
+      const brillo = .5 + .5 * Math.sin(s.parpadeoCiclo);
+      const siguiente = (i === this.siguienteIdx && !this.completado);
+      const pulso = siguiente ? 1 + .4 * Math.sin(t * 5) : 1;
 
-/* ==========================================================================
-   ✨ PARTE 4: CURSOR, TOAST Y BURSTS
-   ========================================================================== */
+      // Halo de la siguiente estrella
+      if (siguiente) {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r * 3 * pulso, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(255,107,129,${.15 * brillo})`;
+        ctx.fill();
+      }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const cursor = document.getElementById('cursor');
-    const ring   = document.getElementById('cursor-ring');
-    let ringX = 0, ringY = 0;
+      // Error flash
+      if (s._error > 0) { s._error--; }
 
-    if (cursor && ring) {
-        document.addEventListener('mousemove', e => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top  = e.clientY + 'px';
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r * pulso, 0, Math.PI*2);
+      const color = s.tocada ? '#f5c842' : (siguiente ? '#ff6b81' : `rgba(200,220,255,${.4+.4*brillo})`);
+      ctx.fillStyle = color;
+      ctx.shadowColor = color; ctx.shadowBlur = s.tocada ? 16 : (siguiente ? 12 : 4);
+      ctx.fill();
 
-            // Efecto de seguimiento suave del anillo
-            ringX += (e.clientX - ringX) * 0.18;
-            ringY += (e.clientY - ringY) * 0.18;
-            ring.style.left = ringX + 'px';
-            ring.style.top  = ringY + 'px';
-        });
+      // Número
+      ctx.save();
+      ctx.font = `bold ${s.tocada ? 9 : 10}px "Playfair Display", serif`;
+      ctx.fillStyle = s.tocada ? '#f5c842' : 'rgba(255,255,255,.7)';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.shadowBlur = 0;
+      ctx.fillText(s.num, s.x, s.y - s.r - 9);
+      ctx.restore();
+    });
 
-        document.addEventListener('mousedown', () => {
-            cursor.style.transform = 'translate(-50%, -50%) scale(0.7)';
-        });
-        document.addEventListener('mouseup', () => {
-            cursor.style.transform = 'translate(-50%, -50%) scale(1)';
-        });
+    // Si completado, brillo de corazón pulsante
+    if (this.completado) {
+      ctx.save();
+      ctx.globalAlpha = .15 + .1 * Math.sin(t * 3);
+      ctx.fillStyle = '#ff6b81';
+      // Resaltar todas las estrellas
+      this.estrellas.forEach(s => {
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 3, 0, Math.PI*2); ctx.fill();
+      });
+      ctx.restore();
     }
 
-    // Partículas de emoji al hacer clic
-    const BURST_EMOJIS = ['🎉','🌟','✨','💫','💕','🌙','🤍'];
-    document.addEventListener('click', e => {
-        const skip = ['BUTTON','INPUT','TEXTAREA'];
-        if (skip.includes(e.target.tagName)) return;
+    this.animFrame = raf(() => this._animate());
+  }
 
-        const el = document.createElement('div');
-        el.className = 'burst';
-        el.textContent = BURST_EMOJIS[Math.floor(Math.random() * BURST_EMOJIS.length)];
-        el.style.left = e.clientX + 'px';
-        el.style.top  = e.clientY + 'px';
-
-        const angle = Math.random() * Math.PI * 2;
-        const dist  = 50 + Math.random() * 65;
-        el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
-        el.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
-
-        document.body.appendChild(el);
-        el.addEventListener('animationend', () => el.remove());
-    });
-});
-
-// Toast de notificaciones
-function showToast(msg, duration = 3500) {
-    const t = document.getElementById('toast');
-    if (!t) return;
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), duration);
+  destroy() {
+    if (this.animFrame) cancelAnimationFrame(this.animFrame);
+  }
 }
 
+/* ══════════════════════════════════════════════════════════════
+   4 · CANVAS AURA del botón de regalo
+   ══════════════════════════════════════════════════════════════ */
+function iniciarAuraRegalo() {
+  const canvas = $('canvasRegalo');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 260;
+  const H = canvas.offsetHeight || 140;
+  canvas.width  = W;
+  canvas.height = H;
 
-/* ==========================================================================
-   🆕 PARTE 5: NUEVAS FUNCIONES DE LAS APIS PYTHON
-   ========================================================================== */
-
-// 5.1 — Frase romántica del día (se carga al inicio)
-async function cargarFraseDia() {
-    try {
-        const res  = await fetch('/api/frase_del_dia');
-        const data = await res.json();
-
-        // Si ya existe un contenedor de frase, actualízalo
-        let fraseCont = document.getElementById('fraseDia');
-        if (!fraseCont) {
-            fraseCont = document.createElement('div');
-            fraseCont.id = 'fraseDia';
-            fraseCont.style.cssText = `
-                margin: 12px auto; max-width: 600px;
-                background: rgba(255,255,255,0.04);
-                border: 1px solid rgba(255,107,129,0.2);
-                border-radius: 12px; padding: 14px 22px;
-                font-family: 'IM Fell English', serif;
-                font-style: italic; font-size: 1.05rem;
-                color: #f0e8ff; opacity: 0;
-                transition: opacity 1.5s ease;
-                text-shadow: 0 0 8px rgba(255,107,129,0.3);
-            `;
-            const cont = document.getElementById('contenedorPrincipal');
-            if (cont) cont.prepend(fraseCont);
-        }
-        fraseCont.innerHTML = `✨ <em>"${data.frase}"</em>`;
-        setTimeout(() => { fraseCont.style.opacity = '1'; }, 300);
-    } catch (_) { /* falla silenciosa */ }
-}
-
-// 5.2 — Estadísticas de amor (se inyectan en el contenido sorpresa)
-async function cargarEstadisticasAmor() {
-    try {
-        const res  = await fetch('/api/estadisticas_amor');
-        const data = await res.json();
-
-        // Crear un bloque de stats visuales debajo de #estadisticasAstro
-        const target = document.getElementById('estadisticasAstro');
-        if (!target) return;
-
-        const bloque = document.createElement('div');
-        bloque.id = 'bloqueStatsAmor';
-        bloque.style.cssText = `
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 14px; margin: 22px auto; max-width: 640px;
-        `;
-
-        const stats = [
-            { icono: '🌙', valor: data.dias_vividos, etiqueta: 'días vividos' },
-            { icono: '💓', valor: data.semanas_vividas, etiqueta: 'semanas de vida' },
-            { icono: '💞', valor: data.dias_juntos, etiqueta: 'días juntos' },
-            { icono: '🌍', valor: data.orbitas_al_sol, etiqueta: 'órbitas al sol' },
-        ];
-
-        stats.forEach(s => {
-            const tarjeta = document.createElement('div');
-            tarjeta.style.cssText = `
-                background: rgba(255,255,255,0.05);
-                border: 1px solid rgba(255,107,129,0.2);
-                border-radius: 12px; padding: 14px 10px;
-                text-align: center; font-family: 'Playfair Display', serif;
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-                cursor: default;
-            `;
-            tarjeta.innerHTML = `
-                <div style="font-size:2rem;">${s.icono}</div>
-                <div style="font-size:1.5rem;font-weight:bold;color:#f5c842;margin:4px 0;">${s.valor}</div>
-                <div style="font-size:0.8rem;color:#cbd5e1;opacity:0.8;">${s.etiqueta}</div>
-            `;
-            tarjeta.addEventListener('mouseenter', () => {
-                tarjeta.style.transform = 'translateY(-5px)';
-                tarjeta.style.boxShadow = '0 10px 30px rgba(255,107,129,0.2)';
-            });
-            tarjeta.addEventListener('mouseleave', () => {
-                tarjeta.style.transform = '';
-                tarjeta.style.boxShadow = '';
-            });
-            bloque.appendChild(tarjeta);
-        });
-
-        target.after(bloque);
-    } catch (_) { /* falla silenciosa */ }
-}
-
-// 5.3 — Poema al tocar la luna (reemplaza el toast genérico)
-async function mostrarPoemaLuna() {
-    try {
-        const res  = await fetch('/api/poema');
-        const data = await res.json();
-
-        // Crear el modal del poema si no existe
-        let modal = document.getElementById('modalPoema');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'modalPoema';
-            modal.style.cssText = `
-                position: fixed; inset: 0; z-index: 99999;
-                background: rgba(2,4,10,0.92);
-                display: flex; flex-direction: column;
-                justify-content: center; align-items: center;
-                padding: 30px; opacity: 0;
-                transition: opacity 0.8s ease;
-                backdrop-filter: blur(12px);
-            `;
-            modal.innerHTML = `
-                <div id="poemaContenido" style="
-                    max-width: 500px; width: 100%;
-                    background: rgba(255,255,255,0.04);
-                    border: 1px solid rgba(255,255,255,0.1);
-                    border-radius: 18px; padding: 35px 32px;
-                    font-family: 'IM Fell English', serif;
-                    text-align: center; position: relative;
-                ">
-                    <h2 id="poema-titulo" style="font-family:'Playfair Display',serif;color:#ff6b81;font-size:1.6rem;margin-bottom:20px;"></h2>
-                    <div id="poema-versos" style="line-height:2;font-size:1.05rem;color:#f0e8ff;font-style:italic;"></div>
-                    <div style="margin-top:28px;">
-                        <button id="btnOtroPoema" style="
-                            background: rgba(255,107,129,0.2); color: #ff6b81;
-                            border: 1px solid rgba(255,107,129,0.4);
-                            padding: 10px 22px; border-radius: 50px;
-                            cursor: pointer; font-family: 'Playfair Display',serif;
-                            font-size: 0.95rem; margin-right: 10px;
-                            transition: all 0.3s;
-                        ">Otro poema ✨</button>
-                        <button id="btnCerrarPoema" style="
-                            background: rgba(255,255,255,0.06); color: #cbd5e1;
-                            border: 1px solid rgba(255,255,255,0.1);
-                            padding: 10px 22px; border-radius: 50px;
-                            cursor: pointer; font-size: 0.9rem;
-                            transition: all 0.3s;
-                        ">Cerrar</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-
-            document.getElementById('btnCerrarPoema').addEventListener('click', () => {
-                modal.style.opacity = '0';
-                setTimeout(() => { modal.style.display = 'none'; }, 600);
-            });
-            document.getElementById('btnOtroPoema').addEventListener('click', mostrarPoemaLuna);
-        }
-
-        document.getElementById('poema-titulo').innerText = data.titulo;
-        const versosDiv = document.getElementById('poema-versos');
-        versosDiv.innerHTML = data.versos
-            .map(v => v === '' ? '<br>' : `<p style="margin:2px 0;">${v}</p>`)
-            .join('');
-
-        modal.style.display = 'flex';
-        setTimeout(() => { modal.style.opacity = '1'; }, 10);
-    } catch (_) {
-        showToast('🌙 Tu luz llega hasta mí...');
+  let t = 0;
+  function frame() {
+    ctx.clearRect(0, 0, W, H);
+    for (let i = 0; i < 3; i++) {
+      const phase = t + i * (Math.PI * 2 / 3);
+      const x = W * .5 + Math.cos(phase) * 20;
+      const y = H * .5 + Math.sin(phase * .7) * 12;
+      const r = Math.min(W,H) * .4 + Math.sin(phase * .5) * 12;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, `hsla(${340+i*30},90%,65%,.12)`);
+      g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
     }
+    t += .018;
+    raf(frame);
+  }
+  raf(frame);
 }
 
-// 5.4 — Contador de visitas discreto en la esquina
-async function mostrarContadorVisitas() {
-    try {
-        const res  = await fetch('/api/visitas');
-        const data = await res.json();
+/* ══════════════════════════════════════════════════════════════
+   5 · INTRO CANVAS — estrellas que convergen al regalo
+   ══════════════════════════════════════════════════════════════ */
+function iniciarIntroCanvas() {
+  const canvas = $('canvasIntro');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  const resize = () => {
+    const rect = canvas.getBoundingClientRect();
+    W = canvas.width  = rect.width  || 400;
+    H = canvas.height = rect.height || 200;
+  };
+  resize();
+  window.addEventListener('resize', resize);
 
-        const badge = document.createElement('div');
-        badge.style.cssText = `
-            position: fixed; bottom: 16px; right: 16px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 50px; padding: 6px 14px;
-            font-size: 0.75rem; color: #94a3b8;
-            z-index: 500; cursor: default;
-            backdrop-filter: blur(8px);
-            transition: opacity 0.3s;
-        `;
-        badge.title = `Visitas totales: ${data.total}`;
-        badge.innerHTML = `🌙 ${data.total} visitas`;
-        badge.addEventListener('mouseenter', () => { badge.style.opacity = '0.5'; });
-        badge.addEventListener('mouseleave', () => { badge.style.opacity = '1'; });
-        document.body.appendChild(badge);
-    } catch (_) { /* falla silenciosa */ }
-}
+  const stars = Array.from({length: 60}, () => ({
+    x: Math.random() * 1000 - 100, y: Math.random() * 400 - 100,
+    vx: (Math.random() - .5) * .3, vy: (Math.random() - .5) * .3,
+    r: Math.random() * 1.5 + .3, a: Math.random(),
+    da: (Math.random() * .008 + .002) * (Math.random()<.5?1:-1),
+  }));
 
-// 5.5 — Cuenta regresiva detallada (reemplaza la simple en pantalla de bloqueo)
-async function iniciarCountdownDetallado() {
-    const reloj = document.getElementById('cuentaRegresiva');
-    if (!reloj) return;
-
-    async function actualizar() {
-        try {
-            const res  = await fetch('/api/countdown_detallado');
-            const data = await res.json();
-            if (data.abierto) { location.reload(); return; }
-            reloj.innerHTML = `
-                <span style="font-size:0.6em;display:block;margin-bottom:4px;color:#ff6b81;">
-                    ${data.frase}
-                </span>
-                ${String(data.dias).padStart(2,'0')}d
-                ${String(data.horas).padStart(2,'0')}h
-                ${String(data.minutos).padStart(2,'0')}m
-                ${String(data.segundos).padStart(2,'0')}s
-            `;
-        } catch (_) {
-            // fallback al modo simple (el original)
-        }
-    }
-    actualizar();
-    setInterval(actualizar, 1000);
-}
-
-// 5.6 — Sobreescribir click de la luna para mostrar el poema
-const lunaBtn = document.getElementById('lunaInteractiva');
-if (lunaBtn) {
-    // Remover el listener anterior y poner el nuevo
-    const nuevoLuna = lunaBtn.cloneNode(true);
-    lunaBtn.parentNode.replaceChild(nuevoLuna, lunaBtn);
-    nuevoLuna.addEventListener('click', function(e) {
-        e.stopPropagation();
-        // Onda de luz (efecto visual)
-        const onda = document.createElement('div');
-        onda.classList.add('onda-luz');
-        document.getElementById('contenedorLuna').appendChild(onda);
-        setTimeout(() => onda.remove(), 1500);
-        // Mostrar poema
-        mostrarPoemaLuna();
+  function frame() {
+    ctx.clearRect(0, 0, W, H);
+    stars.forEach(s => {
+      s.a = Math.max(.05, Math.min(.9, s.a + s.da));
+      if (s.a >= .9 || s.a <= .05) s.da *= -1;
+      s.x = ((s.x + s.vx) % (W + 200) + W + 200) % (W + 200) - 100;
+      s.y = ((s.y + s.vy) % (H + 200) + H + 200) % (H + 200) - 100;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(200,220,255,${s.a})`;
+      ctx.fill();
     });
+    raf(frame);
+  }
+  raf(frame);
 }
 
-// 5.7 — Inicialización de todo
-window.addEventListener('load', () => {
+/* ══════════════════════════════════════════════════════════════
+   6 · FONDO DE ESTRELLAS (DOM, para la fiesta)
+   ══════════════════════════════════════════════════════════════ */
+function crearFondoEstrellas() {
+  const colores = ['#ff007f','#ff1493','#ffd700','#ffea00','#ff6b81'];
+  for (let i = 0; i < 100; i++) {
+    const e = document.createElement('div');
+    e.classList.add('estrella');
+    const sz = Math.random() * 10 + 4;
+    Object.assign(e.style, {
+      width: `${sz}px`, height: `${sz}px`,
+      backgroundColor: colores[Math.floor(Math.random() * colores.length)],
+      left: `${Math.random()*100}vw`,
+      top: `${Math.random()<.7 ? Math.random()*40 : Math.random()*100}vh`,
+      animation: `titilar ${Math.random()*3+1.5}s ease-in-out ${Math.random()*2}s infinite`,
+      position: 'fixed', zIndex: '-1',
+    });
+    document.body.appendChild(e);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   7 · CONFETI, VELAS, GLOBOS
+   ══════════════════════════════════════════════════════════════ */
+function lanzarConfeti() {
+  if (typeof confetti === 'undefined') return;
+  const colors = ['#ff0a54','#ff477e','#ffd166','#06d6a0','#f5c842'];
+  const end = Date.now() + 4500;
+  (function frame() {
+    confetti({ particleCount:5, angle:60,  spread:55, origin:{x:0}, colors });
+    confetti({ particleCount:5, angle:120, spread:55, origin:{x:1}, colors });
+    if (Date.now() < end) raf(frame);
+  })();
+}
+
+function activarVelas() {
+  let apagadas = 0;
+  const llamas  = document.querySelectorAll('.llama');
+  function apagar() {
+    if (this.classList.contains('apagada')) return;
+    this.classList.add('apagada');
+    apagadas++;
+    if (apagadas === llamas.length) {
+      $('instruccionPastel').innerText = '¡Deseo Concedido! ✨';
+      lanzarConfeti();
+      showToast('🎂 ¡Deseo concedido! Que se cumpla...');
+    }
+  }
+  llamas.forEach(l => {
+    l.addEventListener('mouseenter',  apagar);
+    l.addEventListener('touchstart',  apagar, { passive: true });
+  });
+}
+
+function crearGlobos() {
+  const emojis = ['🎈','🎊','🎉','🎁','💕','🌟'];
+  for (let i = 0; i < 35; i++) {
+    const g = document.createElement('div');
+    g.classList.add('globo');
+    g.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+    Object.assign(g.style, {
+      left: `${Math.random()*100}vw`,
+      animationDuration: `${Math.random()*4+5}s`,
+      animationDelay: `${Math.random()*5}s`,
+      fontSize: `${Math.random()*1.5+2}rem`,
+    });
+    g.addEventListener('click', function() {
+      this.classList.add('globo-reventado'); this.innerText = '💥';
+      setTimeout(() => this.remove(), 350);
+    });
+    document.body.appendChild(g);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   8 · MÁQUINA DE ESCRIBIR
+   ══════════════════════════════════════════════════════════════ */
+function escribirMaquina(mensajes, contenedor, idx = 0, callback = null) {
+  if (idx >= mensajes.length) { if (callback) callback(); return; }
+  const p   = document.createElement('p');
+  contenedor.appendChild(p);
+  const txt = '✨ ' + mensajes[idx];
+  let i = 0;
+  const cur = document.createElement('span');
+  cur.classList.add('cursor-parpadeo');
+  p.appendChild(cur);
+  const iv = setInterval(() => {
+    p.innerText = txt.substring(0, i+1);
+    p.appendChild(cur); i++;
+    if (i === txt.length) {
+      clearInterval(iv); cur.remove();
+      setTimeout(() => escribirMaquina(mensajes, contenedor, idx+1, callback), 700);
+    }
+  }, 42);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   9 · MOSTRAR FIESTA (función central)
+   ══════════════════════════════════════════════════════════════ */
+function mostrarFiesta(datos) {
+  $('tituloMensaje').innerText    = datos.titulo;
+  $('estadisticasAstro').innerText = datos.estadisticas;
+
+  const sorpresa = $('contenidoSorpresa');
+  sorpresa.classList.remove('oculto');
+  sorpresa.classList.add('mostrar');
+
+  activarVelas();
+  const listaMsj = $('listaMensajes');
+  listaMsj.innerHTML = '';
+
+  // Cargar stats de amor debajo de estadisticasAstro
+  fetch('/api/estadisticas_amor').then(r => r.json()).then(d => {
+    const old = $('bloqueStatsAmor');
+    if (old) old.remove();
+    const grid = document.createElement('div');
+    grid.id = 'bloqueStatsAmor'; grid.className = 'stats-amor-grid';
+    [
+      { icono:'🌙', valor: d.dias_vividos,   etiq: 'días vividos'    },
+      { icono:'💓', valor: d.semanas_vividas, etiq: 'semanas de vida' },
+      { icono:'💞', valor: d.dias_juntos,     etiq: 'días juntos'     },
+      { icono:'🌍', valor: d.orbitas_al_sol,  etiq: 'órbitas al sol'  },
+    ].forEach(s => {
+      grid.insertAdjacentHTML('beforeend',
+        `<div class="stat-tarjeta">
+          <div class="icono">${s.icono}</div>
+          <div class="valor">${s.valor}</div>
+          <div class="etiq">${s.etiq}</div>
+        </div>`);
+    });
+    $('estadisticasAstro').after(grid);
+  }).catch(() => {});
+
+  escribirMaquina(datos.mensajes, listaMsj, 0, () => {
+    const firma = $('firmaMensaje');
+    firma.innerText = datos.firma;
+    firma.classList.remove('oculto'); firma.classList.add('mostrar');
+
+    setTimeout(() => {
+      const col = $('collageMemorias');
+      if (col) { col.classList.remove('oculto'); col.classList.add('mostrar'); }
+
+      setTimeout(() => {
+        const buz = $('buzonSecreto');
+        if (buz) { buz.classList.remove('oculto'); buz.classList.add('mostrar'); }
+
+        setTimeout(() => {
+          const pista = $('pistaSecreta');
+          if (pista) pista.classList.add('pista-visible');
+        }, 6000);
+      }, 800);
+    }, 1200);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   10 · PANTALLA DE BLOQUEO — BUG FIX: UN SOLO COUNTDOWN
+   ══════════════════════════════════════════════════════════════ */
+let canvasBloqueo = null;
+let juegoConstelacion = null;
+
+function iniciarBloqueo(segundosTotales) {
+  canvasBloqueo = new CanvasBloqueo('canvasBloqueo');
+  canvasBloqueo.start();
+  juegoConstelacion = new JuegoConstelacion('canvasJuego');
+
+  const flip = new FlipCounter();
+  let secs = Math.floor(segundosTotales);
+
+  function tick() {
+    if (secs <= 0) { location.reload(); return; }
+    const d = Math.floor(secs / 86400);
+    const h = Math.floor((secs % 86400) / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    const s = secs % 60;
+    flip.update(d, h, m, s);
+    secs--;
+    setTimeout(tick, 1000);
+  }
+  tick();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   11 · ESTADO — fetch inicial (Vercel compatible)
+   ══════════════════════════════════════════════════════════════ */
+fetch('/api/estado')
+  .then(r => r.json())
+  .then(data => {
+    if (data.bloqueado) {
+      $('contenedorPrincipal').style.display = 'none';
+      $('pantallaBloqueo').classList.remove('oculto');
+      iniciarBloqueo(data.segundos_faltantes);
+    } else {
+      // Página de fiesta — iniciar efectos
+      crearFondoEstrellas();
+      iniciarIntroCanvas();
+      iniciarAuraRegalo();
+      cargarFraseDia();
+    }
+  })
+  .catch(() => {
+    // Modo local: igual mostramos la fiesta
+    crearFondoEstrellas();
+    iniciarIntroCanvas();
+    iniciarAuraRegalo();
     cargarFraseDia();
-    mostrarContadorVisitas();
+  });
 
-    // Si hay pantalla de bloqueo activa, usar countdown detallado
-    const bloqueo = document.getElementById('pantallaBloqueo');
-    if (bloqueo && !bloqueo.classList.contains('oculto')) {
-        iniciarCountdownDetallado();
-    }
+/* ══════════════════════════════════════════════════════════════
+   12 · BUZÓN EN PANTALLA DE BLOQUEO
+   ══════════════════════════════════════════════════════════════ */
+$('btnEnviarBloqueo')?.addEventListener('click', function() {
+  const input = $('textoSecretoBloqueo');
+  const msg   = input.value.trim();
+  if (!msg) { showToast('✍️ Escribe un mensaje primero...'); return; }
+  this.innerText = 'Enviando... ✨'; this.disabled = true;
+  fetch('/api/responder', { method:'POST',
+    headers: { 'Content-Type':'application/json' },
+    body: JSON.stringify({ mensaje: msg })
+  })
+  .then(r => r.json())
+  .then(d  => { showToast('💌 ' + d.respuesta); input.value = ''; })
+  .catch(() => { showToast('✨ Guardado mágicamente.'); input.value = ''; })
+  .finally(() => { this.innerText = 'Enviar a las estrellas ✨'; this.disabled = false; });
 });
 
-// 5.8 — Cargar estadísticas cuando se abra el regalo
-const btnOrig = document.getElementById('botonRegalo');
-if (btnOrig) {
-    btnOrig.addEventListener('click', function onceHandler() {
-        setTimeout(cargarEstadisticasAmor, 4000); // después de la animación
-        btnOrig.removeEventListener('click', onceHandler);
-    }, { once: true });
+/* ══════════════════════════════════════════════════════════════
+   13 · ABRIR REGALO — BUG FIX: un solo listener
+   ══════════════════════════════════════════════════════════════ */
+$('botonRegalo')?.addEventListener('click', function() {
+  this.classList.add('abriendo-caja');
+
+  const intro = $('introAnimada');
+  if (intro) { intro.style.opacity = '0'; intro.style.transition = 'opacity .5s'; setTimeout(() => intro.remove(), 500); }
+
+  const musica = $('musicaFondo');
+  if (musica) { musica.volume = .5; musica.play().catch(() => {}); }
+
+  crearGlobos();
+
+  setTimeout(() => {
+    this.style.display = 'none';
+    fetch('/api/abrir_regalo')
+      .then(r => r.json())
+      .then(mostrarFiesta)
+      .catch(() => mostrarFiesta({
+        titulo: '¡Feliz Cumpleaños! 🎉',
+        estadisticas: 'Eres la persona más brillante de mi universo.',
+        mensajes: ['Eres increíble y te mereces lo mejor.', 'Que este año esté lleno de amor y alegría.'],
+        firma: 'Con amor, Frank',
+      }));
+  }, 900);
+}, { once: true });
+
+/* ══════════════════════════════════════════════════════════════
+   14 · BUZÓN SECRETO (fiesta)
+   ══════════════════════════════════════════════════════════════ */
+$('btnEnviarSecreto')?.addEventListener('click', function() {
+  const input = $('textoSecreto');
+  const msg   = input.value.trim();
+  if (!msg) { showToast('✍️ Escribe un mensaje primero...'); return; }
+  this.innerText = 'Enviando... ✨'; this.disabled = true;
+  fetch('/api/responder', { method:'POST',
+    headers: { 'Content-Type':'application/json' },
+    body: JSON.stringify({ mensaje: msg })
+  })
+  .then(r => r.json())
+  .then(d => {
+    showToast('🌙 ' + d.respuesta);
+    if (msg.toLowerCase().includes('luna')) setTimeout(activarEasterEggLuna, 600);
+    input.value = '';
+  })
+  .catch(() => { showToast('✨ Mensaje guardado mágicamente.'); input.value = ''; })
+  .finally(() => { this.innerText = 'Enviar a las estrellas ✨'; this.disabled = false; });
+});
+
+/* ══════════════════════════════════════════════════════════════
+   15 · FRASE DEL DÍA (API Python)
+   ══════════════════════════════════════════════════════════════ */
+async function cargarFraseDia() {
+  try {
+    const d = await (await fetch('/api/frase_del_dia')).json();
+    let el = $('fraseDia');
+    if (!el) {
+      el = document.createElement('div'); el.id = 'fraseDia';
+      $('contenedorPrincipal')?.prepend(el);
+    }
+    el.innerHTML = `✨ <em>"${d.frase}"</em>`;
+    setTimeout(() => { el.style.opacity = '1'; }, 300);
+  } catch(_) {}
 }
+
+/* ══════════════════════════════════════════════════════════════
+   16 · EASTER EGG — DETECCIÓN POR TECLADO
+   ══════════════════════════════════════════════════════════════ */
+let entradaTeclado = '';
+document.addEventListener('keydown', e => {
+  if (e.key.length === 1 && e.key >= 'a' && e.key <= 'z') {
+    entradaTeclado = (entradaTeclado + e.key.toLowerCase()).slice(-4);
+    if (entradaTeclado === 'luna') { activarEasterEggLuna(); entradaTeclado = ''; }
+  }
+});
+
+/* ══════════════════════════════════════════════════════════════
+   17 · EASTER EGG — ESCENA DE LA LUNA
+         BUG FIX: sin listener duplicado, sin conflicto
+   ══════════════════════════════════════════════════════════════ */
+let easterEggActivo = false;
+let canvasLunaAnim  = null;
+
+function crearCorazonesLuna() {
+  const escena = $('escenaLuna');
+  for (let i = 0; i < 25; i++) {
+    const c = document.createElement('div');
+    c.classList.add('corazon-estrella');
+    c.innerText = ['🤍','💙','🌙'][Math.floor(Math.random()*3)];
+    Object.assign(c.style, {
+      fontSize: `${Math.random()*1.5+.5}rem`,
+      left: `${Math.random()*100}vw`, top: `${Math.random()*100}vh`,
+      animation: `titilarCorazon ${Math.random()*3+2}s ease-in-out ${Math.random()*2}s infinite`,
+    });
+    escena.appendChild(c);
+  }
+}
+
+function iniciarEfectosLuna() {
+  const escena  = $('escenaLuna');
+  const luna    = $('contenedorLuna');
+  const tierra  = $('planetaTierra');
+  const neb     = document.querySelector('.nebulosa-fondo');
+
+  // Parallax al mover el mouse
+  document.addEventListener('mousemove', e => {
+    if (escena.style.display !== 'flex') return;
+    const xP = (e.clientX / window.innerWidth  - .5) * 30;
+    const yP = (e.clientY / window.innerHeight - .5) * 30;
+    if (typeof gsap !== 'undefined') {
+      gsap.to(luna,   { x: xP*2,  y: yP*2,  duration:1.2, ease:'power2.out' });
+      gsap.to(tierra, { x: xP,    y: yP,    duration:1.8, ease:'power2.out' });
+      gsap.to(neb,    { x:-xP*3,  y:-yP*3,  duration:2.5, ease:'power1.out' });
+    }
+  });
+
+  // Polvo de estrellas en el mouse
+  document.addEventListener('mousemove', e => {
+    if (escena.style.display !== 'flex' || Math.random() > .3) return;
+    const p = document.createElement('div');
+    p.classList.add('polvo-estrellas');
+    Object.assign(p.style, { left: (e.clientX-3)+'px', top: (e.clientY-3)+'px' });
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 900);
+  });
+
+  // Estrellas fugaces periódicas
+  setInterval(() => {
+    if (escena.style.display !== 'flex') return;
+    const f = document.createElement('div');
+    f.classList.add('estrella-fugaz-din');
+    Object.assign(f.style, {
+      left: `${Math.random()*50+50}vw`,
+      top:  `${Math.random()*40}vh`,
+    });
+    escena.appendChild(f);
+    setTimeout(() => f.remove(), 1800);
+  }, 3500);
+
+  // Clic en la escena → estrella fija
+  escena.addEventListener('click', e => {
+    if (e.target.closest('#lunaInteractiva') || e.target.id === 'btnCerrarLuna') return;
+    const s = document.createElement('div');
+    s.classList.add('estrella-fija');
+    Object.assign(s.style, {
+      left: `${e.clientX-2}px`, top: `${e.clientY-2}px`, position: 'fixed',
+    });
+    escena.appendChild(s);
+  });
+}
+
+// BUG FIX: Luna click — aquí es el ÚNICO listener
+$('lunaInteractiva')?.addEventListener('click', function(e) {
+  e.stopPropagation();
+  // Onda de luz
+  const onda = document.createElement('div');
+  onda.classList.add('onda-luz');
+  $('contenedorLuna').appendChild(onda);
+  setTimeout(() => onda.remove(), 1500);
+  // Poema
+  mostrarPoemaLuna();
+});
+
+// Cerrar escena
+$('btnCerrarLuna')?.addEventListener('click', () => {
+  const escena = $('escenaLuna');
+  const mLuna  = $('musicaLuna');
+  if (typeof gsap !== 'undefined') {
+    gsap.to(escena, { opacity:0, duration:1.2, ease:'power2.in',
+      onComplete: () => { escena.style.display = 'none'; escena.style.opacity = ''; }
+    });
+  } else {
+    escena.style.display = 'none';
+  }
+  if (mLuna) { mLuna.pause(); mLuna.currentTime = 0; }
+  $('contenedorPrincipal').style.display = '';
+  easterEggActivo = false;
+});
+
+function activarEasterEggLuna() {
+  if (easterEggActivo) return;
+  easterEggActivo = true;
+
+  $('pistaSecreta').style.display = 'none';
+  $('contenedorPrincipal').style.display = 'none';
+
+  // Fade-out música fondo
+  const mF = $('musicaFondo');
+  if (mF) {
+    const iv = setInterval(() => {
+      mF.volume = Math.max(0, mF.volume - .08);
+      if (mF.volume <= 0) { clearInterval(iv); mF.pause(); mF.currentTime = 0; }
+    }, 180);
+  }
+
+  // Fade-in música luna
+  const mL = $('musicaLuna');
+  if (mL) {
+    mL.volume = 0; mL.play().catch(() => {});
+    const iv = setInterval(() => {
+      mL.volume = Math.min(.6, mL.volume + .06);
+      if (mL.volume >= .6) clearInterval(iv);
+    }, 200);
+  }
+
+  const escena = $('escenaLuna');
+  escena.style.display = 'flex';
+  crearCorazonesLuna();
+  iniciarEfectosLuna();
+
+  if (typeof gsap === 'undefined') {
+    // Fallback sin GSAP
+    $('planetaTierra').style.opacity = '.6';
+    document.querySelector('.luna-realista').style.opacity = '1';
+    document.querySelector('.nombre-luna-titulo').style.opacity = '1';
+    return;
+  }
+
+  const tl = gsap.timeline();
+  tl.to('#planetaTierra', { opacity:.55, bottom:'-38vh', duration:4, ease:'power2.out' })
+    .fromTo('.luna-realista',
+      { scale:0, opacity:0, rotation:-45 },
+      { scale:1, opacity:1, rotation:0, duration:3, ease:'back.out(1.7)' }, '-=2.5')
+    .to('.nombre-luna-titulo', {
+      opacity:1, letterSpacing: window.innerWidth<768 ? '8px' : '18px',
+      duration:3, ease:'power1.inOut'
+    }, '-=1');
+
+  const frases = [
+    'Eres mi luna...',
+    'La que ilumina mis noches más oscuras.',
+    'Quien me guía con su luz inquebrantable.',
+    'Mi refugio y mi paz.',
+    'Cada vez que la miro, te veo a ti.',
+    'Toca la luna para sentir su luz...',
+    'Te amo.',
+  ];
+
+  const cf = $('frasesPoeticas');
+  frases.forEach(f => {
+    tl.call(() => { cf.innerText = f; })
+      .fromTo(cf, { opacity:0, y:25 }, { opacity:1, y:0, duration:2, ease:'power1.out' })
+      .to(cf, { opacity:1, duration:4 })
+      .to(cf, { opacity:0, y:-20, duration:1.5, ease:'power1.in' });
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   18 · MODAL DE POEMA (API Python)
+   ══════════════════════════════════════════════════════════════ */
+async function mostrarPoemaLuna() {
+  try {
+    const d = await (await fetch('/api/poema')).json();
+    let modal = $('modalPoema');
+    if (!modal) {
+      modal = document.createElement('div'); modal.id = 'modalPoema';
+      Object.assign(modal.style, {
+        position:'fixed', inset:'0', zIndex:'99999',
+        background:'rgba(2,4,10,.93)', display:'flex', flexDirection:'column',
+        justifyContent:'center', alignItems:'center', padding:'30px',
+        opacity:'0', transition:'opacity .8s ease', backdropFilter:'blur(14px)',
+      });
+      modal.innerHTML = `
+        <div style="max-width:480px;width:100%;background:rgba(255,255,255,.04);
+          border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:35px 30px;
+          font-family:'IM Fell English',serif;text-align:center;">
+          <h2 id="poemaTitulo" style="font-family:'Playfair Display',serif;color:#ff6b81;font-size:1.6rem;margin-bottom:18px;"></h2>
+          <div id="poemaVersos" style="line-height:2.1;font-size:1.05rem;color:#f0e8ff;font-style:italic;"></div>
+          <div style="margin-top:26px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+            <button id="btnOtroPoema" style="background:rgba(255,107,129,.2);color:#ff6b81;border:1px solid rgba(255,107,129,.4);padding:10px 22px;border-radius:50px;cursor:pointer;font-family:'Playfair Display',serif;font-size:.95rem;transition:all .3s;">Otro poema ✨</button>
+            <button id="btnCerrarPoema" style="background:rgba(255,255,255,.06);color:#cbd5e1;border:1px solid rgba(255,255,255,.1);padding:10px 22px;border-radius:50px;cursor:pointer;font-size:.9rem;transition:all .3s;">Cerrar</button>
+          </div>
+        </div>`;
+      document.body.appendChild(modal);
+      $('btnCerrarPoema').addEventListener('click', () => {
+        modal.style.opacity = '0';
+        setTimeout(() => { modal.style.display = 'none'; }, 600);
+      });
+      $('btnOtroPoema').addEventListener('click', mostrarPoemaLuna);
+    }
+    $('poemaTitulo').innerText = d.titulo;
+    $('poemaVersos').innerHTML = d.versos.map(v => v===''?'<br>':`<p style="margin:2px 0;">${v}</p>`).join('');
+    modal.style.display = 'flex';
+    setTimeout(() => { modal.style.opacity = '1'; }, 10);
+  } catch(_) { showToast('🌙 Tu luz llega hasta mí...'); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   19 · CURSOR PERSONALIZADO Y BURSTS
+   ══════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  const cur  = $('cursor');
+  const ring = $('cursor-ring');
+  let rx = 0, ry = 0;
+
+  if (cur && ring) {
+    document.addEventListener('mousemove', e => {
+      cur.style.left = e.clientX + 'px'; cur.style.top = e.clientY + 'px';
+      rx += (e.clientX - rx) * .18; ry += (e.clientY - ry) * .18;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    });
+    document.addEventListener('mousedown', () => { cur.style.transform = 'translate(-50%,-50%) scale(.7)'; });
+    document.addEventListener('mouseup',   () => { cur.style.transform = 'translate(-50%,-50%) scale(1)'; });
+  }
+
+  const EMOJIS = ['🎉','🌟','✨','💫','💕','🌙','🤍'];
+  document.addEventListener('click', e => {
+    if (['BUTTON','INPUT','TEXTAREA'].includes(e.target.tagName)) return;
+    const el = document.createElement('div'); el.className = 'burst';
+    el.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+    el.style.left = e.clientX + 'px'; el.style.top = e.clientY + 'px';
+    const ang = Math.random() * Math.PI * 2, dst = 50 + Math.random() * 65;
+    el.style.setProperty('--tx', Math.cos(ang)*dst + 'px');
+    el.style.setProperty('--ty', Math.sin(ang)*dst + 'px');
+    document.body.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  });
+});
+
+/* ══════════════════════════════════════════════════════════════
+   20 · BADGE DE VISITAS
+   ══════════════════════════════════════════════════════════════ */
+async function mostrarVisitas() {
+  try {
+    const d = await (await fetch('/api/visitas')).json();
+    const b = document.createElement('div');
+    Object.assign(b.style, {
+      position:'fixed', bottom:'16px', right:'16px',
+      background:'rgba(255,255,255,.06)', border:'1px solid rgba(255,255,255,.1)',
+      borderRadius:'50px', padding:'6px 14px', fontSize:'.75rem', color:'#94a3b8',
+      zIndex:'500', cursor:'default', backdropFilter:'blur(8px)',
+    });
+    b.innerHTML = `🌙 ${d.total} visitas`;
+    b.title = `Hoy: ${d.hoy}`;
+    document.body.appendChild(b);
+  } catch(_) {}
+}
+// Solo mostrar en la vista de fiesta, no en el bloqueo
+setTimeout(() => {
+  if (!$('pantallaBloqueo') || $('pantallaBloqueo').classList.contains('oculto')) {
+    mostrarVisitas();
+  }
+}, 2000);
