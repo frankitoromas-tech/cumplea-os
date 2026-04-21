@@ -68,7 +68,7 @@ TELEGRAM_URL     = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
 # ─────────────────────────────────────────────
 FECHA_NACIMIENTO  = datetime(2003, 8, 30)
 FECHA_INICIO_AMOR = date(2025, 10, 1)
-FECHA_APERTURA    = datetime(2025, 8, 30, 0, 0, 0)
+FECHA_APERTURA    = datetime(2026, 8, 30, 0, 0, 0)
 
 # ─────────────────────────────────────────────
 #  ARCHIVOS DE DATOS PERSISTENTES (BLINDADO)
