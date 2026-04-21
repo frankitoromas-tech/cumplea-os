@@ -1206,3 +1206,17 @@
 2026-04-21 14:54:01,183 [INFO] 127.0.0.1 - - [21/Apr/2026 14:54:01] "GET /api/abrir_regalo HTTP/1.1" 200 -
 2026-04-21 14:54:01,204 [INFO] 127.0.0.1 - - [21/Apr/2026 14:54:01] "GET /api/estadisticas_amor HTTP/1.1" 200 -
 2026-04-21 14:54:38,093 [INFO] 127.0.0.1 - - [21/Apr/2026 14:54:38] "GET / HTTP/1.1" 200 -
+2026-04-21 14:55:44,145 [INFO] 127.0.0.1 - - [21/Apr/2026 14:55:44] "GET / HTTP/1.1" 200 -
+2026-04-21 14:55:44,473 [INFO] 127.0.0.1 - - [21/Apr/2026 14:55:44] "[36mGET /static/styless.css HTTP/1.1[0m" 304 -
+2026-04-21 14:55:44,482 [INFO] 127.0.0.1 - - [21/Apr/2026 14:55:44] "[36mGET /static/DEFAULT_RECUERDOS/foto2.png HTTP/1.1[0m" 304 -
+2026-04-21 14:55:44,495 [INFO] 127.0.0.1 - - [21/Apr/2026 14:55:44] "[36mGET /static/DEFAULT_RECUERDOS/foto1.png HTTP/1.1[0m" 304 -
+2026-04-21 14:55:44,512 [INFO] 127.0.0.1 - - [21/Apr/2026 14:55:44] "[36mGET /static/DEFAULT_RECUERDOS/foto4.png HTTP/1.1[0m" 304 -
+2026-04-21 14:55:44,514 [INFO] 127.0.0.1 - - [21/Apr/2026 14:55:44] "[36mGET /static/DEFAULT_RECUERDOS/foto3.png HTTP/1.1[0m" 304 -
+2026-04-21 14:55:44,626 [INFO] 127.0.0.1 - - [21/Apr/2026 14:55:44] "[36mGET /static/DEFAULT_RECUERDOS/foto5.png HTTP/1.1[0m" 304 -
+2026-04-21 14:55:44,727 [INFO] 127.0.0.1 - - [21/Apr/2026 14:55:44] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+2026-04-21 14:55:44,769 [INFO] 127.0.0.1 - - [21/Apr/2026 14:55:44] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 14:55:44,808 [INFO] 127.0.0.1 - - [21/Apr/2026 14:55:44] "GET /api/estado HTTP/1.1" 200 -
+2026-04-21 14:55:44,892 [INFO] 127.0.0.1 - - [21/Apr/2026 14:55:44] "GET /api/frase_del_dia HTTP/1.1" 200 -
+2026-04-21 14:55:47,479 [INFO] 127.0.0.1 - - [21/Apr/2026 14:55:47] "[33mGET /api/visitas HTTP/1.1[0m" 404 -
+2026-04-21 14:57:13,866 [INFO]  * Detected change in 'C:\\Users\\user-hp\\cumplea-os\\app.py', reloading
+2026-04-21 14:57:14,037 [INFO]  * Restarting with stat
