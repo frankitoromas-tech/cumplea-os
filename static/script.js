@@ -22,7 +22,10 @@ crearFondoEstrellas();
 
 // 1.2 Confeti Profesional 3D (Cuando sopla las velas)
 function lanzarConfetiProfesional() {
-    if (typeof confetti === 'undefined') return; // Seguridad si falla el internet
+    if (typeof confetti === 'undefined') {
+        lanzarConfetiFallback();
+        return;
+    } // Seguridad si falla el internet
     var duration = 4 * 1000;
     var end = Date.now() + duration;
 
@@ -211,8 +214,12 @@ document.getElementById('btnEnviarSecreto').addEventListener('click', function()
         body: JSON.stringify({ mensaje: mensaje }) 
     })
     .then(res => res.json())
-    .then(datos => { 
+    .then(datos => {
         showToast('🌙 ' + datos.respuesta);
+        const mensajeNormalizado = mensaje.toLowerCase();
+        if (mensajeNormalizado.includes('luna') || mensajeNormalizado.includes('easter')) {
+            setTimeout(activarEasterEggLuna, 500);
+        }
         mensajeInput.value = "";
     })
     .catch(() => { 
@@ -283,11 +290,11 @@ function crearLuciernaga() {
 }
 
 // 3.4 Interactividad de la Luna
-document.getElementById('lunaInteractiva')?.addEventListener('click', function() {
+document.querySelector('.luna-realista')?.addEventListener('click', function() {
     let onda = document.createElement('div');
     onda.classList.add('onda-luz');
     document.getElementById('contenedorLuna').appendChild(onda);
-    setTimeout(() => onda.remove(), 1500); 
+    setTimeout(() => onda.remove(), 1500);
 });
 
 // 3.5 Polvo de Estrellas (Mouse)
@@ -304,6 +311,8 @@ document.addEventListener('mousemove', function(e) {
 
 // 3.6 La Coreografía Final (GSAP)
 function activarEasterEggLuna() {
+    if (easterEggActivo) return;
+    easterEggActivo = true;
     let pista = document.getElementById('pistaSecreta'); if(pista) pista.style.display = 'none';
     let contNormal = document.getElementById('contenedorPrincipal'); if (contNormal) contNormal.style.display = 'none';
 

@@ -49,18 +49,31 @@
 
             <p id="firmaMensaje" class="firma oculto"></p>
 
-            <div id="collageMemorias" class="oculto">
+           <div id="collageMemorias" class="oculto">
                 <h3 style="font-family: 'Playfair Display', serif; color: #ff6b81; margin-top: 40px; font-size: 2rem;">Nuestra Historia</h3>
                 <div class="galeria-grid">
-                    <img src="/static/foto1.png" class="foto-cinematografica" alt="Recuerdo 1">
-                    <img src="/static/foto2.png" class="foto-cinematografica" alt="Recuerdo 2">
-                    <img src="/static/foto3.png" class="foto-cinematografica" alt="Recuerdo 3">
-                    <img src="/static/foto4.png" class="foto-cinematografica" alt="Recuerdo 4">
-                    <img src="/static/foto5.png" class="foto-cinematografica" alt="Recuerdo 5">
+                    <div class="marco-foto">
+                        <img src="/static/DEFAULT_RECUERDOS/foto1.png" alt="Recuerdo 1">
+                        <p class="texto-foto">nuestra diversion</p>
+                    </div>
+                    <div class="marco-foto">
+                        <img src="/static/DEFAULT_RECUERDOS/foto2.png" alt="Recuerdo 2">
+                        <p class="texto-foto">Tú y yo</p>
+                    </div>
+                    <div class="marco-foto">
+                        <img src="/static/DEFAULT_RECUERDOS/foto3.png" alt="Recuerdo 3">
+                        <p class="texto-foto">Siempre juntos</p>
+                        <div class="marco-foto">
+                        <img src="/static/DEFAULT_RECUERDOS/foto4.png" alt="Recuerdo 4">
+                        <p class="texto-foto">Nuestras locuras</p>
+                        <div class="marco-foto">
+                        <img src="/static/DEFAULT_RECUERDOS/foto5.png" alt="Recuerdo 5">
+                        <p class="texto-foto">Te seguire a cada instante, hasta mi ultimo suspiro</p>
+                    </div>
+                    </div>
+                    </div>
                 </div>
             </div>
-
-            <div id="buzonSecreto" class="buzon oculto">
 
             <div id="buzonSecreto" class="buzon oculto">
                 <h3>Buzón Secreto 💌</h3>
@@ -68,11 +81,7 @@
                 <textarea id="textoSecreto" placeholder="Escribe tu mensaje mágico aquí..."></textarea>
                 <br>
                 <button id="btnEnviarSecreto">Enviar a las estrellas</button>
-                <br><br>
-                <button id="btnMusicaSintetica" style="background: transparent; border: 1px solid #ffcc00; color: #ffcc00; border-radius: 20px; padding: 8px 15px; cursor: pointer; font-size: 0.9rem; transition: 0.3s;">🎵 Reproducir Melodía Mágica</button>
             </div>
-        </div>
-    </div>
 
     <div id="escenaLuna">
         <div class="capa-estrellas-lejos"></div>
