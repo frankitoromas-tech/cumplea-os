@@ -4,7 +4,6 @@
   Autor: Frank  |  Para: Luyuromo
 =============================================================
 """
-
 import os
 import json
 import logging
