@@ -171,12 +171,25 @@ function mostrarFiesta(datos) {
         firma.classList.remove('oculto'); 
         firma.classList.add('mostrar'); 
         
+        // Esta es la parte nueva que reemplaza a la anterior
         setTimeout(() => { 
+            // Mostramos el Collage
+            let collage = document.getElementById('collageMemorias');
+            if(collage) { 
+                collage.classList.remove('oculto'); 
+                collage.classList.add('mostrar'); 
+            }
+            
+            // Mostramos el Buzón
             let buzon = document.getElementById('buzonSecreto'); 
-            if(buzon) { buzon.classList.remove('oculto'); buzon.classList.add('mostrar'); } 
-        }, 1000);
+            if(buzon) { 
+                buzon.classList.remove('oculto'); 
+                buzon.classList.add('mostrar'); 
+            } 
+        }, 1200); // 1.2 segundos después de la firma para un ritmo perfecto
     });
 }
+
 
 // 2.3 Buzón Secreto Mejorado (Usa el Toast del complemento)
 document.getElementById('btnEnviarSecreto').addEventListener('click', function() {
