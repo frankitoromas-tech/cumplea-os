@@ -12,6 +12,10 @@
     <link rel="stylesheet" href="static/styless.css">
 </head>
 <body>
+    <div id="cursor"></div>
+    <div id="cursor-ring"></div>
+    <div id="toast"></div>
+
     <audio id="musicaFondo" src="static/cancion.mp3" loop></audio>
     <audio id="musicaLuna" src="static/cancion_luna.mp3" loop></audio>
 
@@ -49,6 +53,8 @@
                 <textarea id="textoSecreto" placeholder="Escribe tu mensaje mágico aquí..."></textarea>
                 <br>
                 <button id="btnEnviarSecreto">Enviar a las estrellas</button>
+                <br><br>
+                <button id="btnMusicaSintetica" style="background: transparent; border: 1px solid #ffcc00; color: #ffcc00; border-radius: 20px; padding: 8px 15px; cursor: pointer; font-size: 0.9rem; transition: 0.3s;">🎵 Reproducir Melodía Mágica</button>
             </div>
         </div>
     </div>

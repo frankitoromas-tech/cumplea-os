@@ -178,16 +178,38 @@ function mostrarFiesta(datos) {
     });
 }
 
-// 2.3 Buzón Secreto
+// 2.3 Buzón Secreto Mejorado (Usa el Toast del complemento)
 document.getElementById('btnEnviarSecreto').addEventListener('click', function() {
-    let mensaje = document.getElementById('textoSecreto').value;
-    if(mensaje.trim() === "") return; 
+    let mensajeInput = document.getElementById('textoSecreto');
+    let mensaje = mensajeInput.value;
     
-    fetch('/api/responder', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mensaje: mensaje }) })
-    .then(res => res.json()).then(datos => { 
-        document.getElementById('buzonSecreto').innerHTML = `<p style="color:#0fa; font-size:1.2rem; text-shadow: 0 0 10px #0fa;">${datos.respuesta}</p>`; 
+    if(mensaje.trim() === "") {
+        showToast('✍️ Escribe un mensaje primero...');
+        return; 
+    }
+    
+    let btn = this;
+    btn.innerText = "Enviando... ✨";
+    btn.disabled = true;
+
+    fetch('/api/responder', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ mensaje: mensaje }) 
     })
-    .catch(() => { document.getElementById('buzonSecreto').innerHTML = `<p style="color:#0fa;">Mensaje guardado mágicamente.</p>`; });
+    .then(res => res.json())
+    .then(datos => { 
+        showToast('🌙 ' + datos.respuesta);
+        mensajeInput.value = "";
+    })
+    .catch(() => { 
+        showToast('✨ Mensaje guardado mágicamente.'); 
+        mensajeInput.value = "";
+    })
+    .finally(() => {
+        btn.innerText = "Enviar a las estrellas";
+        btn.disabled = false;
+    });
 });
 
 
@@ -248,7 +270,7 @@ function crearLuciernaga() {
 }
 
 // 3.4 Interactividad de la Luna
-document.getElementById('lunaInteractiva').addEventListener('click', function() {
+document.getElementById('lunaInteractiva')?.addEventListener('click', function() {
     let onda = document.createElement('div');
     onda.classList.add('onda-luz');
     document.getElementById('contenedorLuna').appendChild(onda);
@@ -291,6 +313,7 @@ function activarEasterEggLuna() {
     crearEstrellasCorazon();
     setInterval(crearLuciernaga, 300);
     iniciarEfectosAvanzadosLuna();
+    
     // Animación GSAP
     if(typeof gsap === 'undefined') {
         document.getElementById('planetaTierra').style.opacity = 0.6;
@@ -321,9 +344,6 @@ function activarEasterEggLuna() {
         tl.to(contFrases, { opacity: 0, y: -20, duration: 1.5, ease: "power1.in" }); 
     });
 }
-/* ==========================================================================
-   ✨ 6. FUNCIONES DINÁMICAS AVANZADAS PARA LA LUNA (Efecto 3D y Cielo)
-   ========================================================================== */
 
 function iniciarEfectosAvanzadosLuna() {
     const escena = document.getElementById('escenaLuna');
@@ -331,15 +351,12 @@ function iniciarEfectosAvanzadosLuna() {
     const tierra = document.getElementById('planetaTierra');
     const nebulosa = document.querySelector('.nebulosa-fondo');
 
-    // 6.1 Parallax Cósmico (Efecto 3D al mover el mouse)
     document.addEventListener('mousemove', (e) => {
         if (escena.style.display !== 'flex') return;
         
-        // Calculamos el centro de la pantalla
         let xPos = (e.clientX / window.innerWidth - 0.5) * 30; 
         let yPos = (e.clientY / window.innerHeight - 0.5) * 30;
 
-        // Movemos los elementos a distintas velocidades (GSAP hace que sea suave)
         if(typeof gsap !== 'undefined') {
             gsap.to(luna, { x: xPos * 2, y: yPos * 2, duration: 1, ease: "power2.out" });
             gsap.to(tierra, { x: xPos * 1, y: yPos * 1, duration: 1.5, ease: "power2.out" });
@@ -347,12 +364,10 @@ function iniciarEfectosAvanzadosLuna() {
         }
     });
 
-    // 6.2 Lluvia de Estrellas Fugaces Automática (Cada 3 segundos)
     setInterval(() => {
         if (escena.style.display === 'flex') {
             let fugaz = document.createElement('div');
             fugaz.classList.add('estrella-fugaz-dinamica');
-            // Nacen en la parte superior derecha
             fugaz.style.left = `${Math.random() * 50 + 50}vw`; 
             fugaz.style.top = `${Math.random() * 40}vh`;
             escena.appendChild(fugaz);
@@ -360,9 +375,7 @@ function iniciarEfectosAvanzadosLuna() {
         }
     }, 3000); 
 
-    // 6.3 Crear Constelaciones al hacer clic en el cielo
     escena.addEventListener('click', (e) => {
-        // Evitar que se cree una estrella si toca la luna (eso dispara el pulso de luz)
         if (e.target.id === 'lunaInteractiva') return;
         
         let estrella = document.createElement('div');
@@ -371,4 +384,95 @@ function iniciarEfectosAvanzadosLuna() {
         estrella.style.top = `${e.clientY - 3}px`;
         escena.appendChild(estrella);
     });
+}
+
+/* ==========================================================================
+   ✨ COMPLEMENTOS FINALES: CURSOR, TOAST Y MÚSICA SINTÉTICA
+   ========================================================================== */
+
+// 1. CURSOR Y EXPLOSIONES (Protegido con DOMContentLoaded)
+document.addEventListener('DOMContentLoaded', () => {
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+
+    if (cursor && ring) {
+        document.addEventListener('mousemove', e => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            setTimeout(() => {
+                ring.style.left = e.clientX + 'px';
+                ring.style.top = e.clientY + 'px';
+            }, 80);
+        });
+    }
+
+    const BURST_EMOJIS = ['🎉','🌟','✨','💫','💕','🌙'];
+    document.addEventListener('click', e => {
+        if (e.target.closest('button') || e.target.closest('input') || e.target.closest('textarea') || e.target.id === 'lunaInteractiva') return;
+        
+        const el = document.createElement('div');
+        el.className = 'burst';
+        el.textContent = BURST_EMOJIS[Math.floor(Math.random() * BURST_EMOJIS.length)];
+        el.style.left = e.clientX + 'px';
+        el.style.top = e.clientY + 'px';
+        
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 50 + Math.random() * 60;
+        el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+        el.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+        
+        document.body.appendChild(el);
+        el.addEventListener('animationend', () => el.remove());
+    });
+});
+
+// 2. FUNCIÓN TOAST (Notificaciones elegantes)
+function showToast(msg, duration = 3000) {
+    const t = document.getElementById('toast');
+    if (t) {
+        t.textContent = msg; 
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), duration);
+    }
+}
+
+// 3. MÚSICA SINTÉTICA DE RESPALDO (Por si falla el audio)
+let audioCtx, osciladores = [];
+
+document.getElementById('btnMusicaSintetica')?.addEventListener('click', function() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        playBirthdayMelody();
+        this.innerText = "Detener Melodía";
+    } else {
+        osciladores.forEach(o => { try { o.stop(); } catch {} });
+        osciladores = [];
+        audioCtx.close();
+        audioCtx = null;
+        this.innerText = "🎵 Reproducir Melodía Mágica";
+    }
+});
+
+function playTone(freq, start, dur) {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + start);
+    gain.gain.setValueAtTime(0, audioCtx.currentTime + start);
+    gain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + start + 0.05);
+    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + start + dur);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(audioCtx.currentTime + start);
+    osc.stop(audioCtx.currentTime + start + dur + 0.05);
+    osciladores.push(osc);
+}
+
+function playBirthdayMelody() {
+    const notas = [
+        [261.6,0,.4],[261.6,.4,.2],[293.7,.6,.6],[261.6,1.2,.6],
+        [349.2,1.8,.6],[329.6,2.4,1.2],[261.6,3.8,.4],[261.6,4.2,.2],
+        [293.7,4.4,.6],[261.6,5,.6],[392,5.6,.6],[349.2,6.2,1.2]
+    ];
+    notas.forEach(([f,s,d]) => playTone(f, s, d));
 }
