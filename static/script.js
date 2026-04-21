@@ -535,16 +535,18 @@ function showToast(msg, duration = 3500) {
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), duration);
 }
+
+
 /* ==========================================================================
    🆕 PARTE 5: NUEVAS FUNCIONES DE LAS APIS PYTHON
    ========================================================================== */
- 
+
 // 5.1 — Frase romántica del día (se carga al inicio)
 async function cargarFraseDia() {
     try {
         const res  = await fetch('/api/frase_del_dia');
         const data = await res.json();
- 
+
         // Si ya existe un contenedor de frase, actualízalo
         let fraseCont = document.getElementById('fraseDia');
         if (!fraseCont) {
@@ -568,31 +570,31 @@ async function cargarFraseDia() {
         setTimeout(() => { fraseCont.style.opacity = '1'; }, 300);
     } catch (_) { /* falla silenciosa */ }
 }
- 
+
 // 5.2 — Estadísticas de amor (se inyectan en el contenido sorpresa)
 async function cargarEstadisticasAmor() {
     try {
         const res  = await fetch('/api/estadisticas_amor');
         const data = await res.json();
- 
+
         // Crear un bloque de stats visuales debajo de #estadisticasAstro
         const target = document.getElementById('estadisticasAstro');
         if (!target) return;
- 
+
         const bloque = document.createElement('div');
         bloque.id = 'bloqueStatsAmor';
         bloque.style.cssText = `
             display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 14px; margin: 22px auto; max-width: 640px;
         `;
- 
+
         const stats = [
             { icono: '🌙', valor: data.dias_vividos, etiqueta: 'días vividos' },
             { icono: '💓', valor: data.semanas_vividas, etiqueta: 'semanas de vida' },
             { icono: '💞', valor: data.dias_juntos, etiqueta: 'días juntos' },
             { icono: '🌍', valor: data.orbitas_al_sol, etiqueta: 'órbitas al sol' },
         ];
- 
+
         stats.forEach(s => {
             const tarjeta = document.createElement('div');
             tarjeta.style.cssText = `
@@ -618,17 +620,17 @@ async function cargarEstadisticasAmor() {
             });
             bloque.appendChild(tarjeta);
         });
- 
+
         target.after(bloque);
     } catch (_) { /* falla silenciosa */ }
 }
- 
+
 // 5.3 — Poema al tocar la luna (reemplaza el toast genérico)
 async function mostrarPoemaLuna() {
     try {
         const res  = await fetch('/api/poema');
         const data = await res.json();
- 
+
         // Crear el modal del poema si no existe
         let modal = document.getElementById('modalPoema');
         if (!modal) {
@@ -674,33 +676,33 @@ async function mostrarPoemaLuna() {
                 </div>
             `;
             document.body.appendChild(modal);
- 
+
             document.getElementById('btnCerrarPoema').addEventListener('click', () => {
                 modal.style.opacity = '0';
                 setTimeout(() => { modal.style.display = 'none'; }, 600);
             });
             document.getElementById('btnOtroPoema').addEventListener('click', mostrarPoemaLuna);
         }
- 
+
         document.getElementById('poema-titulo').innerText = data.titulo;
         const versosDiv = document.getElementById('poema-versos');
         versosDiv.innerHTML = data.versos
             .map(v => v === '' ? '<br>' : `<p style="margin:2px 0;">${v}</p>`)
             .join('');
- 
+
         modal.style.display = 'flex';
         setTimeout(() => { modal.style.opacity = '1'; }, 10);
     } catch (_) {
         showToast('🌙 Tu luz llega hasta mí...');
     }
 }
- 
+
 // 5.4 — Contador de visitas discreto en la esquina
 async function mostrarContadorVisitas() {
     try {
         const res  = await fetch('/api/visitas');
         const data = await res.json();
- 
+
         const badge = document.createElement('div');
         badge.style.cssText = `
             position: fixed; bottom: 16px; right: 16px;
@@ -719,12 +721,12 @@ async function mostrarContadorVisitas() {
         document.body.appendChild(badge);
     } catch (_) { /* falla silenciosa */ }
 }
- 
+
 // 5.5 — Cuenta regresiva detallada (reemplaza la simple en pantalla de bloqueo)
 async function iniciarCountdownDetallado() {
     const reloj = document.getElementById('cuentaRegresiva');
     if (!reloj) return;
- 
+
     async function actualizar() {
         try {
             const res  = await fetch('/api/countdown_detallado');
@@ -746,7 +748,7 @@ async function iniciarCountdownDetallado() {
     actualizar();
     setInterval(actualizar, 1000);
 }
- 
+
 // 5.6 — Sobreescribir click de la luna para mostrar el poema
 const lunaBtn = document.getElementById('lunaInteractiva');
 if (lunaBtn) {
@@ -764,19 +766,19 @@ if (lunaBtn) {
         mostrarPoemaLuna();
     });
 }
- 
+
 // 5.7 — Inicialización de todo
 window.addEventListener('load', () => {
     cargarFraseDia();
     mostrarContadorVisitas();
- 
+
     // Si hay pantalla de bloqueo activa, usar countdown detallado
     const bloqueo = document.getElementById('pantallaBloqueo');
     if (bloqueo && !bloqueo.classList.contains('oculto')) {
         iniciarCountdownDetallado();
     }
 });
- 
+
 // 5.8 — Cargar estadísticas cuando se abra el regalo
 const btnOrig = document.getElementById('botonRegalo');
 if (btnOrig) {

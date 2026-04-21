@@ -74,7 +74,7 @@ TELEGRAM_URL     = f"https://api.telegram.org/bot{"8651973448:AAHUDVOSurQb5r0X_O
 #  CONFIGURACIÓN DE FECHAS
 # ─────────────────────────────────────────────
 FECHA_NACIMIENTO  = datetime(2003, 8, 30)
-FECHA_INICIO_AMOR = date(2023, 1, 1)        # ← cambia por la fecha real de su relación
+FECHA_INICIO_AMOR = date(2025, 10, 1)        # ← cambia por la fecha real de su relación
 FECHA_APERTURA    = datetime(2025, 8, 30, 0, 0, 0)
 
 # ─────────────────────────────────────────────
@@ -113,7 +113,7 @@ class RegaloSorpresa:
         }
 
 
-mi_regalo = RegaloSorpresa(destinatario="Luyuromo", remitente="Frank", edad=21)
+mi_regalo = RegaloSorpresa(destinatario="Luyuromo", remitente="Frank", edad=23)
 mi_regalo.agregar_mensaje("Eres una persona increíble y te mereces lo mejor.")
 mi_regalo.agregar_mensaje("Que este nuevo año de vida esté lleno de éxitos, código sin bugs y mucha felicidad.")
 mi_regalo.agregar_mensaje("Cada día contigo es el mejor día de mi vida. ¡Disfruta tu día al máximo!")

@@ -139,3 +139,172 @@
 2026-04-21 09:18:10,701 [INFO] 127.0.0.1 - - [21/Apr/2026 09:18:10] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
 2026-04-21 09:18:11,534 [INFO] 127.0.0.1 - - [21/Apr/2026 09:18:11] "GET /api/abrir_regalo HTTP/1.1" 200 -
 2026-04-21 09:18:14,679 [INFO] 127.0.0.1 - - [21/Apr/2026 09:18:14] "GET /api/estadisticas_amor HTTP/1.1" 200 -
+2026-04-21 09:32:03,934 [INFO]  * Detected change in 'C:\\Users\\user-hp\\cumplea-os\\app.py', reloading
+2026-04-21 09:32:04,389 [INFO]  * Restarting with stat
+2026-04-21 09:32:06,435 [INFO] 🌙 Servidor de cumpleaños iniciado
+2026-04-21 09:32:06,436 [INFO] 📡 Telegram token: 8651973448:AAHUDVOSu…
+2026-04-21 09:32:06,562 [WARNING]  * Debugger is active!
+2026-04-21 09:32:06,577 [INFO]  * Debugger PIN: 880-781-617
+2026-04-21 09:32:38,840 [INFO] Visita #9 registrada
+2026-04-21 09:32:38,895 [INFO] 127.0.0.1 - - [21/Apr/2026 09:32:38] "GET / HTTP/1.1" 200 -
+2026-04-21 09:32:40,433 [INFO] 127.0.0.1 - - [21/Apr/2026 09:32:40] "[36mGET /static/styless.css HTTP/1.1[0m" 304 -
+2026-04-21 09:32:40,511 [INFO] 127.0.0.1 - - [21/Apr/2026 09:32:40] "[36mGET /static/DEFAULT_RECUERDOS/foto3.png HTTP/1.1[0m" 304 -
+2026-04-21 09:32:40,521 [INFO] 127.0.0.1 - - [21/Apr/2026 09:32:40] "[36mGET /static/DEFAULT_RECUERDOS/foto4.png HTTP/1.1[0m" 304 -
+2026-04-21 09:32:40,663 [INFO] 127.0.0.1 - - [21/Apr/2026 09:32:40] "[36mGET /static/DEFAULT_RECUERDOS/foto1.png HTTP/1.1[0m" 304 -
+2026-04-21 09:32:40,670 [INFO] 127.0.0.1 - - [21/Apr/2026 09:32:40] "[36mGET /static/DEFAULT_RECUERDOS/foto2.png HTTP/1.1[0m" 304 -
+2026-04-21 09:32:40,674 [INFO] 127.0.0.1 - - [21/Apr/2026 09:32:40] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+2026-04-21 09:32:40,677 [INFO] 127.0.0.1 - - [21/Apr/2026 09:32:40] "[36mGET /static/DEFAULT_RECUERDOS/foto5.png HTTP/1.1[0m" 304 -
+2026-04-21 09:32:40,759 [INFO] 127.0.0.1 - - [21/Apr/2026 09:32:40] "GET /api/estado HTTP/1.1" 200 -
+2026-04-21 09:32:40,761 [INFO] 127.0.0.1 - - [21/Apr/2026 09:32:40] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:32:40,804 [INFO] 127.0.0.1 - - [21/Apr/2026 09:32:40] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:32:40,813 [INFO] 127.0.0.1 - - [21/Apr/2026 09:32:40] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:32:40,867 [INFO] 127.0.0.1 - - [21/Apr/2026 09:32:40] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:32:41,640 [INFO] 127.0.0.1 - - [21/Apr/2026 09:32:41] "GET /api/frase_del_dia HTTP/1.1" 200 -
+2026-04-21 09:32:41,659 [INFO] 127.0.0.1 - - [21/Apr/2026 09:32:41] "GET /api/visitas HTTP/1.1" 200 -
+2026-04-21 09:33:14,222 [INFO] 127.0.0.1 - - [21/Apr/2026 09:33:14] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:33:14,948 [INFO] 127.0.0.1 - - [21/Apr/2026 09:33:14] "GET /api/abrir_regalo HTTP/1.1" 200 -
+2026-04-21 09:33:18,102 [INFO] 127.0.0.1 - - [21/Apr/2026 09:33:18] "GET /api/estadisticas_amor HTTP/1.1" 200 -
+2026-04-21 09:33:32,140 [INFO] Visita #10 registrada
+2026-04-21 09:33:32,141 [INFO] 127.0.0.1 - - [21/Apr/2026 09:33:32] "GET / HTTP/1.1" 200 -
+2026-04-21 09:33:32,209 [INFO] 127.0.0.1 - - [21/Apr/2026 09:33:32] "[36mGET /static/styless.css HTTP/1.1[0m" 304 -
+2026-04-21 09:33:32,235 [INFO] 127.0.0.1 - - [21/Apr/2026 09:33:32] "[36mGET /static/DEFAULT_RECUERDOS/foto1.png HTTP/1.1[0m" 304 -
+2026-04-21 09:33:32,286 [INFO] 127.0.0.1 - - [21/Apr/2026 09:33:32] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+2026-04-21 09:33:32,291 [INFO] 127.0.0.1 - - [21/Apr/2026 09:33:32] "[36mGET /static/DEFAULT_RECUERDOS/foto5.png HTTP/1.1[0m" 304 -
+2026-04-21 09:33:32,304 [INFO] 127.0.0.1 - - [21/Apr/2026 09:33:32] "[36mGET /static/DEFAULT_RECUERDOS/foto2.png HTTP/1.1[0m" 304 -
+2026-04-21 09:33:32,314 [INFO] 127.0.0.1 - - [21/Apr/2026 09:33:32] "[36mGET /static/DEFAULT_RECUERDOS/foto4.png HTTP/1.1[0m" 304 -
+2026-04-21 09:33:32,372 [INFO] 127.0.0.1 - - [21/Apr/2026 09:33:32] "GET /api/estado HTTP/1.1" 200 -
+2026-04-21 09:33:32,373 [INFO] 127.0.0.1 - - [21/Apr/2026 09:33:32] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:33:32,384 [INFO] 127.0.0.1 - - [21/Apr/2026 09:33:32] "[36mGET /static/DEFAULT_RECUERDOS/foto3.png HTTP/1.1[0m" 304 -
+2026-04-21 09:33:32,634 [INFO] 127.0.0.1 - - [21/Apr/2026 09:33:32] "GET /api/frase_del_dia HTTP/1.1" 200 -
+2026-04-21 09:33:32,668 [INFO] 127.0.0.1 - - [21/Apr/2026 09:33:32] "GET /api/visitas HTTP/1.1" 200 -
+2026-04-21 09:34:41,901 [INFO]  * Detected change in 'C:\\Users\\user-hp\\cumplea-os\\app.py', reloading
+2026-04-21 09:34:42,012 [INFO]  * Restarting with stat
+2026-04-21 09:34:43,037 [INFO] 🌙 Servidor de cumpleaños iniciado
+2026-04-21 09:34:43,037 [INFO] 📡 Telegram token: 8651973448:AAHUDVOSu…
+2026-04-21 09:34:43,117 [WARNING]  * Debugger is active!
+2026-04-21 09:34:43,125 [INFO]  * Debugger PIN: 880-781-617
+2026-04-21 09:34:46,422 [INFO]  * Detected change in 'C:\\Users\\user-hp\\cumplea-os\\app.py', reloading
+2026-04-21 09:34:46,544 [INFO]  * Restarting with stat
+2026-04-21 09:34:49,380 [INFO] 🌙 Servidor de cumpleaños iniciado
+2026-04-21 09:34:49,382 [INFO] 📡 Telegram token: 8651973448:AAHUDVOSu…
+2026-04-21 09:34:49,646 [WARNING]  * Debugger is active!
+2026-04-21 09:34:49,678 [INFO]  * Debugger PIN: 880-781-617
+2026-04-21 09:34:49,979 [INFO] Visita #11 registrada
+2026-04-21 09:34:50,032 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:50] "GET / HTTP/1.1" 200 -
+2026-04-21 09:34:50,844 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:50] "[36mGET /static/DEFAULT_RECUERDOS/foto1.png HTTP/1.1[0m" 304 -
+2026-04-21 09:34:50,898 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:50] "[36mGET /static/DEFAULT_RECUERDOS/foto2.png HTTP/1.1[0m" 304 -
+2026-04-21 09:34:50,905 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:50] "[36mGET /static/styless.css HTTP/1.1[0m" 304 -
+2026-04-21 09:34:51,281 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:51] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+2026-04-21 09:34:51,282 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:51] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:34:51,288 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:51] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:34:51,385 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:51] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:34:51,393 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:51] "GET /api/estado HTTP/1.1" 200 -
+2026-04-21 09:34:51,475 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:51] "[36mGET /static/DEFAULT_RECUERDOS/foto5.png HTTP/1.1[0m" 304 -
+2026-04-21 09:34:51,530 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:51] "[36mGET /static/DEFAULT_RECUERDOS/foto3.png HTTP/1.1[0m" 304 -
+2026-04-21 09:34:51,601 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:51] "[36mGET /static/DEFAULT_RECUERDOS/foto4.png HTTP/1.1[0m" 304 -
+2026-04-21 09:34:51,716 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:51] "GET /api/frase_del_dia HTTP/1.1" 200 -
+2026-04-21 09:34:51,768 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:51] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:34:51,799 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:51] "GET /api/visitas HTTP/1.1" 200 -
+2026-04-21 09:34:52,860 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:52] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:34:53,754 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:53] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:34:54,767 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:54] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:34:55,717 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:55] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:34:56,733 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:56] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:34:57,719 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:57] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:34:58,728 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:58] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:34:59,723 [INFO] 127.0.0.1 - - [21/Apr/2026 09:34:59] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:00,722 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:00] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:01,714 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:01] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:02,727 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:02] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:03,723 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:03] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:04,723 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:04] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:05,733 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:05] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:06,726 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:06] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:07,720 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:07] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:08,718 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:08] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:09,713 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:09] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:10,713 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:10] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:11,717 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:11] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:12,716 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:12] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:13,714 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:13] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:14,721 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:14] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:15,719 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:15] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:16,714 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:16] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:17,713 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:17] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:18,721 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:18] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:19,710 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:19] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:20,718 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:20] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:21,713 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:21] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:22,714 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:22] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:23,718 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:23] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:25,699 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:25] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:26,764 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:26] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:27,723 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:27] "GET /api/countdown_detallado HTTP/1.1" 200 -
+2026-04-21 09:35:28,090 [INFO] Visita #12 registrada
+2026-04-21 09:35:28,100 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:28] "GET / HTTP/1.1" 200 -
+2026-04-21 09:35:28,270 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:28] "[36mGET /static/styless.css HTTP/1.1[0m" 304 -
+2026-04-21 09:35:28,321 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:28] "[36mGET /static/DEFAULT_RECUERDOS/foto2.png HTTP/1.1[0m" 304 -
+2026-04-21 09:35:28,346 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:28] "[36mGET /static/DEFAULT_RECUERDOS/foto1.png HTTP/1.1[0m" 304 -
+2026-04-21 09:35:28,402 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:28] "[36mGET /static/DEFAULT_RECUERDOS/foto3.png HTTP/1.1[0m" 304 -
+2026-04-21 09:35:28,413 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:28] "[36mGET /static/DEFAULT_RECUERDOS/foto5.png HTTP/1.1[0m" 304 -
+2026-04-21 09:35:28,431 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:28] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+2026-04-21 09:35:28,432 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:28] "[36mGET /static/DEFAULT_RECUERDOS/foto4.png HTTP/1.1[0m" 304 -
+2026-04-21 09:35:28,538 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:28] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:35:28,542 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:28] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:35:28,623 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:28] "GET /api/estado HTTP/1.1" 200 -
+2026-04-21 09:35:28,657 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:28] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:35:28,930 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:28] "GET /api/visitas HTTP/1.1" 200 -
+2026-04-21 09:35:28,961 [INFO] 127.0.0.1 - - [21/Apr/2026 09:35:28] "GET /api/frase_del_dia HTTP/1.1" 200 -
+2026-04-21 09:36:46,469 [INFO] Visita #13 registrada
+2026-04-21 09:36:46,531 [INFO] 127.0.0.1 - - [21/Apr/2026 09:36:46] "GET / HTTP/1.1" 200 -
+2026-04-21 09:36:46,871 [INFO] 127.0.0.1 - - [21/Apr/2026 09:36:46] "[36mGET /static/DEFAULT_RECUERDOS/foto1.png HTTP/1.1[0m" 304 -
+2026-04-21 09:36:46,938 [INFO] 127.0.0.1 - - [21/Apr/2026 09:36:46] "[36mGET /static/DEFAULT_RECUERDOS/foto2.png HTTP/1.1[0m" 304 -
+2026-04-21 09:36:46,973 [INFO] 127.0.0.1 - - [21/Apr/2026 09:36:46] "[36mGET /static/styless.css HTTP/1.1[0m" 304 -
+2026-04-21 09:36:46,991 [INFO] 127.0.0.1 - - [21/Apr/2026 09:36:46] "[36mGET /static/DEFAULT_RECUERDOS/foto3.png HTTP/1.1[0m" 304 -
+2026-04-21 09:36:47,191 [INFO] 127.0.0.1 - - [21/Apr/2026 09:36:47] "[36mGET /static/DEFAULT_RECUERDOS/foto5.png HTTP/1.1[0m" 304 -
+2026-04-21 09:36:47,241 [INFO] 127.0.0.1 - - [21/Apr/2026 09:36:47] "[36mGET /static/DEFAULT_RECUERDOS/foto4.png HTTP/1.1[0m" 304 -
+2026-04-21 09:36:47,313 [INFO] 127.0.0.1 - - [21/Apr/2026 09:36:47] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:36:47,355 [INFO] 127.0.0.1 - - [21/Apr/2026 09:36:47] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:36:47,372 [INFO] 127.0.0.1 - - [21/Apr/2026 09:36:47] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:36:47,446 [INFO] 127.0.0.1 - - [21/Apr/2026 09:36:47] "GET /static/script.js HTTP/1.1" 200 -
+2026-04-21 09:36:47,573 [INFO] 127.0.0.1 - - [21/Apr/2026 09:36:47] "GET /api/estado HTTP/1.1" 200 -
+2026-04-21 09:36:47,824 [INFO] 127.0.0.1 - - [21/Apr/2026 09:36:47] "GET /api/frase_del_dia HTTP/1.1" 200 -
+2026-04-21 09:36:47,920 [INFO] 127.0.0.1 - - [21/Apr/2026 09:36:47] "GET /api/visitas HTTP/1.1" 200 -
+2026-04-21 09:39:04,499 [INFO]  * Detected change in 'C:\\Users\\user-hp\\cumplea-os\\app.py', reloading
+2026-04-21 09:39:04,817 [INFO]  * Restarting with stat
+2026-04-21 09:39:07,484 [INFO] 🌙 Servidor de cumpleaños iniciado
+2026-04-21 09:39:07,486 [INFO] 📡 Telegram token: 8651973448:AAHUDVOSu…
+2026-04-21 09:39:07,771 [WARNING]  * Debugger is active!
+2026-04-21 09:39:07,789 [INFO]  * Debugger PIN: 880-781-617
+2026-04-21 09:39:40,586 [INFO] Visita #14 registrada
+2026-04-21 09:39:40,894 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:40] "GET / HTTP/1.1" 200 -
+2026-04-21 09:39:43,559 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:43] "[36mGET /static/DEFAULT_RECUERDOS/foto4.png HTTP/1.1[0m" 304 -
+2026-04-21 09:39:43,581 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:43] "[36mGET /static/DEFAULT_RECUERDOS/foto3.png HTTP/1.1[0m" 304 -
+2026-04-21 09:39:43,587 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:43] "[36mGET /static/styless.css HTTP/1.1[0m" 304 -
+2026-04-21 09:39:43,740 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:43] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+2026-04-21 09:39:43,745 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:43] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:39:43,751 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:43] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:39:43,797 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:43] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:39:43,847 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:43] "GET /api/estado HTTP/1.1" 200 -
+2026-04-21 09:39:43,868 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:43] "[36mGET /static/DEFAULT_RECUERDOS/foto1.png HTTP/1.1[0m" 304 -
+2026-04-21 09:39:43,893 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:43] "[36mGET /static/DEFAULT_RECUERDOS/foto2.png HTTP/1.1[0m" 304 -
+2026-04-21 09:39:43,915 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:43] "[36mGET /static/DEFAULT_RECUERDOS/foto5.png HTTP/1.1[0m" 304 -
+2026-04-21 09:39:44,030 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:44] "GET /api/frase_del_dia HTTP/1.1" 200 -
+2026-04-21 09:39:44,041 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:44] "GET /api/visitas HTTP/1.1" 200 -
+2026-04-21 09:39:46,992 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:46] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:39:47,002 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:47] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:39:47,767 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:47] "GET /api/abrir_regalo HTTP/1.1" 200 -
+2026-04-21 09:39:50,913 [INFO] 127.0.0.1 - - [21/Apr/2026 09:39:50] "GET /api/estadisticas_amor HTTP/1.1" 200 -
+2026-04-21 09:40:32,684 [INFO] Visita #15 registrada
+2026-04-21 09:40:32,690 [INFO] 127.0.0.1 - - [21/Apr/2026 09:40:32] "GET / HTTP/1.1" 200 -
+2026-04-21 09:40:32,848 [INFO] 127.0.0.1 - - [21/Apr/2026 09:40:32] "[36mGET /static/styless.css HTTP/1.1[0m" 304 -
+2026-04-21 09:40:32,890 [INFO] 127.0.0.1 - - [21/Apr/2026 09:40:32] "[36mGET /static/DEFAULT_RECUERDOS/foto1.png HTTP/1.1[0m" 304 -
+2026-04-21 09:40:32,925 [INFO] 127.0.0.1 - - [21/Apr/2026 09:40:32] "[36mGET /static/DEFAULT_RECUERDOS/foto3.png HTTP/1.1[0m" 304 -
+2026-04-21 09:40:33,282 [INFO] 127.0.0.1 - - [21/Apr/2026 09:40:33] "[36mGET /static/DEFAULT_RECUERDOS/foto2.png HTTP/1.1[0m" 304 -
+2026-04-21 09:40:33,297 [INFO] 127.0.0.1 - - [21/Apr/2026 09:40:33] "[36mGET /static/DEFAULT_RECUERDOS/foto4.png HTTP/1.1[0m" 304 -
+2026-04-21 09:40:33,373 [INFO] 127.0.0.1 - - [21/Apr/2026 09:40:33] "[36mGET /static/DEFAULT_RECUERDOS/foto5.png HTTP/1.1[0m" 304 -
+2026-04-21 09:40:33,394 [INFO] 127.0.0.1 - - [21/Apr/2026 09:40:33] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+2026-04-21 09:40:33,445 [INFO] 127.0.0.1 - - [21/Apr/2026 09:40:33] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-21 09:40:33,459 [INFO] 127.0.0.1 - - [21/Apr/2026 09:40:33] "GET /api/estado HTTP/1.1" 200 -
+2026-04-21 09:40:33,867 [INFO] 127.0.0.1 - - [21/Apr/2026 09:40:33] "GET /api/visitas HTTP/1.1" 200 -
+2026-04-21 09:40:33,871 [INFO] 127.0.0.1 - - [21/Apr/2026 09:40:33] "GET /api/frase_del_dia HTTP/1.1" 200 -
