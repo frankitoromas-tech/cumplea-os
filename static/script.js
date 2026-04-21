@@ -310,63 +310,64 @@ document.addEventListener('mousemove', function(e) {
 });
 
 // 3.6 La Coreografía Final (GSAP)
+let easterEggActivo = false; // <-- ESTA ES LA LÍNEA QUE FALTABA Y ROMPÍA TODO
+
 function activarEasterEggLuna() {
-    if (easterEggActivo) return;
-    easterEggActivo = true;
-    let pista = document.getElementById('pistaSecreta'); if(pista) pista.style.display = 'none';
-    let contNormal = document.getElementById('contenedorPrincipal'); if (contNormal) contNormal.style.display = 'none';
+    if (easterEggActivo) return;
+    easterEggActivo = true;
+    let pista = document.getElementById('pistaSecreta'); if(pista) pista.style.display = 'none';
+    let contNormal = document.getElementById('contenedorPrincipal'); if (contNormal) contNormal.style.display = 'none';
 
-    // Transición de audio
-    let mFondo = document.getElementById('musicaFondo'); 
-    if (mFondo) { 
-        let fadeOut = setInterval(() => {
-            if(mFondo.volume > 0.1) mFondo.volume -= 0.1;
-            else { clearInterval(fadeOut); mFondo.pause(); mFondo.currentTime = 0; }
-        }, 200);
-    }
-    let mLuna = document.getElementById('musicaLuna'); if (mLuna) { mLuna.volume = 0.6; mLuna.play().catch(e => console.log(e)); }
+    // Transición de audio
+    let mFondo = document.getElementById('musicaFondo'); 
+    if (mFondo) { 
+        let fadeOut = setInterval(() => {
+            if(mFondo.volume > 0.1) mFondo.volume -= 0.1;
+            else { clearInterval(fadeOut); mFondo.pause(); mFondo.currentTime = 0; }
+        }, 200);
+    }
+    let mLuna = document.getElementById('musicaLuna'); if (mLuna) { mLuna.volume = 0.6; mLuna.play().catch(e => console.log(e)); }
 
-    // Activar Escena
-    const escena = document.getElementById('escenaLuna');
-    if(!escena) return;
-    escena.style.display = 'flex';
+    // Activar Escena
+    const escena = document.getElementById('escenaLuna');
+    if(!escena) return;
+    escena.style.display = 'flex';
 
-    // Iniciar efectos ambientales
-    crearEstrellasCorazon();
-    setInterval(crearLuciernaga, 300);
-    iniciarEfectosAvanzadosLuna();
-    
-    // Animación GSAP
-    if(typeof gsap === 'undefined') {
-        document.getElementById('planetaTierra').style.opacity = 0.6;
-        document.querySelector('.nombre-luna-titulo').style.opacity = 1;
-        return;
-    }
+    // Iniciar efectos ambientales
+    crearEstrellasCorazon();
+    setInterval(crearLuciernaga, 300);
+    iniciarEfectosAvanzadosLuna();
+    
+    // Animación GSAP
+    if(typeof gsap === 'undefined') {
+        document.getElementById('planetaTierra').style.opacity = 0.6;
+        document.querySelector('.nombre-luna-titulo').style.opacity = 1;
+        return;
+    }
 
-    const tl = gsap.timeline();
-    
-    tl.to("#planetaTierra", { opacity: 0.6, bottom: "-40vh", duration: 4, ease: "power2.out" });
-    tl.from(".luna-realista", { scale: 0, rotation: -45, duration: 3, ease: "back.out(1.5)" }, "-=2");
-    tl.to(".nombre-luna-titulo", { opacity: 1, letterSpacing: "15px", duration: 3, ease: "power1.inOut" });
+    const tl = gsap.timeline();
+    
+    tl.to("#planetaTierra", { opacity: 0.6, bottom: "-40vh", duration: 4, ease: "power2.out" });
+    tl.from(".luna-realista", { scale: 0, rotation: -45, duration: 3, ease: "back.out(1.5)" }, "-=2");
+    tl.to(".nombre-luna-titulo", { opacity: 1, letterSpacing: "15px", duration: 3, ease: "power1.inOut" });
 
-    let frases = [
-        "Eres mi luna...", 
-        "La que ilumina mis noches más oscuras.", 
-        "Quien me guía con su luz inquebrantable.", 
-        "Mi refugio y mi paz.",
-        "Toca la luna para sentir su luz...",
-        "Te amo."
-    ];
-    let contFrases = document.getElementById('frasesPoeticas'); 
+    let frases = [
+        "Eres mi luna...", 
+        "La que ilumina mis noches más oscuras.", 
+        "Quien me guía con su luz inquebrantable.", 
+        "Mi refugio y mi paz.",
+        "Toca la luna para sentir su luz...",
+        "Te amo."
+    ];
+    let contFrases = document.getElementById('frasesPoeticas'); 
 
-    frases.forEach((frase) => {
-        tl.call(() => { contFrases.innerText = frase; }); 
-        tl.to(contFrases, { opacity: 1, y: -10, duration: 2, ease: "power1.out" }); 
-        tl.to(contFrases, { opacity: 1, duration: 3.5 }); 
-        tl.to(contFrases, { opacity: 0, y: -20, duration: 1.5, ease: "power1.in" }); 
-    });
+    frases.forEach((frase) => {
+        tl.call(() => { contFrases.innerText = frase; }); 
+        tl.to(contFrases, { opacity: 1, y: -10, duration: 2, ease: "power1.out" }); 
+        tl.to(contFrases, { opacity: 1, duration: 3.5 }); 
+        tl.to(contFrases, { opacity: 0, y: -20, duration: 1.5, ease: "power1.in" }); 
+    });
 }
-
 function iniciarEfectosAvanzadosLuna() {
     const escena = document.getElementById('escenaLuna');
     const luna = document.getElementById('contenedorLuna');
