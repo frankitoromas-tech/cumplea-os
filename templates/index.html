@@ -168,6 +168,16 @@
     <div id="pistaSecreta">
       ✨ <i>Escribe en tu teclado el nombre de aquella que ilumina mis noches...</i>
     </div>
+    <div id="capsulaTiempoContenedor" style="text-align:center; margin-top: 40px;">
+    <h3 style="color:var(--dorado); font-family:var(--fuente-titulo)">Un Secreto a Futuro</h3>
+</div>
+
+<div style="text-align:center; margin-top: 40px;">
+    <h3 style="color:var(--dorado); font-family:var(--fuente-titulo)">Pinta tu propia Constelación</h3>
+    <canvas id="canvasCreador" width="300" height="300" style="border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; cursor: crosshair; margin-top: 10px;"></canvas>
+    <br>
+    <button id="btnGuardarConstelacion" style="background: var(--rosa); color: white; padding: 8px 15px; border-radius: 20px; border: none; margin-top: 10px; cursor: pointer;">Guardar en el Universo</button>
+</div>
 
   </div></div><div id="escenaLuna">
   <canvas id="canvasLuna"></canvas>
@@ -193,5 +203,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 <script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='capsula.js') }}"></script>
+<script src="{{ url_for('static', filename='creador.js') }}"></script>
 </body>
 </html>

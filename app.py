@@ -11,6 +11,8 @@ from pathlib import Path
 
 import requests
 from flask import Flask, render_template, jsonify, request
+from capsula_api import capsula_bp       # Importas el archivo 1
+from creador_constelaciones import creador_bp # Importas el archivo 2
 
 # Cargar .env si existe
 try:
@@ -33,7 +35,8 @@ logger = logging.getLogger(__name__)
 
 # ── Flask ─────────────────────────────────────────────────────
 app = Flask(__name__)
-
+app.register_blueprint(capsula_bp)
+app.register_blueprint(creador_bp)
 @app.after_request
 def cors(response):
     response.headers["Access-Control-Allow-Origin"]  = "*"
@@ -48,7 +51,7 @@ TELEGRAM_URL     = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
 # ── Fechas ────────────────────────────────────────────────────
 FECHA_NACIMIENTO  = datetime(2003, 8, 30)
 FECHA_INICIO_AMOR = date(2025, 10, 1)
-FECHA_APERTURA    = datetime(2026, 8, 30, 0, 0, 0)
+FECHA_APERTURA    = datetime(2025, 8, 30, 0, 0, 0)
 
 # ── Persistencia en memoria (Vercel-safe) ─────────────────────
 # En Vercel cada request es stateless, así que visitas y mensajes
