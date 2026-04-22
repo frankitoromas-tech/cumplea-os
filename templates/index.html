@@ -12,35 +12,26 @@
 </head>
 <body>
 
-<!-- Cursor personalizado -->
 <div id="cursor"></div>
 <div id="cursor-ring"></div>
 
-<!-- Toast de notificaciones -->
 <div id="toast"></div>
 
-<!-- Audio -->
 <audio id="musicaFondo"  src="{{ url_for('static', filename='cancion.mp3') }}"      loop></audio>
 <audio id="musicaLuna"   src="{{ url_for('static', filename='cancion_luna.mp3') }}" loop></audio>
 
-<!-- ════════════════════════════════════════════════════
-     PANTALLA DE BLOQUEO  (completamente rediseñada)
-     ════════════════════════════════════════════════════ -->
 <div id="pantallaBloqueo" class="pantalla-bloqueo oculto">
 
-  <!-- Canvas de partículas del fondo -->
   <canvas id="canvasBloqueo"></canvas>
 
   <div class="bloqueo-contenido">
 
-    <!-- Título animado letra a letra -->
     <p class="bloqueo-eyebrow">✦ Una sorpresa te espera ✦</p>
     <h1 class="bloqueo-titulo">
       <span class="letra-reveal" style="--d:0">F</span><span class="letra-reveal" style="--d:1">a</span><span class="letra-reveal" style="--d:2">l</span><span class="letra-reveal" style="--d:3">t</span><span class="letra-reveal" style="--d:4">a</span>&nbsp;<span class="letra-reveal" style="--d:5">p</span><span class="letra-reveal" style="--d:6">o</span><span class="letra-reveal" style="--d:7">c</span><span class="letra-reveal" style="--d:8">o</span>
     </h1>
     <p class="bloqueo-subtitulo">Cada segundo que pasa, te pienso más</p>
 
-    <!-- ── FLIP COUNTER (el rediseño del cifrado) ── -->
     <div id="flipCounter" class="flip-counter">
       <div class="flip-grupo">
         <div class="flip-label">Días</div>
@@ -76,7 +67,6 @@
       </div>
     </div>
 
-    <!-- ── Mini-juego: Constelación del Amor ── -->
     <div id="juegoConstelacion" class="juego-constelacion">
       <p class="juego-titulo">✦ Mientras esperas... ✦</p>
       <p class="juego-subtitulo">Conecta las estrellas en orden para descubrir algo especial</p>
@@ -84,7 +74,6 @@
       <p id="juegoStatus" class="juego-status">Toca la estrella <span id="juegoNumActual">1</span> ✨</p>
     </div>
 
-    <!-- Buzón de bloqueo -->
     <div class="buzon buzon-bloqueo">
       <h3>Buzón Secreto 💌</h3>
       <p>Mientras esperas, escríbeme algo...</p>
@@ -92,16 +81,25 @@
       <button id="btnEnviarBloqueo">Enviar a las estrellas ✨</button>
     </div>
 
-  </div><!-- .bloqueo-contenido -->
-</div><!-- #pantallaBloqueo -->
+  </div></div><div id="pantallaAuth" class="oculto">
+  <div class="bloqueo-contenido" style="background: var(--glass); border: 1px solid var(--glass-borde); border-radius: 20px; padding: 40px;">
+    <h2 style="font-family: var(--fuente-titulo); color: var(--rosa); font-size: 2.2rem;">Seguridad Estelar 🔒</h2>
+    <p style="margin: 15px 0; font-size: 1.1rem;">El universo necesita confirmar tu identidad para entregarte este regalo.</p>
+    <p style="color: #94a3b8; font-style: italic;">¿Cuál es tu nombre?</p>
+    
+    <input type="password" id="inputNombreAuth" class="input-auth" placeholder="Escribe tu nombre aquí...">
+    
+    <button id="btnVerificarAuth" class="caja-regalo" style="padding: 12px 30px; font-size: 1.1rem; margin-top: 10px;">
+      Verificar Identidad ✨
+    </button>
+    <p id="msgErrorAuth" style="color: #ff4757; margin-top: 15px; font-weight: bold; display: none;">
+      ❌ Nombre incorrecto. Las estrellas no te reconocen.
+    </p>
+  </div>
+</div>
 
-
-<!-- ════════════════════════════════════════════════════
-     CONTENEDOR PRINCIPAL
-     ════════════════════════════════════════════════════ -->
 <div id="contenedorPrincipal" class="contenedor">
 
-  <!-- Intro animada antes del botón -->
   <div id="introAnimada" class="intro-animada">
     <canvas id="canvasIntro"></canvas>
     <div class="intro-texto">
@@ -111,14 +109,12 @@
     </div>
   </div>
 
-  <!-- Botón del regalo -->
   <div id="botonRegalo" class="caja-regalo">
     <canvas id="canvasRegalo" class="canvas-aura"></canvas>
     <span class="icono-regalo">🎁</span>
     <span id="textoRegalo">Toca para abrir tu sorpresa</span>
   </div>
 
-  <!-- Contenido de la sorpresa -->
   <div id="contenidoSorpresa" class="oculto">
 
     <div class="contenedor-pastel">
@@ -136,7 +132,6 @@
     <div id="listaMensajes" class="mensajes"></div>
     <p id="firmaMensaje" class="firma oculto"></p>
 
-    <!-- Galería de recuerdos -->
     <div id="collageMemorias" class="oculto">
       <h3 class="titulo-seccion">Nuestra Historia</h3>
       <div class="galeria-polaroid">
@@ -163,7 +158,6 @@
       </div>
     </div>
 
-    <!-- Buzón secreto -->
     <div id="buzonSecreto" class="buzon oculto">
       <h3>Buzón Secreto 💌</h3>
       <p>Escribe algo aquí, solo yo podré leerlo después...</p>
@@ -171,20 +165,11 @@
       <button id="btnEnviarSecreto">Enviar a las estrellas ✨</button>
     </div>
 
-    <!-- Pista del Easter Egg -->
     <div id="pistaSecreta">
       ✨ <i>Escribe en tu teclado el nombre de aquella que ilumina mis noches...</i>
     </div>
 
-  </div><!-- #contenidoSorpresa -->
-</div><!-- #contenedorPrincipal -->
-
-
-<!-- ════════════════════════════════════════════════════
-     EASTER EGG: ESCENA DE LA LUNA
-     (fuera de #contenedorPrincipal — BUG FIX)
-     ════════════════════════════════════════════════════ -->
-<div id="escenaLuna">
+  </div></div><div id="escenaLuna">
   <canvas id="canvasLuna"></canvas>
   <div class="capa-estrellas-lejos"></div>
   <div class="capa-estrellas-cerca"></div>
@@ -204,7 +189,6 @@
   <div id="frasesPoeticas" class="frases-luna"></div>
   <button id="btnCerrarLuna" title="Cerrar">✕</button>
 </div>
-
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>

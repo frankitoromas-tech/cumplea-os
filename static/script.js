@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════════════════════════════
    🌙 Script Principal — Cumpleaños de Luyuromo
-   Versión 3.0 — Reescrito limpio, bugs corregidos
+   Versión 3.1 — Bugs críticos corregidos, Estados seguros
    ══════════════════════════════════════════════════════════════ */
 
 'use strict';
@@ -126,7 +126,7 @@ class CanvasBloqueo {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   2 · FLIP COUNTER — BUG FIX: único countdown, sin conflictos
+   2 · FLIP COUNTER
    ══════════════════════════════════════════════════════════════ */
 class FlipCounter {
   constructor() {
@@ -138,10 +138,9 @@ class FlipCounter {
     for (let i = 0; i < str.length; i++) {
       const key  = `${prefijo}${i+1}`;
       const digit = str[i];
-      const topEl = $(`${prefijo}-t${i > 0 ? i+1 : ''}`);  // ids: ft-t, ft2-t ...
+      const topEl = $(`${prefijo}-t${i > 0 ? i+1 : ''}`);
       const botEl = $(`${prefijo}-b${i > 0 ? i+1 : ''}`);
 
-      // Simplificado: actualizar texto directamente con micro-flip
       const cardEl = topEl?.parentElement;
       if (!cardEl) continue;
       if (this._prevValues[key] !== digit) {
@@ -198,22 +197,12 @@ class JuegoConstelacion {
     this.H        = this.canvas.height;
     this.completado = false;
     this.siguienteIdx = 0;
-    this.lineas   = [];     // segmentos ya conectados
+    this.lineas   = [];
     this.animFrame = null;
 
-    // Estrellas que forman un CORAZÓN al conectarlas en orden 1→2→...→9
-    // Coordenadas normalizadas (0–1), calibradas en 320×280
     const pts = [
-      [.50, .22],   // 1 top center
-      [.72, .14],   // 2 top-right bulge
-      [.88, .30],   // 3 right side
-      [.82, .50],   // 4 right-lower
-      [.62, .68],   // 5 mid-right
-      [.50, .82],   // 6 bottom tip
-      [.38, .68],   // 7 mid-left
-      [.18, .50],   // 8 left-lower
-      [.12, .30],   // 9 left side
-      [.28, .14],   // 10 top-left bulge  → cierra en 1
+      [.50, .22], [.72, .14], [.88, .30], [.82, .50], [.62, .68],
+      [.50, .82], [.38, .68], [.18, .50], [.12, .30], [.28, .14]
     ];
 
     this.estrellas = pts.map(([nx, ny], i) => ({
@@ -249,7 +238,7 @@ class JuegoConstelacion {
     const esperada = this.estrellas[this.siguienteIdx];
     if (!esperada) return;
     const dist = Math.hypot(cx - esperada.x, cy - esperada.y);
-    if (dist < 28) {  // radio amplio para móvil
+    if (dist < 28) {
       esperada.tocada = true;
       if (this.siguienteIdx > 0) {
         const prev = this.estrellas[this.siguienteIdx - 1];
@@ -261,7 +250,6 @@ class JuegoConstelacion {
       if (this.siguienteIdx < this.estrellas.length) {
         if (numEl) numEl.textContent = this.siguienteIdx + 1;
       } else {
-        // Cerrar corazón
         const last  = this.estrellas[this.estrellas.length - 1];
         const first = this.estrellas[0];
         this.lineas.push({ x1: last.x, y1: last.y, x2: first.x, y2: first.y, alpha: 0 });
@@ -271,13 +259,10 @@ class JuegoConstelacion {
           statusEl.style.color = '#ff6b81';
           statusEl.style.fontSize = '1rem';
         }
-        // Notificar al backend
         fetch('/api/constelacion_completada', { method: 'POST' }).catch(() => {});
-        // Explotar corazón
         setTimeout(() => this._celebrar(), 800);
       }
     } else {
-      // Parpadeo de error en la estrella correcta
       esperada._error = 8;
     }
   }
@@ -293,7 +278,6 @@ class JuegoConstelacion {
     const t   = performance.now() / 1000;
     ctx.clearRect(0, 0, this.W, this.H);
 
-    // Fade-in de las líneas
     this.lineas.forEach(l => {
       l.alpha = Math.min(1, l.alpha + .04);
       ctx.save();
@@ -307,14 +291,12 @@ class JuegoConstelacion {
       ctx.stroke(); ctx.restore();
     });
 
-    // Estrellas
     this.estrellas.forEach((s, i) => {
       s.parpadeoCiclo += .04;
       const brillo = .5 + .5 * Math.sin(s.parpadeoCiclo);
       const siguiente = (i === this.siguienteIdx && !this.completado);
       const pulso = siguiente ? 1 + .4 * Math.sin(t * 5) : 1;
 
-      // Halo de la siguiente estrella
       if (siguiente) {
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r * 3 * pulso, 0, Math.PI*2);
@@ -322,7 +304,6 @@ class JuegoConstelacion {
         ctx.fill();
       }
 
-      // Error flash
       if (s._error > 0) { s._error--; }
 
       ctx.beginPath();
@@ -332,7 +313,6 @@ class JuegoConstelacion {
       ctx.shadowColor = color; ctx.shadowBlur = s.tocada ? 16 : (siguiente ? 12 : 4);
       ctx.fill();
 
-      // Número
       ctx.save();
       ctx.font = `bold ${s.tocada ? 9 : 10}px "Playfair Display", serif`;
       ctx.fillStyle = s.tocada ? '#f5c842' : 'rgba(255,255,255,.7)';
@@ -342,12 +322,10 @@ class JuegoConstelacion {
       ctx.restore();
     });
 
-    // Si completado, brillo de corazón pulsante
     if (this.completado) {
       ctx.save();
       ctx.globalAlpha = .15 + .1 * Math.sin(t * 3);
       ctx.fillStyle = '#ff6b81';
-      // Resaltar todas las estrellas
       this.estrellas.forEach(s => {
         ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 3, 0, Math.PI*2); ctx.fill();
       });
@@ -552,7 +530,7 @@ function mostrarFiesta(datos) {
     const grid = document.createElement('div');
     grid.id = 'bloqueStatsAmor'; grid.className = 'stats-amor-grid';
     [
-      { icono:'🌙', valor: d.dias_vividos,   etiq: 'días vividos'    },
+      { icono:'🌙', valor: d.dias_vividos,    etiq: 'días vividos'    },
       { icono:'💓', valor: d.semanas_vividas, etiq: 'semanas de vida' },
       { icono:'💞', valor: d.dias_juntos,     etiq: 'días juntos'     },
       { icono:'🌍', valor: d.orbitas_al_sol,  etiq: 'órbitas al sol'  },
@@ -590,7 +568,7 @@ function mostrarFiesta(datos) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   10 · PANTALLA DE BLOQUEO — BUG FIX: UN SOLO COUNTDOWN
+   10 · PANTALLA DE BLOQUEO
    ══════════════════════════════════════════════════════════════ */
 let canvasBloqueo = null;
 let juegoConstelacion = null;
@@ -617,7 +595,7 @@ function iniciarBloqueo(segundosTotales) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   11 · ESTADO — fetch inicial (Vercel compatible)
+   11 · ESTADO — fetch inicial
    ══════════════════════════════════════════════════════════════ */
 fetch('/api/estado')
   .then(r => r.json())
@@ -627,15 +605,37 @@ fetch('/api/estado')
       $('pantallaBloqueo').classList.remove('oculto');
       iniciarBloqueo(data.segundos_faltantes);
     } else {
-      // Página de fiesta — iniciar efectos
-      crearFondoEstrellas();
-      iniciarIntroCanvas();
-      iniciarAuraRegalo();
-      cargarFraseDia();
+      $('contenedorPrincipal').style.display = 'none'; // Ocultar regalo primero
+      $('pantallaAuth').classList.remove('oculto');    // Mostrar pedir nombre
+
+      $('btnVerificarAuth').addEventListener('click', function() {
+        const inputNombre = $('inputNombreAuth').value.toLowerCase().trim();
+        
+        if (inputNombre === 'luyuromo') {
+          $('pantallaAuth').classList.add('oculto');
+          $('contenedorPrincipal').style.display = ''; // Revelar la fiesta
+          
+          crearFondoEstrellas();
+          iniciarIntroCanvas();
+          iniciarAuraRegalo();
+          cargarFraseDia();
+          showToast('✅ Identidad confirmada. Bienvenida, mi Luna.');
+        } else {
+          $('msgErrorAuth').style.display = 'block';
+          $('inputNombreAuth').value = '';
+          setTimeout(() => { $('msgErrorAuth').style.display = 'none'; }, 3000);
+        }
+      });
+
+      $('inputNombreAuth').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+          event.preventDefault(); 
+          $('btnVerificarAuth').click(); 
+        }
+      });
     }
-  })
+  }) 
   .catch(() => {
-    // Modo local: igual mostramos la fiesta
     crearFondoEstrellas();
     iniciarIntroCanvas();
     iniciarAuraRegalo();
@@ -661,7 +661,7 @@ $('btnEnviarBloqueo')?.addEventListener('click', function() {
 });
 
 /* ══════════════════════════════════════════════════════════════
-   13 · ABRIR REGALO — BUG FIX: un solo listener
+   13 · ABRIR REGALO
    ══════════════════════════════════════════════════════════════ */
 $('botonRegalo')?.addEventListener('click', function() {
   this.classList.add('abriendo-caja');
@@ -711,7 +711,7 @@ $('btnEnviarSecreto')?.addEventListener('click', function() {
 });
 
 /* ══════════════════════════════════════════════════════════════
-   15 · FRASE DEL DÍA (API Python)
+   15 · FRASE DEL DÍA
    ══════════════════════════════════════════════════════════════ */
 async function cargarFraseDia() {
   try {
@@ -731,18 +731,47 @@ async function cargarFraseDia() {
    ══════════════════════════════════════════════════════════════ */
 let entradaTeclado = '';
 document.addEventListener('keydown', e => {
-  if (e.key.length === 1 && e.key >= 'a' && e.key <= 'z') {
-    entradaTeclado = (entradaTeclado + e.key.toLowerCase()).slice(-4);
-    if (entradaTeclado === 'luna') { activarEasterEggLuna(); entradaTeclado = ''; }
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+  // CORRECCIÓN: Usar toLowerCase() antes de validar para atrapar teclas en mayúscula
+  const key = e.key.toLowerCase();
+  
+  if (key.length === 1 && key >= 'a' && key <= 'z') {
+    entradaTeclado = (entradaTeclado + key).slice(-10); 
+    
+    if (entradaTeclado.endsWith('luna')) { 
+        activarEasterEggLuna(); 
+        entradaTeclado = ''; 
+    }
+    
+    if (entradaTeclado.endsWith('frank')) { 
+        showToast("✨ Él te ama más que a nada en el universo...", 4000);
+        if (typeof confetti !== 'undefined') {
+            confetti({ particleCount: 60, spread: 90, colors: ['#4287f5', '#0afab0', '#ffffff'], origin: { y: 0.9 }});
+        }
+        entradaTeclado = ''; 
+    }
+
+    if (entradaTeclado.endsWith('amor')) {
+        crearGlobos(); 
+        showToast("💖 El amor está en el aire...");
+        entradaTeclado = '';
+    }
   }
 });
 
 /* ══════════════════════════════════════════════════════════════
-   17 · EASTER EGG — ESCENA DE LA LUNA
-         BUG FIX: sin listener duplicado, sin conflicto
+   17 · EASTER EGG — ESCENA DE LA LUNA Y ESTADOS SEGUROS
    ══════════════════════════════════════════════════════════════ */
 let easterEggActivo = false;
 let canvasLunaAnim  = null;
+
+// Objeto para memorizar en qué pantalla estábamos
+let estadoPrevioEasterEgg = {
+    bloqueo: false,
+    auth: false,
+    principal: false
+};
 
 function crearCorazonesLuna() {
   const escena = $('escenaLuna');
@@ -765,7 +794,6 @@ function iniciarEfectosLuna() {
   const tierra  = $('planetaTierra');
   const neb     = document.querySelector('.nebulosa-fondo');
 
-  // Parallax al mover el mouse
   document.addEventListener('mousemove', e => {
     if (escena.style.display !== 'flex') return;
     const xP = (e.clientX / window.innerWidth  - .5) * 30;
@@ -777,7 +805,6 @@ function iniciarEfectosLuna() {
     }
   });
 
-  // Polvo de estrellas en el mouse
   document.addEventListener('mousemove', e => {
     if (escena.style.display !== 'flex' || Math.random() > .3) return;
     const p = document.createElement('div');
@@ -787,7 +814,6 @@ function iniciarEfectosLuna() {
     setTimeout(() => p.remove(), 900);
   });
 
-  // Estrellas fugaces periódicas
   setInterval(() => {
     if (escena.style.display !== 'flex') return;
     const f = document.createElement('div');
@@ -800,7 +826,6 @@ function iniciarEfectosLuna() {
     setTimeout(() => f.remove(), 1800);
   }, 3500);
 
-  // Clic en la escena → estrella fija
   escena.addEventListener('click', e => {
     if (e.target.closest('#lunaInteractiva') || e.target.id === 'btnCerrarLuna') return;
     const s = document.createElement('div');
@@ -812,22 +837,20 @@ function iniciarEfectosLuna() {
   });
 }
 
-// BUG FIX: Luna click — aquí es el ÚNICO listener
 $('lunaInteractiva')?.addEventListener('click', function(e) {
   e.stopPropagation();
-  // Onda de luz
   const onda = document.createElement('div');
   onda.classList.add('onda-luz');
   $('contenedorLuna').appendChild(onda);
   setTimeout(() => onda.remove(), 1500);
-  // Poema
   mostrarPoemaLuna();
 });
 
-// Cerrar escena
+// CORRECCIÓN: Al cerrar la Luna, retornamos EXCELENTEMENTE a la pantalla en que estábamos
 $('btnCerrarLuna')?.addEventListener('click', () => {
   const escena = $('escenaLuna');
   const mLuna  = $('musicaLuna');
+  
   if (typeof gsap !== 'undefined') {
     gsap.to(escena, { opacity:0, duration:1.2, ease:'power2.in',
       onComplete: () => { escena.style.display = 'none'; escena.style.opacity = ''; }
@@ -835,24 +858,59 @@ $('btnCerrarLuna')?.addEventListener('click', () => {
   } else {
     escena.style.display = 'none';
   }
+  
   if (mLuna) { mLuna.pause(); mLuna.currentTime = 0; }
-  $('contenedorPrincipal').style.display = '';
+  
+  // RESTAURAR ESTADO PREVIO (Previene el bypass de bloqueo)
+  const bloqueo = $('pantallaBloqueo');
+  const auth = $('pantallaAuth');
+  const principal = $('contenedorPrincipal');
+
+  if (estadoPrevioEasterEgg.bloqueo && bloqueo) bloqueo.classList.remove('oculto');
+  if (estadoPrevioEasterEgg.auth && auth) auth.classList.remove('oculto');
+  if (estadoPrevioEasterEgg.principal && principal) principal.style.display = '';
+
   easterEggActivo = false;
+
+  // Restaurar Música de fondo suavemente solo si estábamos en la fiesta principal
+  const mF = $('musicaFondo');
+  if (mF && estadoPrevioEasterEgg.principal) {
+    mF.play().catch(()=>{});
+    const iv = setInterval(() => {
+      mF.volume = Math.min(0.5, mF.volume + 0.05);
+      if(mF.volume >= 0.5) clearInterval(iv);
+    }, 200);
+  }
 });
 
 function activarEasterEggLuna() {
   if (easterEggActivo) return;
   easterEggActivo = true;
 
-  $('pistaSecreta').style.display = 'none';
-  $('contenedorPrincipal').style.display = 'none';
+  // GUARDAR ESTADO ACTUAL
+  const bloqueo = $('pantallaBloqueo');
+  const auth = $('pantallaAuth');
+  const principal = $('contenedorPrincipal');
+
+  estadoPrevioEasterEgg.bloqueo = bloqueo && !bloqueo.classList.contains('oculto');
+  estadoPrevioEasterEgg.auth = auth && !auth.classList.contains('oculto');
+  estadoPrevioEasterEgg.principal = principal && principal.style.display !== 'none';
+
+  // Ocultar de forma segura la pista secreta
+  const pista = $('pistaSecreta');
+  if (pista) pista.style.display = 'none';
+
+  // OCULTAR LAS OTRAS PANTALLAS DE FORMA SEGURA
+  if (bloqueo) bloqueo.classList.add('oculto');
+  if (auth) auth.classList.add('oculto');
+  if (principal) principal.style.display = 'none';
 
   // Fade-out música fondo
   const mF = $('musicaFondo');
   if (mF) {
     const iv = setInterval(() => {
       mF.volume = Math.max(0, mF.volume - .08);
-      if (mF.volume <= 0) { clearInterval(iv); mF.pause(); mF.currentTime = 0; }
+      if (mF.volume <= 0) { clearInterval(iv); mF.pause(); } // mF.currentTime=0 removido para no reiniciar
     }, 180);
   }
 
@@ -872,7 +930,6 @@ function activarEasterEggLuna() {
   iniciarEfectosLuna();
 
   if (typeof gsap === 'undefined') {
-    // Fallback sin GSAP
     $('planetaTierra').style.opacity = '.6';
     document.querySelector('.luna-realista').style.opacity = '1';
     document.querySelector('.nombre-luna-titulo').style.opacity = '1';
@@ -899,17 +956,20 @@ function activarEasterEggLuna() {
     'Te amo.',
   ];
 
+  // Null check agregado para las frases poeticas
   const cf = $('frasesPoeticas');
-  frases.forEach(f => {
-    tl.call(() => { cf.innerText = f; })
-      .fromTo(cf, { opacity:0, y:25 }, { opacity:1, y:0, duration:2, ease:'power1.out' })
-      .to(cf, { opacity:1, duration:4 })
-      .to(cf, { opacity:0, y:-20, duration:1.5, ease:'power1.in' });
-  });
+  if (cf) {
+      frases.forEach(f => {
+        tl.call(() => { cf.innerText = f; })
+          .fromTo(cf, { opacity:0, y:25 }, { opacity:1, y:0, duration:2, ease:'power1.out' })
+          .to(cf, { opacity:1, duration:4 })
+          .to(cf, { opacity:0, y:-20, duration:1.5, ease:'power1.in' });
+      });
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════
-   18 · MODAL DE POEMA (API Python)
+   18 · MODAL DE POEMA
    ══════════════════════════════════════════════════════════════ */
 async function mostrarPoemaLuna() {
   try {
@@ -998,7 +1058,7 @@ async function mostrarVisitas() {
     document.body.appendChild(b);
   } catch(_) {}
 }
-// Solo mostrar en la vista de fiesta, no en el bloqueo
+
 setTimeout(() => {
   if (!$('pantallaBloqueo') || $('pantallaBloqueo').classList.contains('oculto')) {
     mostrarVisitas();
