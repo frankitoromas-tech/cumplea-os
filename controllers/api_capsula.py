@@ -10,7 +10,7 @@ capsula_bp = Blueprint('capsula', __name__)
 @capsula_bp.route('/api/capsula')
 def verificar_capsula():
     # Define la fecha exacta en la que se abrirá (Año, Mes, Día, Hora, Minuto)
-    fecha_apertura = datetime(2026, 8, 30, 0, 0)  # Cámbiala a tu gusto
+    fecha_apertura = datetime(2025, 8, 30, 0, 0)  # Cámbiala a tu gusto
     ahora = datetime.now()
 
     if ahora >= fecha_apertura:
