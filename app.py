@@ -1,62 +1,39 @@
-"""
-=============================================================
-  🌙 app.py — Orquestador principal (Flask)
-  Autor: Frank  |  Para: Luyuromo
-  Ahora delega TODA la lógica a módulos en api/
-  app.py solo inicializa y registra blueprints.
-=============================================================
-"""
-import os, logging
-from pathlib import Path
-from flask import Flask
+from flask import Flask, render_template
+from flask_cors import CORS
 
-# ── dotenv opcional ──────────────────────────────────────────
-try:
-    from dotenv import load_dotenv; load_dotenv()
-except ImportError:
-    pass
+# Importaciones sincronizadas con tus archivos en /controllers
+from controllers.api_mensajes import mensajes_module
+from controllers.api_estadisticas import estadisticas_module
+from controllers.api_constelaciones import creador_bp
+from controllers.api_capsula import capsula_bp
+from controllers.api_regalo import regalo_module
+from controllers.api_contenido import contenido_module
+from controllers.api_efectos import efectos_module
 
-# ── Logging ──────────────────────────────────────────────────
-LOG_DIR   = Path(__file__).parent / "logs"
-_handlers = [logging.StreamHandler()]
-try:
-    LOG_DIR.mkdir(exist_ok=True)
-    _handlers.insert(0, logging.FileHandler(LOG_DIR / "app.log", encoding="utf-8"))
-except OSError:
-    pass
-logging.basicConfig(level=logging.INFO,
-                    format="%(asctime)s [%(levelname)s] %(message)s",
-                    handlers=_handlers)
-logger = logging.getLogger(__name__)
-
-# ── Flask app ────────────────────────────────────────────────
 app = Flask(__name__)
+CORS(app)
 
-@app.after_request
-def cors(response):
-    response.headers["Access-Control-Allow-Origin"]  = "*"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-    return response
+# Registro de Blueprints usando el atributo .bp de tus clases
+app.register_blueprint(mensajes_module.bp)
+app.register_blueprint(estadisticas_module.bp)
+app.register_blueprint(regalo_module.bp)
+app.register_blueprint(contenido_module.bp)
+app.register_blueprint(efectos_module.bp)
 
-# ── Importar y registrar todos los módulos ───────────────────
-from api.regalo     import regalo_module
-from api.estadisticas import estadisticas_module
-from api.mensajes    import mensajes_module
-from api.efectos     import efectos_module
-from capsula_api     import capsula_bp
-from creador_constelaciones import creador_bp
-
-app.register_blueprint(regalo_module.blueprint())
-app.register_blueprint(estadisticas_module.blueprint())
-app.register_blueprint(mensajes_module.blueprint())
-app.register_blueprint(efectos_module.blueprint())
-app.register_blueprint(capsula_bp)
+# Registro de Blueprints clásicos
 app.register_blueprint(creador_bp)
+app.register_blueprint(capsula_bp)
 
-# ── Compatibilidad: rutas que app.py solía definir directamente ──
-# Las rutas principales ya están en los módulos.
-# Solo dejamos el punto de entrada.
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-if __name__ == "__main__":
-    logger.info("🌙 Servidor iniciado — arquitectura modular activa")
-    app.run(debug=True, host="0.0.0.0", port=5000)
+# Rutas para las páginas nuevas
+@app.route('/aurora')
+def aurora(): return render_template('aurora.html')
+
+@app.route('/timeline')
+def timeline(): return render_template('timeline.html')
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)

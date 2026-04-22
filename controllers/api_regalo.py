@@ -6,7 +6,7 @@ Gestiona la apertura del regalo y las páginas principales.
 from __future__ import annotations
 from datetime import datetime
 from flask import render_template
-from api.contenido import ContenidoModule
+from controllers.api_contenido import ContenidoModule
 
 
 class RegaloBase(ContenidoModule):
