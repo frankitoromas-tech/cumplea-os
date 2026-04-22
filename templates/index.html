@@ -205,5 +205,49 @@
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 <script src="{{ url_for('static', filename='capsula.js') }}"></script>
 <script src="{{ url_for('static', filename='creador.js') }}"></script>
+<!-- Módulos JS independientes (herencia de clases) -->
+<script src="{{ url_for('static', filename='js/JuegoCorazones.js') }}"></script>
+<script src="{{ url_for('static', filename='js/NavigadorPaginas.js') }}"></script>
+<script src="{{ url_for('static', filename='js/SaludoContextual.js') }}"></script>
+<script src="{{ url_for('static', filename='js/EasterEggManager.js') }}"></script>
+
+<!-- Easter Egg: escribir "frank" -->
+<div id="eeFrankOverlay">
+  <button id="btnCerrarFrank">✕</button>
+  <span class="ee-frank-corazon">💕</span>
+  <h2 class="ee-frank-titulo">Un mensaje de Frank para ti</h2>
+  <div id="eeFrankTexto" class="ee-frank-texto"></div>
+</div>
+
+<!-- Easter egg pastel 7 clics -->
+<div id="eePastelMsg">🎂 ¡Encontraste el secreto del pastel! 🎂</div>
+
+
+<script>
+// Activar EE Frank desde EasterEggManager
+(function(){
+  const MENSAJES = [
+    'Desde el primer día supe que eras especial.',
+    'Cada momento contigo es un regalo del universo.',
+    'Mi vida tiene más sentido desde que estás en ella.',
+    'Eres la persona que siempre quise encontrar.',
+    'Gracias por existir, por reír, por estar.',
+  ];
+  window._activarEEFrank = function() {
+    const ov = document.getElementById('eeFrankOverlay');
+    const tx = document.getElementById('eeFrankTexto');
+    if (!ov || !tx) return;
+    tx.textContent = MENSAJES[Math.floor(Math.random()*MENSAJES.length)];
+    tx.classList.remove('visible');
+    ov.style.display = 'flex';
+    setTimeout(() => tx.classList.add('visible'), 300);
+  };
+  document.getElementById('btnCerrarFrank')?.addEventListener('click', () => {
+    const ov = document.getElementById('eeFrankOverlay');
+    if (ov) { ov.style.opacity='0'; ov.style.transition='opacity .5s';
+               setTimeout(()=>{ ov.style.display='none'; ov.style.opacity=''; },500); }
+  });
+})();
+</script>
 </body>
 </html>

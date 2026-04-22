@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌌 Aurora — Para Luyuromo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,300;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root { --rosa:#ff6b81; --dorado:#f5c842; --texto:#f0e8ff; }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html, body { height:100%; overflow:hidden; }
+    body { background:#000; color:var(--texto); font-family:'Cormorant Garamond',serif; cursor:none; }
+
+    canvas#aurora { position:fixed; inset:0; width:100%; height:100%; }
+
+    #overlay {
+      position:fixed; inset:0; z-index:10;
+      display:flex; flex-direction:column;
+      justify-content:center; align-items:center;
+      pointer-events:none;
+      padding:20px;
+    }
+
+    .aurora-titulo {
+      font-family:'Playfair Display',serif; font-style:italic;
+      font-size:clamp(2rem,6vw,4.5rem);
+      color:rgba(255,255,255,.9);
+      text-shadow: 0 0 60px rgba(120,200,255,.6), 0 0 120px rgba(80,255,180,.3);
+      letter-spacing:6px; text-align:center;
+      animation: fadeInUp 2s ease both;
+    }
+    .aurora-frase {
+      font-family:'Cormorant Garamond',serif; font-style:italic;
+      font-size:clamp(1.1rem,2.5vw,1.8rem);
+      color:rgba(255,255,255,.7);
+      text-shadow: 0 0 30px rgba(100,255,200,.4);
+      text-align:center; max-width:600px; margin-top:20px;
+      line-height:1.6;
+      animation: fadeInUp 2s .6s ease both; opacity:0;
+    }
+    @keyframes fadeInUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* Stats chip */
+    #statsChip {
+      position:fixed; bottom:70px; left:50%;
+      transform:translateX(-50%);
+      background:rgba(0,0,0,.4); backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:50px; padding:10px 24px;
+      font-size:.85rem; color:rgba(255,255,255,.6);
+      pointer-events:none; z-index:10;
+      display:flex; gap:20px; align-items:center;
+      animation: fadeInUp 2s 1.2s ease both; opacity:0;
+    }
+    .chip-item { text-align:center; }
+    .chip-valor { display:block; font-family:'Playfair Display',serif; color:var(--dorado); font-size:1.1rem; }
+    .chip-etiq  { font-size:.7rem; opacity:.6; letter-spacing:1px; }
+
+    /* Cursor */
+    #cursor { position:fixed; width:14px; height:14px; border-radius:50%;
+      background:radial-gradient(circle,rgba(200,255,230,.9),rgba(100,200,255,.6));
+      box-shadow:0 0 12px rgba(100,255,200,.8);
+      transform:translate(-50%,-50%); pointer-events:none; z-index:9999;
+      mix-blend-mode:screen; transition:transform .08s; }
+
+    .btn-volver {
+      position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
+      color:rgba(255,255,255,.7); padding:10px 26px; border-radius:50px;
+      font-family:'Cormorant Garamond',serif; font-style:italic;
+      font-size:1rem; text-decoration:none; z-index:20;
+      transition:all .3s; pointer-events:all;
+    }
+    .btn-volver:hover { background:rgba(255,255,255,.16); color:white; transform:translateX(-50%) translateY(-2px); }
+
+    #instruccion {
+      position:fixed; top:20px; left:50%; transform:translateX(-50%);
+      font-style:italic; font-size:.8rem; color:rgba(255,255,255,.3);
+      z-index:10; pointer-events:none; letter-spacing:2px;
+    }
+  </style>
+</head>
+<body>
+<div id="cursor"></div>
+<canvas id="aurora"></canvas>
+<p id="instruccion">Mueve el mouse · Haz clic para crear destellos</p>
+
+<div id="overlay">
+  <h1 class="aurora-titulo">Aurora</h1>
+  <p class="aurora-frase" id="fraseAurora">Cargando...</p>
+</div>
+
+<div id="statsChip">
+  <div class="chip-item"><span class="chip-valor" id="chipDias">—</span><span class="chip-etiq">días juntos</span></div>
+  <div class="chip-item"><span class="chip-valor" id="chipOrbitas">—</span><span class="chip-etiq">órbitas al sol</span></div>
+  <div class="chip-item"><span class="chip-valor" id="chipMomento">—</span><span class="chip-etiq">saludo</span></div>
+</div>
+
+<a href="/" class="btn-volver">← Volver</a>
+
+<script>
+'use strict';
+
+const cvs = document.getElementById('aurora');
+const ctx = cvs.getContext('2d');
+const cur = document.getElementById('cursor');
+let W, H, mx = W/2, my = H/2, t = 0;
+let fraseActual = '';
+let coloresPaleta = ['#0d1b2a','#1b4332','#40916c','#74c69d'];
+
+const resize = () => { W = cvs.width = window.innerWidth; H = cvs.height = window.innerHeight; };
+resize();
+window.addEventListener('resize', resize);
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+});
+
+// ── Destellos al clic ──
+const destellos = [];
+document.addEventListener('click', e => {
+  for (let i = 0; i < 12; i++) {
+    const ang = (Math.PI * 2 / 12) * i;
+    destellos.push({
+      x: e.clientX, y: e.clientY,
+      vx: Math.cos(ang) * (2 + Math.random() * 3),
+      vy: Math.sin(ang) * (2 + Math.random() * 3),
+      life: 1, r: 2 + Math.random() * 3,
+    });
+  }
+});
+
+// ── Capas de aurora (cintas ondulantes) ──
+const CAPAS = [
+  { y: .25, amp: .12, freq: .8,  fase: 0,    grosor: .18, color: [0, 200, 150] },
+  { y: .40, amp: .10, freq: 1.1, fase: 1.5,  grosor: .15, color: [50, 150, 255] },
+  { y: .55, amp: .08, freq: .6,  fase: .8,   grosor: .12, color: [180, 100, 255] },
+  { y: .35, amp: .14, freq: 1.3, fase: 2.0,  grosor: .10, color: [0, 255, 200] },
+  { y: .60, amp: .06, freq: .9,  fase: 3.1,  grosor: .08, color: [100, 200, 255] },
+];
+
+// ── Estrellas de fondo ──
+const ESTRELLAS = Array.from({length: 200}, () => ({
+  x: Math.random(), y: Math.random(),
+  r: Math.random() * 1.2 + .2,
+  a: Math.random(),
+  da: (Math.random() * .005 + .001) * (Math.random() < .5 ? 1 : -1),
+}));
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return [r,g,b];
+}
+
+function dibujarCapa(capa, t, mouseInfluencia) {
+  const { y, amp, freq, fase, grosor, color } = capa;
+  const puntos = [];
+  const pasos  = 120;
+
+  for (let i = 0; i <= pasos; i++) {
+    const px = (i / pasos) * W;
+    const norx = i / pasos;
+    const mouse_dy = (my / H - y) * 0.04 * mouseInfluencia;
+    const py = H * (y + mouse_dy
+      + amp * Math.sin(norx * Math.PI * 2 * freq + t + fase)
+      + amp * .3 * Math.sin(norx * Math.PI * 4 * freq + t * 1.3 + fase + 1));
+    puntos.push({ x: px, y: py });
+  }
+
+  // Cinta con gradiente vertical
+  ctx.beginPath();
+  ctx.moveTo(0, H);
+  puntos.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(W, H);
+  ctx.closePath();
+
+  const [r,g,b] = color;
+  const grad = ctx.createLinearGradient(0, H * (y - grosor), 0, H * (y + grosor));
+  grad.addColorStop(0, `rgba(${r},${g},${b},0)`);
+  grad.addColorStop(.4, `rgba(${r},${g},${b},.18)`);
+  grad.addColorStop(.7, `rgba(${r},${g},${b},.09)`);
+  grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Borde luminoso
+  ctx.beginPath();
+  puntos.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+  ctx.strokeStyle = `rgba(${r},${g},${b},.45)`;
+  ctx.lineWidth   = 1.5;
+  ctx.shadowColor = `rgb(${r},${g},${b})`;
+  ctx.shadowBlur  = 20;
+  ctx.stroke();
+  ctx.shadowBlur  = 0;
+}
+
+function frame() {
+  ctx.clearRect(0, 0, W, H);
+  t += .004;
+
+  // Fondo con gradiente oscuro
+  const bg = ctx.createRadialGradient(mx, my, 0, W/2, H/2, Math.max(W,H));
+  bg.addColorStop(0, 'rgba(5,15,40,.95)');
+  bg.addColorStop(1, 'rgba(2,4,14,1)');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Estrellas
+  ESTRELLAS.forEach(s => {
+    s.a = Math.max(.04, Math.min(.9, s.a + s.da));
+    if (s.a >= .9 || s.a <= .04) s.da *= -1;
+    ctx.beginPath();
+    ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(200,220,255,${s.a * .6})`;
+    ctx.fill();
+  });
+
+  // Aurora cintas (influencia del mouse)
+  const mouseInf = 1 + (mx / W) * 0.5;
+  CAPAS.forEach(c => dibujarCapa(c, t, mouseInf));
+
+  // Destellos de clic
+  for (let i = destellos.length - 1; i >= 0; i--) {
+    const d = destellos[i];
+    d.x += d.vx; d.y += d.vy; d.vx *= .94; d.vy *= .94; d.life -= .03;
+    if (d.life <= 0) { destellos.splice(i, 1); continue; }
+    ctx.beginPath();
+    ctx.arc(d.x, d.y, d.r * d.life, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(150,255,220,${d.life})`;
+    ctx.shadowColor = 'rgba(100,255,200,.8)';
+    ctx.shadowBlur  = 12;
+    ctx.fill();
+    ctx.shadowBlur  = 0;
+  }
+
+  requestAnimationFrame(frame);
+}
+frame();
+
+// Cargar datos dinámicos
+fetch('/api/aurora_data')
+  .then(r => r.json())
+  .then(d => {
+    document.getElementById('fraseAurora').textContent = d.frase;
+    // Actualizar colores de aurora según momento del día
+    coloresPaleta = d.colores;
+    if (d.colores.length >= 2) {
+      const [r1,g1,b1] = hexToRgb(d.colores[1]);
+      const [r2,g2,b2] = hexToRgb(d.colores[2] || d.colores[1]);
+      CAPAS[0].color = [r1,g1,b1];
+      CAPAS[2].color = [r2,g2,b2];
+    }
+  }).catch(() => {
+    document.getElementById('fraseAurora').textContent =
+      'Como la aurora boreal, tú apareces con colores que nunca esperé.';
+  });
+
+fetch('/api/estadisticas_amor')
+  .then(r => r.json())
+  .then(d => {
+    document.getElementById('chipDias').textContent     = d.dias_juntos;
+    document.getElementById('chipOrbitas').textContent  = d.orbitas_al_sol;
+  }).catch(() => {});
+
+fetch('/api/momento_dia')
+  .then(r => r.json())
+  .then(d => {
+    document.getElementById('chipMomento').textContent = d.emoji + ' ' + d.momento;
+  }).catch(() => {});
+
+// Notificar a Frank
+fetch('/api/notificar', {
+  method:'POST', headers:{'Content-Type':'application/json'},
+  body: JSON.stringify({evento:'aurora'})
+}).catch(() => {});
+</script>
+</body>
+</html>
