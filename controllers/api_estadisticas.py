@@ -1,30 +1,20 @@
-"""
-api/estadisticas.py
-EstadisticasModule — hereda de APIModule
-Estadísticas de amor, countdown detallado, visitas.
-"""
 from __future__ import annotations
 from datetime import datetime, date
 from pathlib import Path
 import json
 from api import APIModule
 
-
 class EstadisticasModule(APIModule):
-    """
-    Módulo de estadísticas.
-    Hereda de APIModule → BaseModule.
-    Rutas: /api/estadisticas_amor, /api/countdown_detallado, /api/visitas, /api/estado
-    """
     nombre = "estadisticas"
     _DATA  = Path(__file__).parent.parent / "data"
 
     def _registrar_rutas(self):
-        self.bp.route("/api/estadisticas_amor")(self.estadisticas_amor)
-        self.bp.route("/api/countdown_detallado")(self.countdown_detallado)
-        self.bp.route("/api/visitas")(self.visitas)
-        self.bp.route("/api/estado")(self.estado_regalo)
-        self.bp.route("/api/momento_dia")(self.momento_del_dia)
+        # Rutas unificadas y correctamente registradas
+        self.bp.add_url_rule("/amor", "estadisticas_amor", self.estadisticas_amor, methods=["GET"])
+        self.bp.add_url_rule("/countdown_detallado", "countdown_detallado", self.countdown_detallado, methods=["GET"])
+        self.bp.add_url_rule("/visitas", "visitas", self.visitas, methods=["GET"])
+        self.bp.add_url_rule("/estado", "estado_regalo", self.estado_regalo, methods=["GET"])
+        self.bp.add_url_rule("/momento_dia", "momento_del_dia", self.momento_del_dia, methods=["GET"])
 
     # ── helpers privados ────────────────────────────────────
     def _leer_visitas(self) -> dict:
@@ -52,7 +42,6 @@ class EstadisticasModule(APIModule):
 
     # ── rutas ────────────────────────────────────────────────
     def estado_regalo(self):
-        """Compatible 100% con el fetch existente en script.js."""
         ahora = datetime.now()
         if ahora >= self.FECHA_APERTURA:
             return self._ok({"bloqueado": False})
@@ -60,11 +49,12 @@ class EstadisticasModule(APIModule):
         return self._ok({"bloqueado": True, "segundos_faltantes": delta.total_seconds()})
 
     def estadisticas_amor(self):
-        hoy    = date.today()
-        dias   = self._dias_vividos()
-        edad   = self._edad()
-        juntos = self._dias_juntos()
+        hoy     = date.today()
+        dias    = self._dias_vividos()
+        edad    = self._edad()
+        juntos  = self._dias_juntos()
         proximo = self._proximo_cumple()
+        
         return self._ok({
             "edad_años":         edad,
             "dias_vividos":      f"{dias:,}",
@@ -102,20 +92,24 @@ class EstadisticasModule(APIModule):
         })
 
     def momento_del_dia(self):
-        """Nueva ruta: saludo contextual según la hora."""
         h = datetime.now().hour
         if 5  <= h < 12: momento, emoji = "mañana",  "🌅"
         elif 12 <= h < 18: momento, emoji = "tarde",  "☀️"
         elif 18 <= h < 22: momento, emoji = "noche",  "🌙"
         else:              momento, emoji = "madrugada", "⭐"
+        
         saludos = {
             "mañana":    "Buenos días, mi luna. Que este día sea tan brillante como tú.",
             "tarde":     "Buenas tardes, amor. Espero que tu día esté siendo hermoso.",
             "noche":     "Buenas noches, mi cielo. Eres lo más bonito de mi día.",
             "madrugada": "¿Todavía despierta? Cuídate mucho, te quiero siempre.",
         }
-        return self._ok({"momento": momento, "emoji": emoji,
-                         "saludo": saludos[momento], "hora": h})
+        return self._ok({
+            "momento": momento, 
+            "emoji": emoji,
+            "saludo": saludos[momento], 
+            "hora": h
+        })
 
-
+# Instancia final
 estadisticas_module = EstadisticasModule()

@@ -1,16 +1,28 @@
 import json
 import os
 
+import json
+from pathlib import Path
+
 class ServicioBase:
-    def __init__(self, ruta_archivo):
-        self.ruta_archivo = ruta_archivo
+    def __init__(self, ruta_archivo: str):
+        self.ruta = Path(ruta_archivo)
 
-    def leer_datos(self):
-        if not os.path.exists(self.ruta_archivo):
-            return []
-        with open(self.ruta_archivo, 'r') as f:
-            return json.load(f)
+    def leer_datos(self) -> list:
+        try:
+            if self.ruta.exists():
+                return json.loads(self.ruta.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+        return []
 
-    def guardar_datos(self, datos):
-        with open(self.ruta_archivo, 'w') as f:
-            json.dump(datos, f, indent=4)
+    def guardar_datos(self, datos: list) -> bool:
+        # BUG FIX: try/except para Vercel (filesystem read-only)
+        try:
+            self.ruta.parent.mkdir(parents=True, exist_ok=True)
+            self.ruta.write_text(
+                json.dumps(datos, ensure_ascii=False, indent=4), encoding="utf-8"
+            )
+            return True
+        except OSError:
+            return False
