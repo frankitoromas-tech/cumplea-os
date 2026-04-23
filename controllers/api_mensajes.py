@@ -34,7 +34,12 @@ class TelegramMixin:
                       "parse_mode": "HTML", "disable_notification": silencioso},
                 timeout=8,
             )
-            data = r.json()
+            # BUG FIX: r.json() lanza JSONDecodeError si el proxy devuelve
+            # respuesta vacía (entorno Vercel / sandbox). Capturamos explícito.
+            try:
+                data = r.json()
+            except Exception:
+                return {"ok": False, "error": "respuesta no es JSON"}
             if not data.get("ok"):
                 logger.warning("Telegram error: %s", data.get("description"))
             return data
@@ -49,7 +54,10 @@ class TelegramMixin:
         """Comprueba si el bot de Telegram está operativo."""
         try:
             r = http_requests.get(f"{self._tg_url}/getMe", timeout=6)
-            return r.json().get("ok", False)
+            try:
+                return r.json().get("ok", False)
+            except Exception:
+                return False  # BUG FIX: respuesta vacía o no-JSON
         except Exception:
             return False
 

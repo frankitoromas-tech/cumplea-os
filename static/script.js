@@ -733,29 +733,15 @@ let entradaTeclado = '';
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
-  // CORRECCIÓN: Usar toLowerCase() antes de validar para atrapar teclas en mayúscula
   const key = e.key.toLowerCase();
-  
-  if (key.length === 1 && key >= 'a' && key <= 'z') {
-    entradaTeclado = (entradaTeclado + key).slice(-10); 
-    
-    if (entradaTeclado.endsWith('luna')) { 
-        activarEasterEggLuna(); 
-        entradaTeclado = ''; 
-    }
-    
-    if (entradaTeclado.endsWith('frank')) { 
-        showToast("✨ Él te ama más que a nada en el universo...", 4000);
-        if (typeof confetti !== 'undefined') {
-            confetti({ particleCount: 60, spread: 90, colors: ['#4287f5', '#0afab0', '#ffffff'], origin: { y: 0.9 }});
-        }
-        entradaTeclado = ''; 
-    }
 
-    if (entradaTeclado.endsWith('amor')) {
-        crearGlobos(); 
-        showToast("💖 El amor está en el aire...");
-        entradaTeclado = '';
+  // BUG FIX: solo detecta "luna" aquí. "frank", "amor" y "estrella" los
+  // gestiona EasterEggManager.js para evitar doble disparo del evento.
+  if (key.length === 1 && key >= 'a' && key <= 'z') {
+    entradaTeclado = (entradaTeclado + key).slice(-4);
+    if (entradaTeclado === 'luna') {
+      activarEasterEggLuna();
+      entradaTeclado = '';
     }
   }
 });

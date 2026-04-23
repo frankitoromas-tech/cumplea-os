@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💌 Carta para Luyuromo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,400;1,600&family=Playfair+Display:ital,wght@0,600;1,400&family=IM+Fell+English:ital@1&display=swap" rel="stylesheet">
+  <style>
+    :root { --tinta:#1a0a00; --papel:#f9f3e8; --dorado:#b8860b; --rosa:#c0705a; }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      min-height:100vh; height:auto; background:#2c1810;
+      background-image: radial-gradient(ellipse at 30% 20%, rgba(100,40,20,.6) 0%, transparent 60%),
+                        radial-gradient(ellipse at 70% 80%, rgba(40,10,5,.8) 0%, transparent 60%);
+      display:flex; justify-content:center; align-items:flex-start;
+      padding:60px 20px 80px; overflow-y:auto; cursor:default;
+    }
+    .sobre-wrap { width:100%; max-width:680px; }
+    .carta-papel {
+      background:var(--papel);
+      background-image: repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(180,140,100,.18) 28px);
+      border-radius:2px; padding:60px 60px 70px;
+      box-shadow: 0 20px 80px rgba(0,0,0,.5), 0 2px 4px rgba(0,0,0,.3),
+                  inset 0 0 60px rgba(180,140,100,.08);
+      position:relative;
+      animation: desplegar 1.2s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes desplegar {
+      from { opacity:0; transform:rotateX(-25deg) scaleY(.85) translateY(-30px); }
+      to   { opacity:1; transform:rotateX(0deg) scaleY(1) translateY(0); }
+    }
+    .sello {
+      position:absolute; top:-28px; left:50%; transform:translateX(-50%);
+      width:56px; height:56px; border-radius:50%;
+      background:radial-gradient(circle at 35% 35%,#e05555,#8b1a1a);
+      box-shadow:0 4px 16px rgba(150,20,20,.6);
+      display:flex; align-items:center; justify-content:center; font-size:1.6rem;
+      animation: sello .6s .8s ease both;
+    }
+    @keyframes sello {
+      from { opacity:0; transform:translateX(-50%) scale(0) rotate(-45deg); }
+      to   { opacity:1; transform:translateX(-50%) scale(1) rotate(0deg); }
+    }
+    .carta-papel::before, .carta-papel::after {
+      content:'✦'; position:absolute; font-size:1rem; color:rgba(184,134,11,.3);
+    }
+    .carta-papel::before { top:20px; left:24px; }
+    .carta-papel::after  { bottom:24px; right:28px; }
+    .fecha { text-align:right; font-family:'Cormorant Garamond',serif; font-style:italic;
+             color:var(--dorado); font-size:.95rem; margin-bottom:36px;
+             animation:fadeUp .7s 1s ease both; opacity:0; }
+    .saludo { font-family:'Playfair Display',serif; font-style:italic; font-size:1.8rem;
+              color:var(--rosa); margin-bottom:28px;
+              animation:fadeUp .7s 1.2s ease both; opacity:0; }
+    .parrafo { font-family:'Cormorant Garamond',serif; font-size:1.15rem; line-height:1.95;
+               color:var(--tinta); margin-bottom:22px; text-align:justify; opacity:0;
+               animation:fadeUp .8s ease both; }
+    .parrafo:nth-child(3){animation-delay:1.4s} .parrafo:nth-child(4){animation-delay:1.7s}
+    .parrafo:nth-child(5){animation-delay:2.0s} .parrafo:nth-child(6){animation-delay:2.3s}
+    .parrafo:nth-child(7){animation-delay:2.6s}
+    .firma-bloque { margin-top:36px; text-align:right;
+                    animation:fadeUp .8s 3s ease both; opacity:0; }
+    .firma-label  { font-family:'Cormorant Garamond',serif; font-style:italic;
+                    color:var(--tinta); font-size:1rem; margin-bottom:6px; }
+    .firma-nombre { font-family:'Playfair Display',serif; font-style:italic;
+                    font-size:2rem; color:var(--rosa); display:block; }
+    .pd { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:.95rem;
+          color:var(--dorado); margin-top:30px; border-top:1px dashed rgba(180,140,100,.3);
+          padding-top:18px; animation:fadeUp .8s 3.4s ease both; opacity:0; }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(12px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .btn-volver {
+      display:block; width:fit-content; margin:30px auto 0;
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
+      color:rgba(255,255,255,.7); padding:10px 24px; border-radius:50px;
+      font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1rem;
+      text-decoration:none; transition:all .3s;
+      animation:fadeUp .6s 3.8s ease both; opacity:0;
+    }
+    .btn-volver:hover { background:rgba(255,255,255,.14); color:white; transform:translateY(-2px); }
+    @media (max-width:560px) {
+      .carta-papel { padding:50px 28px 55px; }
+      .saludo { font-size:1.5rem; }
+      .parrafo { font-size:1.05rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="sobre-wrap">
+  <div class="carta-papel">
+    <div class="sello">💌</div>
+    <p class="fecha" id="fechaHoy"></p>
+    <p class="saludo">Para mi luna, Luyuromo:</p>
+    <p class="parrafo">
+      Hay personas que entran en tu vida sin avisar, sin permiso, sin hacer ruido.
+      Y de repente están en todos lados: en tus pensamientos, en tus sueños,
+      en ese espacio que no sabías que existía hasta que alguien lo llenó.
+      Tú eres esa persona para mí.
+    </p>
+    <p class="parrafo">
+      No sé exactamente cuándo ocurrió. No hubo un momento preciso, una fecha
+      marcada en el calendario. Fue algo más silencioso y más profundo:
+      un día te miré y me di cuenta de que quería seguir mirándote para siempre.
+    </p>
+    <p class="parrafo">
+      Eres brillante de una manera que no se aprende ni se finge.
+      Tienes esa rara capacidad de hacer que todo a tu alrededor valga más.
+      Cuando estás cerca, el mundo parece más ligero, más bonito, más posible.
+    </p>
+    <p class="parrafo">
+      Quiero que sepas que cada cosa que compartimos, por pequeña que parezca,
+      la guardo como si fuera un tesoro. Cada conversación, cada risa, cada momento
+      de silencio cómodo. Todos son parte de algo que valoro más de lo que las palabras
+      pueden decir.
+    </p>
+    <p class="parrafo">
+      Feliz cumpleaños, Luyuromo. Que este año te traiga todo lo que mereces:
+      paz, logros, risas y la certeza de que eres amada más de lo que imaginas.
+    </p>
+    <div class="firma-bloque">
+      <p class="firma-label">Con todo mi amor,</p>
+      <span class="firma-nombre">Frank</span>
+    </div>
+    <p class="pd">P.D. — Si encontraste esta carta, es porque eres exactamente quien debías ser. 🌙</p>
+  </div>
+  <a href="/" class="btn-volver">← Volver a la sorpresa</a>
+</div>
+<script>
+  const m = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const h = new Date();
+  document.getElementById('fechaHoy').textContent = `${h.getDate()} de ${m[h.getMonth()]} de ${h.getFullYear()}`;
+</script>
+</body>
+</html>

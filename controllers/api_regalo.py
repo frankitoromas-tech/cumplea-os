@@ -34,12 +34,13 @@ class RegaloBase(ContenidoModule):
         ]
 
     def _registrar_rutas(self):
-        # Heredamos las rutas de ContenidoModule y añadimos las propias
-        super()._registrar_rutas()
-        self.bp.route("/"             )(self.index)
-        self.bp.route("/admin"        )(self.admin)
-        self.bp.route("/carta"        )(self.carta)
-        self.bp.route("/universo"     )(self.universo)
+        # BUG FIX: NO llamamos super()._registrar_rutas() porque ContenidoModule
+        # ya está registrado en app.py como blueprint separado. Llamarlo aquí
+        # generaba rutas duplicadas (/api/frase_del_dia, /api/poema, etc.).
+        self.bp.route("/"                )(self.index)
+        self.bp.route("/admin"           )(self.admin)
+        self.bp.route("/carta"           )(self.carta)
+        self.bp.route("/universo"        )(self.universo)
         self.bp.route("/api/abrir_regalo")(self.abrir_regalo)
 
     def empaquetar(self) -> dict:
