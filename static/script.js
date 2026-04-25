@@ -579,17 +579,23 @@ function iniciarBloqueo(segundosTotales) {
   juegoConstelacion = new JuegoConstelacion('canvasJuego');
 
   const flip = new FlipCounter();
-  let secs = Math.floor(segundosTotales);
+
+  // BUG FIX: setTimeout encadenado producía drift acumulativo (Firefox throttle
+  // hasta 60s en pestañas inactivas). Ahora usamos un deadline absoluto y nos
+  // realineamos al borde del segundo en cada tick — sin drift, sin saltos.
+  const deadline = Date.now() + Math.floor(segundosTotales) * 1000;
 
   function tick() {
-    if (secs <= 0) { location.reload(); return; }
+    const ms = deadline - Date.now();
+    if (ms <= 0) { location.reload(); return; }
+    const secs = Math.ceil(ms / 1000);
     const d = Math.floor(secs / 86400);
     const h = Math.floor((secs % 86400) / 3600);
     const m = Math.floor((secs % 3600) / 60);
     const s = secs % 60;
     flip.update(d, h, m, s);
-    secs--;
-    setTimeout(tick, 1000);
+    // Próximo tick alineado al siguiente segundo del reloj real
+    setTimeout(tick, 1000 - (Date.now() % 1000));
   }
   tick();
 }

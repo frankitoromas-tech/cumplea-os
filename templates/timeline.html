@@ -6,6 +6,7 @@
   <title>📖 Nuestra Historia — Luyuromo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/immersive.css') }}">
   <style>
     :root {
       --fondo:#04071a; --rosa:#ff6b81; --dorado:#f5c842;
@@ -143,10 +144,10 @@
     }
   </style>
 </head>
-<body>
+<body data-music="recuerdos">
 <div id="cursor"></div>
 
-<div class="tl-header">
+<div class="tl-header" data-reveal="up">
   <p class="tl-eyebrow">✦ Capítulo por capítulo ✦</p>
   <h1 class="tl-titulo">Nuestra Historia</h1>
   <p class="tl-subtitulo">Cada momento contigo merece ser recordado</p>
@@ -220,5 +221,9 @@ fetch('/api/notificar', {
   body: JSON.stringify({evento:'timeline'})
 }).catch(() => {});
 </script>
+
+<!-- ── Capa inmersiva (audio + tilt). El timeline ya tiene su propio
+     IntersectionObserver para .tl-item.visible, no lo pisamos. ── -->
+<script src="{{ url_for('static', filename='js/immersive/boot-lite.js') }}" defer></script>
 </body>
 </html>

@@ -48,7 +48,7 @@ class APIModule(BaseModule, ABC):
     """
     FECHA_NACIMIENTO  = datetime(2003, 8, 30)
     FECHA_INICIO_AMOR = date(2025, 10, 1)
-    FECHA_APERTURA    = datetime(2026, 8, 30, 0, 0, 0)
+    FECHA_APERTURA    = datetime(2025, 8, 30, 0, 0, 0)
 
     def _edad(self) -> int:
         return (datetime.now() - self.FECHA_NACIMIENTO).days // 365

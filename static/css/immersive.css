@@ -1,0 +1,236 @@
+/* ══════════════════════════════════════════════════════════════
+   immersive.css — Capa visual de la experiencia inmersiva
+   ──────────────────────────────────────────────────────────────
+   • Solo añade reglas. NO sobreescribe selectores existentes.
+   • Todas las clases empiezan con .immersive-* o usan IDs propios
+     (#immersiveBg, #immersiveStart, #immersiveMuteBtn).
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Perspective base para hijos con tilt ────────────────── */
+.contenedor,
+.galeria-polaroid,
+#contenidoSorpresa {
+  perspective: 1000px;
+}
+
+/* ── Tarjetas existentes elevadas en el espacio ──────────── */
+.marco-foto,
+.caja-regalo,
+.immersive-tilt {
+  transform-style: preserve-3d;
+  transition: box-shadow .35s ease;
+}
+
+/* ── Reveals (fallback CSS si GSAP no está) ──────────────── */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity .9s cubic-bezier(.22,1,.36,1),
+              transform .9s cubic-bezier(.22,1,.36,1);
+}
+[data-reveal="left"]  { transform: translateX(-40px); }
+[data-reveal="right"] { transform: translateX( 40px); }
+[data-reveal="zoom"]  { transform: scale(.92); }
+[data-reveal].immersive-reveal--in,
+[data-reveal][style*="opacity"] { /* GSAP también lo deja a 1 */
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Canvas de partículas Three.js ───────────────────────── */
+#immersiveBg {
+  mix-blend-mode: screen;
+  opacity: 0;
+  animation: immersiveBgFadeIn 1.6s ease .8s forwards;
+}
+@keyframes immersiveBgFadeIn { to { opacity: 1; } }
+
+/* ── Overlay de arranque (CTA de audio) ──────────────────── */
+#immersiveStart {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9990;
+  background: radial-gradient(ellipse at center,
+              rgba(8,5,30,.55) 0%, rgba(2,2,12,.85) 100%);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  animation: immersiveStartIn .6s ease both;
+}
+#immersiveStart.is-hide { animation: immersiveStartOut .6s ease forwards; }
+#immersiveStart .is-card {
+  text-align: center;
+  padding: 32px 44px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 22px;
+  background: rgba(255,255,255,.03);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  max-width: 90vw;
+}
+#immersiveStart .is-eyebrow {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: .88rem;
+  letter-spacing: 4px;
+  color: #ff6b81;
+  margin-bottom: 14px;
+}
+#immersiveStart .is-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.4rem, 3.4vw, 2rem);
+  color: #f0e8ff;
+  font-style: italic;
+  margin-bottom: 8px;
+}
+#immersiveStart .is-hint {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: .92rem;
+  color: rgba(255,255,255,.55);
+  letter-spacing: 1.2px;
+}
+@keyframes immersiveStartIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes immersiveStartOut { to   { opacity: 0; transform: scale(1.04); } }
+
+/* ── Botón de mute persistente ───────────────────────────── */
+#immersiveMuteBtn {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(8,12,32,.55);
+  backdrop-filter: blur(10px);
+  color: #f0e8ff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  z-index: 9989;
+  transition: transform .25s ease, background .25s ease;
+}
+#immersiveMuteBtn:hover { transform: translateY(-2px); background: rgba(255,107,129,.18); }
+#immersiveMuteBtn[data-muted="1"] { color: rgba(255,255,255,.4); }
+
+/* ── Latido emocional global (shared-heartbeat.js) ──────────
+   Las CSS variables --heartbeat (0..1 sine) y --heartbeat-pulse
+   (lub-dub spike) están actualizándose constantemente en :root.
+   Cualquier elemento con .heartbeat-pulse las usa. Es opt-in. */
+:root {
+  --heartbeat: 0;
+  --heartbeat-pulse: 0;
+}
+.heartbeat-pulse {
+  /* Un escalado y un glow muy sutiles, casi imperceptibles. La idea
+     es que SIENTAS un ritmo, no que lo veas como un blinker. */
+  transform: scale(calc(1 + var(--heartbeat-pulse) * 0.012));
+  filter: drop-shadow(
+    0 0 calc(8px + var(--heartbeat-pulse) * 14px)
+    rgba(255, 130, 165, calc(0.18 + var(--heartbeat-pulse) * 0.30))
+  );
+  transition: filter .18s ease-out;
+}
+
+/* ── Pastel 3D y portal mágico (cake-3d.js) ─────────────── */
+#cake3DCanvas {
+  /* contenedor del canvas se posiciona desde JS */
+  display: block;
+  border-radius: 14px;
+}
+.contenedor-pastel {
+  position: relative;
+}
+/* El botón mágico que aparece tras soplar las 3 velas — los estilos
+   detallados viven en memory-universe.js para mantenerlos junto a la lógica.
+   Este fallback está aquí por si memory-universe.js no se carga. */
+#btnEntrarUniverso {
+  display: inline-block;
+  padding: 14px 28px;
+  border-radius: 50px;
+  border: 1px solid rgba(255,255,255,.2);
+  background: rgba(255,107,129,.85);
+  color: white;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Mientras el universo de recuerdos esté abierto, congelamos el resto */
+body.memory-universe-open #cursorTrailCanvas { opacity: 0 !important; }
+body.memory-universe-open #immersiveBg       { opacity: 0.3; }
+body.memory-universe-open #lyricStage,
+body.memory-universe-open #immersiveMuteBtn  { z-index: 9995; }
+
+/* ── Karaoke poético (lyric-sync.js) ─────────────────────── */
+#lyricStage {
+  position: fixed;
+  left: 0; right: 0;
+  bottom: 14vh;
+  z-index: 9986;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  padding: 0 6vw;
+  opacity: 0;
+  transition: opacity .8s ease;
+}
+#lyricStage.active { opacity: 1; }
+
+#lyricStage .lyric-line {
+  font-family: 'Playfair Display', 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1.15rem, 2.6vw, 1.85rem);
+  line-height: 1.45;
+  color: rgba(255, 240, 250, .92);
+  text-align: center;
+  max-width: 760px;
+  text-shadow:
+    0 2px 14px rgba(0, 0, 0, .65),
+    0 0 38px rgba(255, 180, 220, .25);
+  letter-spacing: 0.6px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .6s cubic-bezier(.22,1,.36,1),
+              transform .8s cubic-bezier(.22,1,.36,1);
+}
+#lyricStage .lyric-line.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* En modo cine, el karaoke se desvanece para no competir con la foto */
+body.cinema-active #lyricStage { opacity: 0 !important; }
+
+/* En pantalla bloqueo/auth, oculto */
+body:has(#pantallaBloqueo:not(.oculto)) #lyricStage,
+body:has(#pantallaAuth:not(.oculto))    #lyricStage,
+body.immersive-locked #lyricStage {
+  display: none !important;
+}
+
+@media (max-width: 640px) {
+  #lyricStage { bottom: 10vh; }
+}
+
+/* ── Respeto a reduced-motion ────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  #immersiveBg, [data-parallax] { display: none !important; }
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
+}
+
+/* ── Cuando la pantalla de bloqueo o auth está visible, ocultamos el CTA y el
+     botón mute para que no compitan con la cuenta regresiva original.
+     Doble vía:
+       1) :has() para Chrome/Safari/Firefox modernos.
+       2) Clase .immersive-locked aplicada por boot.js como fallback para
+          Firefox <121 (Diciembre 2023) y otros browsers viejos.
+     ──── */
+body:has(#pantallaBloqueo:not(.oculto)) #immersiveStart,
+body:has(#pantallaBloqueo:not(.oculto)) #immersiveMuteBtn,
+body:has(#pantallaAuth:not(.oculto))    #immersiveStart,
+body:has(#pantallaAuth:not(.oculto))    #immersiveMuteBtn,
+body.immersive-locked #immersiveStart,
+body.immersive-locked #immersiveMuteBtn {
+  display: none !important;
+}

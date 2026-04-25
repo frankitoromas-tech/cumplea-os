@@ -2213,3 +2213,389 @@
 2026-04-23 14:23:17,389 [INFO] 127.0.0.1 - - [23/Apr/2026 14:23:17] "GET /api/visitas HTTP/1.1" 200 -
 2026-04-23 14:23:17,718 [INFO] 127.0.0.1 - - [23/Apr/2026 14:23:17] "GET /api/visitas HTTP/1.1" 200 -
 2026-04-23 14:23:18,902 [INFO] 127.0.0.1 - - [23/Apr/2026 14:23:18] "GET /api/estadisticas_amor HTTP/1.1" 200 -
+2026-04-25 00:46:57,890 [WARNING] python-dotenv could not parse statement starting at line 2
+2026-04-25 00:46:58,121 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-04-25 00:46:58,121 [INFO] [33mPress CTRL+C to quit[0m
+2026-04-25 00:46:58,124 [INFO]  * Restarting with stat
+2026-04-25 00:46:58,716 [WARNING] python-dotenv could not parse statement starting at line 2
+2026-04-25 00:46:58,751 [WARNING]  * Debugger is active!
+2026-04-25 00:46:58,756 [INFO]  * Debugger PIN: 936-678-802
+2026-04-25 00:58:23,469 [WARNING] python-dotenv could not parse statement starting at line 2
+2026-04-25 00:58:23,541 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-04-25 00:58:23,542 [INFO] [33mPress CTRL+C to quit[0m
+2026-04-25 00:58:23,544 [INFO]  * Restarting with stat
+2026-04-25 00:58:24,345 [WARNING] python-dotenv could not parse statement starting at line 2
+2026-04-25 00:58:24,403 [WARNING]  * Debugger is active!
+2026-04-25 00:58:24,407 [INFO]  * Debugger PIN: 936-678-802
+2026-04-25 00:58:38,808 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:38] "GET / HTTP/1.1" 200 -
+2026-04-25 00:58:39,066 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[36mGET /static/DEFAULT_RECUERDOS/foto2.png HTTP/1.1[0m" 304 -
+2026-04-25 00:58:39,073 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "GET /static/css/immersive.css HTTP/1.1" 200 -
+2026-04-25 00:58:39,119 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[36mGET /static/DEFAULT_RECUERDOS/foto5.png HTTP/1.1[0m" 304 -
+2026-04-25 00:58:39,128 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+2026-04-25 00:58:39,129 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[36mGET /static/DEFAULT_RECUERDOS/foto3.png HTTP/1.1[0m" 304 -
+2026-04-25 00:58:39,156 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[36mGET /static/capsula.js HTTP/1.1[0m" 304 -
+2026-04-25 00:58:39,162 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[36mGET /static/creador.js HTTP/1.1[0m" 304 -
+2026-04-25 00:58:39,174 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[36mGET /static/JuegoCorazones.js HTTP/1.1[0m" 304 -
+2026-04-25 00:58:39,198 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[36mGET /static/SaludoContextual.js HTTP/1.1[0m" 304 -
+2026-04-25 00:58:39,213 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[36mGET /static/NavigadorPaginas.js HTTP/1.1[0m" 304 -
+2026-04-25 00:58:39,235 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[36mGET /static/EasterEggManager.js HTTP/1.1[0m" 304 -
+2026-04-25 00:58:39,238 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[36mGET /static/styless.css HTTP/1.1[0m" 304 -
+2026-04-25 00:58:39,242 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "GET /static/js/immersive/boot.js HTTP/1.1" 200 -
+2026-04-25 00:58:39,251 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 00:58:39,256 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[36mGET /static/DEFAULT_RECUERDOS/foto1.png HTTP/1.1[0m" 304 -
+2026-04-25 00:58:39,269 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 00:58:39,299 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[36mGET /static/DEFAULT_RECUERDOS/foto4.png HTTP/1.1[0m" 304 -
+2026-04-25 00:58:39,319 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "GET /api/estado HTTP/1.1" 200 -
+2026-04-25 00:58:39,351 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "GET /static/js/immersive/preview-mode.js HTTP/1.1" 200 -
+2026-04-25 00:58:39,649 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[33mGET /assets/js/index.js HTTP/1.1[0m" 404 -
+2026-04-25 00:58:39,660 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:39] "[33mGET /assets/js/main.js HTTP/1.1[0m" 404 -
+2026-04-25 00:58:42,547 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:42] "GET /static/js/immersive/synth-sfx.js HTTP/1.1" 200 -
+2026-04-25 00:58:42,558 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:42] "GET /static/js/immersive/synth-music.js HTTP/1.1" 200 -
+2026-04-25 00:58:42,575 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:42] "GET /static/js/immersive/audio-engine.js HTTP/1.1" 200 -
+2026-04-25 00:58:42,880 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:42] "GET /static/js/immersive/scroll-engine.js HTTP/1.1" 200 -
+2026-04-25 00:58:42,929 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:42] "GET /static/js/immersive/tilt-cards.js HTTP/1.1" 200 -
+2026-04-25 00:58:42,947 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:42] "GET /static/js/immersive/bg-particles.js HTTP/1.1" 200 -
+2026-04-25 00:58:42,956 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:42] "GET /static/js/immersive/luyuromo-mode.js HTTP/1.1" 200 -
+2026-04-25 00:58:42,983 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:42] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-25 00:58:45,635 [INFO] 127.0.0.1 - - [25/Apr/2026 00:58:45] "[33mGET /static/audio/sfx/ui-sprite.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 01:00:14,179 [INFO]  * Detected change in 'C:\\Users\\user-hp\\cumplea-os\\api\\__init__.py', reloading
+2026-04-25 01:00:14,308 [INFO]  * Restarting with stat
+2026-04-25 01:00:15,279 [WARNING] python-dotenv could not parse statement starting at line 2
+2026-04-25 01:00:15,324 [WARNING]  * Debugger is active!
+2026-04-25 01:00:15,331 [INFO]  * Debugger PIN: 936-678-802
+2026-04-25 01:00:18,500 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "GET / HTTP/1.1" 200 -
+2026-04-25 01:00:18,732 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[36mGET /static/styless.css HTTP/1.1[0m" 304 -
+2026-04-25 01:00:18,738 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[36mGET /static/DEFAULT_RECUERDOS/foto2.png HTTP/1.1[0m" 304 -
+2026-04-25 01:00:18,750 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[36mGET /static/DEFAULT_RECUERDOS/foto5.png HTTP/1.1[0m" 304 -
+2026-04-25 01:00:18,753 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+2026-04-25 01:00:18,765 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[36mGET /static/capsula.js HTTP/1.1[0m" 304 -
+2026-04-25 01:00:18,771 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[36mGET /static/creador.js HTTP/1.1[0m" 304 -
+2026-04-25 01:00:18,774 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[36mGET /static/DEFAULT_RECUERDOS/foto4.png HTTP/1.1[0m" 304 -
+2026-04-25 01:00:18,775 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[36mGET /static/css/immersive.css HTTP/1.1[0m" 304 -
+2026-04-25 01:00:18,780 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[36mGET /static/JuegoCorazones.js HTTP/1.1[0m" 304 -
+2026-04-25 01:00:18,782 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[36mGET /static/DEFAULT_RECUERDOS/foto1.png HTTP/1.1[0m" 304 -
+2026-04-25 01:00:18,785 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[36mGET /static/NavigadorPaginas.js HTTP/1.1[0m" 304 -
+2026-04-25 01:00:18,808 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[36mGET /static/DEFAULT_RECUERDOS/foto3.png HTTP/1.1[0m" 304 -
+2026-04-25 01:00:18,811 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[36mGET /static/SaludoContextual.js HTTP/1.1[0m" 304 -
+2026-04-25 01:00:18,813 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "GET /api/estado HTTP/1.1" 200 -
+2026-04-25 01:00:18,819 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[36mGET /static/EasterEggManager.js HTTP/1.1[0m" 304 -
+2026-04-25 01:00:18,826 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[36mGET /static/js/immersive/boot.js HTTP/1.1[0m" 304 -
+2026-04-25 01:00:18,832 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 01:00:18,849 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 01:00:18,851 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 01:00:18,868 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:18] "[36mGET /static/js/immersive/preview-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 01:00:19,069 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:19] "[33mGET /assets/js/main.js HTTP/1.1[0m" 404 -
+2026-04-25 01:00:19,071 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:19] "[33mGET /assets/js/index.js HTTP/1.1[0m" 404 -
+2026-04-25 01:00:19,462 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:19] "[36mGET /static/js/immersive/synth-sfx.js HTTP/1.1[0m" 304 -
+2026-04-25 01:00:19,472 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:19] "[36mGET /static/js/immersive/synth-music.js HTTP/1.1[0m" 304 -
+2026-04-25 01:00:19,495 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:19] "[36mGET /static/js/immersive/audio-engine.js HTTP/1.1[0m" 304 -
+2026-04-25 01:00:19,694 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:19] "[36mGET /static/js/immersive/scroll-engine.js HTTP/1.1[0m" 304 -
+2026-04-25 01:00:19,734 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:19] "[36mGET /static/js/immersive/tilt-cards.js HTTP/1.1[0m" 304 -
+2026-04-25 01:00:19,945 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:19] "[36mGET /static/js/immersive/bg-particles.js HTTP/1.1[0m" 304 -
+2026-04-25 01:00:20,157 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:20] "[36mGET /static/js/immersive/luyuromo-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 01:00:20,598 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:20] "[33mGET /static/audio/sfx/ui-sprite.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 01:00:20,729 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:20] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-25 01:00:20,805 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:20] "GET /api/visitas HTTP/1.1" 200 -
+2026-04-25 01:00:24,602 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:24] "GET /api/frase_del_dia HTTP/1.1" 200 -
+2026-04-25 01:00:24,650 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:24] "[33mGET /static/audio/music/01-intro-classical.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 01:00:26,254 [INFO] 127.0.0.1 - - [25/Apr/2026 01:00:26] "POST /api/notificar HTTP/1.1" 200 -
+2026-04-25 01:01:43,775 [INFO] 127.0.0.1 - - [25/Apr/2026 01:01:43] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 01:01:43,904 [INFO] 127.0.0.1 - - [25/Apr/2026 01:01:43] "[33mGET /static/audio/music/04-luna-ambient.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 01:01:59,266 [INFO] 127.0.0.1 - - [25/Apr/2026 01:01:59] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 01:02:34,084 [INFO]  * Detected change in 'C:\\Users\\user-hp\\cumplea-os\\api\\__init__.py', reloading
+2026-04-25 01:02:34,195 [INFO]  * Restarting with stat
+2026-04-25 01:02:34,958 [WARNING] python-dotenv could not parse statement starting at line 2
+2026-04-25 01:02:35,015 [WARNING]  * Debugger is active!
+2026-04-25 01:02:35,020 [INFO]  * Debugger PIN: 936-678-802
+2026-04-25 07:37:47,783 [WARNING] python-dotenv could not parse statement starting at line 2
+2026-04-25 07:37:47,855 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-04-25 07:37:47,855 [INFO] [33mPress CTRL+C to quit[0m
+2026-04-25 07:37:47,857 [INFO]  * Restarting with stat
+2026-04-25 07:37:48,767 [WARNING] python-dotenv could not parse statement starting at line 2
+2026-04-25 07:37:48,837 [WARNING]  * Debugger is active!
+2026-04-25 07:37:48,843 [INFO]  * Debugger PIN: 936-678-802
+2026-04-25 08:34:40,237 [WARNING] python-dotenv could not parse statement starting at line 2
+2026-04-25 08:34:40,431 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-04-25 08:34:40,431 [INFO] [33mPress CTRL+C to quit[0m
+2026-04-25 08:34:40,434 [INFO]  * Restarting with stat
+2026-04-25 08:34:41,014 [WARNING] python-dotenv could not parse statement starting at line 2
+2026-04-25 08:34:41,049 [WARNING]  * Debugger is active!
+2026-04-25 08:34:41,053 [INFO]  * Debugger PIN: 102-010-717
+2026-04-25 08:34:58,326 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:58] "GET / HTTP/1.1" 200 -
+2026-04-25 08:34:58,793 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:58] "[36mGET /static/styless.css HTTP/1.1[0m" 304 -
+2026-04-25 08:34:58,824 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:58] "[36mGET /static/DEFAULT_RECUERDOS/foto1.png HTTP/1.1[0m" 304 -
+2026-04-25 08:34:58,825 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:58] "[36mGET /static/DEFAULT_RECUERDOS/foto5.png HTTP/1.1[0m" 304 -
+2026-04-25 08:34:58,866 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:58] "GET /static/script.js HTTP/1.1" 200 -
+2026-04-25 08:34:58,884 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:58] "[36mGET /static/capsula.js HTTP/1.1[0m" 304 -
+2026-04-25 08:34:58,891 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:58] "[36mGET /static/DEFAULT_RECUERDOS/foto3.png HTTP/1.1[0m" 304 -
+2026-04-25 08:34:58,922 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:58] "[36mGET /static/JuegoCorazones.js HTTP/1.1[0m" 304 -
+2026-04-25 08:34:58,927 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:58] "[36mGET /static/creador.js HTTP/1.1[0m" 304 -
+2026-04-25 08:34:58,945 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:58] "[36mGET /static/DEFAULT_RECUERDOS/foto2.png HTTP/1.1[0m" 304 -
+2026-04-25 08:34:58,945 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:58] "GET /static/css/immersive.css HTTP/1.1" 200 -
+2026-04-25 08:34:58,948 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:58] "[36mGET /static/DEFAULT_RECUERDOS/foto4.png HTTP/1.1[0m" 304 -
+2026-04-25 08:34:58,953 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:58] "[36mGET /static/NavigadorPaginas.js HTTP/1.1[0m" 304 -
+2026-04-25 08:34:58,973 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:58] "[36mGET /static/SaludoContextual.js HTTP/1.1[0m" 304 -
+2026-04-25 08:34:58,992 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:58] "[36mGET /static/EasterEggManager.js HTTP/1.1[0m" 304 -
+2026-04-25 08:34:59,012 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:59] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 08:34:59,034 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:59] "GET /api/estado HTTP/1.1" 200 -
+2026-04-25 08:34:59,037 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:59] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 08:34:59,060 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:59] "GET /static/js/immersive/boot.js HTTP/1.1" 200 -
+2026-04-25 08:34:59,062 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:59] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 08:34:59,212 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:59] "[36mGET /static/js/immersive/preview-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:34:59,513 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:59] "[33mGET /assets/js/main.js HTTP/1.1[0m" 404 -
+2026-04-25 08:34:59,514 [INFO] 127.0.0.1 - - [25/Apr/2026 08:34:59] "[33mGET /assets/js/index.js HTTP/1.1[0m" 404 -
+2026-04-25 08:35:01,074 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:01] "[36mGET /static/js/immersive/synth-sfx.js HTTP/1.1[0m" 304 -
+2026-04-25 08:35:01,463 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:01] "GET /static/js/immersive/synth-music.js HTTP/1.1" 200 -
+2026-04-25 08:35:01,524 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:01] "GET /static/js/immersive/audio-engine.js HTTP/1.1" 200 -
+2026-04-25 08:35:01,824 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:01] "GET /static/js/immersive/scroll-engine.js HTTP/1.1" 200 -
+2026-04-25 08:35:01,883 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:01] "[36mGET /static/js/immersive/tilt-cards.js HTTP/1.1[0m" 304 -
+2026-04-25 08:35:01,919 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:01] "[36mGET /static/js/immersive/bg-particles.js HTTP/1.1[0m" 304 -
+2026-04-25 08:35:01,954 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:01] "GET /static/js/immersive/cinema-mode.js HTTP/1.1" 200 -
+2026-04-25 08:35:01,989 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:01] "GET /static/js/immersive/cursor-trail.js HTTP/1.1" 200 -
+2026-04-25 08:35:02,023 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:02] "GET /static/js/immersive/audio-reactive-luna.js HTTP/1.1" 200 -
+2026-04-25 08:35:02,048 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:02] "GET /static/js/immersive/lyric-sync.js HTTP/1.1" 200 -
+2026-04-25 08:35:02,081 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:02] "GET /static/js/immersive/cake-3d.js HTTP/1.1" 200 -
+2026-04-25 08:35:02,114 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:02] "GET /static/js/immersive/memory-universe.js HTTP/1.1" 200 -
+2026-04-25 08:35:02,151 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:02] "[36mGET /static/js/immersive/luyuromo-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:35:02,162 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:02] "[36mGET /static/js/immersive/preview-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:35:02,195 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:02] "GET /static/js/immersive/debug-hud.js HTTP/1.1" 200 -
+2026-04-25 08:35:02,214 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:02] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-25 08:35:08,260 [INFO] 127.0.0.1 - - [25/Apr/2026 08:35:08] "[33mGET /static/audio/sfx/ui-sprite.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 08:36:37,374 [INFO]  * Detected change in 'C:\\Users\\user-hp\\cumplea-os\\api\\__init__.py', reloading
+2026-04-25 08:36:37,450 [INFO]  * Restarting with stat
+2026-04-25 08:36:38,027 [WARNING] python-dotenv could not parse statement starting at line 2
+2026-04-25 08:36:38,066 [WARNING]  * Debugger is active!
+2026-04-25 08:36:38,069 [INFO]  * Debugger PIN: 102-010-717
+2026-04-25 08:36:42,249 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "GET / HTTP/1.1" 200 -
+2026-04-25 08:36:42,437 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/styless.css HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,444 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/DEFAULT_RECUERDOS/foto5.png HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,449 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/DEFAULT_RECUERDOS/foto2.png HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,453 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,457 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/capsula.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,461 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/creador.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,463 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/JuegoCorazones.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,471 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/NavigadorPaginas.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,473 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/SaludoContextual.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,479 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/EasterEggManager.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,481 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/js/immersive/boot.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,486 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/DEFAULT_RECUERDOS/foto3.png HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,493 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 08:36:42,495 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 08:36:42,496 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/css/immersive.css HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,497 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/DEFAULT_RECUERDOS/foto1.png HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,505 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/DEFAULT_RECUERDOS/foto4.png HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,523 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "GET /api/estado HTTP/1.1" 200 -
+2026-04-25 08:36:42,526 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/js/immersive/preview-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,537 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "GET /api/momento_dia HTTP/1.1" 200 -
+2026-04-25 08:36:42,719 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/js/immersive/synth-sfx.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,724 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[36mGET /static/js/immersive/synth-music.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:42,733 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[33mGET /assets/js/main.js HTTP/1.1[0m" 404 -
+2026-04-25 08:36:42,735 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:42] "[33mGET /assets/js/index.js HTTP/1.1[0m" 404 -
+2026-04-25 08:36:43,011 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:43] "[36mGET /static/js/immersive/audio-engine.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:43,177 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:43] "[36mGET /static/js/immersive/scroll-engine.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:43,201 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:43] "[36mGET /static/js/immersive/tilt-cards.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:43,212 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:43] "[36mGET /static/js/immersive/bg-particles.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:43,227 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:43] "[36mGET /static/js/immersive/cinema-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:43,393 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:43] "[36mGET /static/js/immersive/cursor-trail.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:43,555 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:43] "[36mGET /static/js/immersive/audio-reactive-luna.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:43,567 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:43] "[36mGET /static/js/immersive/lyric-sync.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:43,573 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:43] "[36mGET /static/js/immersive/cake-3d.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:43,580 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:43] "[36mGET /static/js/immersive/memory-universe.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:43,588 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:43] "[36mGET /static/js/immersive/luyuromo-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:43,592 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:43] "[36mGET /static/js/immersive/preview-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:43,599 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:43] "[36mGET /static/js/immersive/debug-hud.js HTTP/1.1[0m" 304 -
+2026-04-25 08:36:44,532 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:44] "GET /api/visitas HTTP/1.1" 200 -
+2026-04-25 08:36:44,862 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:44] "[33mGET /static/audio/sfx/ui-sprite.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 08:36:48,806 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:48] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-25 08:36:49,871 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:49] "POST /api/notificar HTTP/1.1" 200 -
+2026-04-25 08:36:51,980 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:51] "GET /api/frase_del_dia HTTP/1.1" 200 -
+2026-04-25 08:36:52,004 [INFO] 127.0.0.1 - - [25/Apr/2026 08:36:52] "[33mGET /static/audio/music/01-intro-classical.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 08:37:07,654 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:07] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 08:37:07,658 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:07] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 08:37:08,385 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:08] "GET /api/abrir_regalo HTTP/1.1" 200 -
+2026-04-25 08:37:08,406 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:08] "GET /api/estadisticas_amor HTTP/1.1" 200 -
+2026-04-25 08:37:20,578 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:20] "GET /api/juego_corazones_config HTTP/1.1" 200 -
+2026-04-25 08:37:24,356 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:24] "[33mGET /static/audio/music/02-recuerdos-piano.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 08:37:25,535 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:25] "[33mGET /static/audio/music/03-promesas-rock-ballad.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 08:37:36,908 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:36] "GET /carta HTTP/1.1" 200 -
+2026-04-25 08:37:36,950 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:36] "[36mGET /static/css/immersive.css HTTP/1.1[0m" 304 -
+2026-04-25 08:37:37,074 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:37] "GET /static/js/immersive/boot-lite.js HTTP/1.1" 200 -
+2026-04-25 08:37:37,198 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:37] "[36mGET /static/js/immersive/synth-sfx.js HTTP/1.1[0m" 304 -
+2026-04-25 08:37:37,221 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:37] "[36mGET /static/js/immersive/synth-music.js HTTP/1.1[0m" 304 -
+2026-04-25 08:37:37,251 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:37] "[36mGET /static/js/immersive/audio-engine.js HTTP/1.1[0m" 304 -
+2026-04-25 08:37:37,306 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:37] "[36mGET /static/js/immersive/tilt-cards.js HTTP/1.1[0m" 304 -
+2026-04-25 08:37:37,327 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:37] "[36mGET /static/js/immersive/lyric-sync.js HTTP/1.1[0m" 304 -
+2026-04-25 08:37:37,344 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:37] "[36mGET /static/js/immersive/debug-hud.js HTTP/1.1[0m" 304 -
+2026-04-25 08:37:37,434 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:37] "[33mGET /assets/js/main.js HTTP/1.1[0m" 404 -
+2026-04-25 08:37:37,460 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:37] "[33mGET /assets/js/index.js HTTP/1.1[0m" 404 -
+2026-04-25 08:37:41,655 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:41] "[33mGET /static/audio/sfx/ui-sprite.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 08:37:41,673 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:41] "[33mGET /static/audio/music/03-promesas-rock-ballad.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 08:37:57,916 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:57] "GET /universo HTTP/1.1" 200 -
+2026-04-25 08:37:57,940 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:57] "[36mGET /static/css/immersive.css HTTP/1.1[0m" 304 -
+2026-04-25 08:37:57,987 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:57] "[36mGET /static/js/immersive/boot-lite.js HTTP/1.1[0m" 304 -
+2026-04-25 08:37:57,996 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:57] "GET /api/estadisticas_amor HTTP/1.1" 200 -
+2026-04-25 08:37:58,049 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:58] "[36mGET /static/js/immersive/synth-sfx.js HTTP/1.1[0m" 304 -
+2026-04-25 08:37:58,081 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:58] "[36mGET /static/js/immersive/synth-music.js HTTP/1.1[0m" 304 -
+2026-04-25 08:37:58,092 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:58] "[36mGET /static/js/immersive/audio-engine.js HTTP/1.1[0m" 304 -
+2026-04-25 08:37:58,125 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:58] "[36mGET /static/js/immersive/tilt-cards.js HTTP/1.1[0m" 304 -
+2026-04-25 08:37:58,139 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:58] "[36mGET /static/js/immersive/lyric-sync.js HTTP/1.1[0m" 304 -
+2026-04-25 08:37:58,145 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:58] "[36mGET /static/js/immersive/debug-hud.js HTTP/1.1[0m" 304 -
+2026-04-25 08:37:58,183 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:58] "[33mGET /assets/js/main.js HTTP/1.1[0m" 404 -
+2026-04-25 08:37:58,184 [INFO] 127.0.0.1 - - [25/Apr/2026 08:37:58] "[33mGET /assets/js/index.js HTTP/1.1[0m" 404 -
+2026-04-25 08:38:11,324 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:11] "[33mGET /static/audio/sfx/ui-sprite.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 08:38:11,331 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:11] "[33mGET /static/audio/music/04-luna-ambient.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 08:38:11,450 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:11] "[33mGET /static/audio/music/04-luna-ambient.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 08:38:11,490 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:11] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-25 08:38:55,106 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "GET / HTTP/1.1" 200 -
+2026-04-25 08:38:55,148 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[36mGET /static/styless.css HTTP/1.1[0m" 304 -
+2026-04-25 08:38:55,155 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[36mGET /static/css/immersive.css HTTP/1.1[0m" 304 -
+2026-04-25 08:38:55,157 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[36mGET /static/DEFAULT_RECUERDOS/foto1.png HTTP/1.1[0m" 304 -
+2026-04-25 08:38:55,160 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[36mGET /static/DEFAULT_RECUERDOS/foto2.png HTTP/1.1[0m" 304 -
+2026-04-25 08:38:55,187 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[36mGET /static/DEFAULT_RECUERDOS/foto3.png HTTP/1.1[0m" 304 -
+2026-04-25 08:38:55,189 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[36mGET /static/DEFAULT_RECUERDOS/foto4.png HTTP/1.1[0m" 304 -
+2026-04-25 08:38:55,190 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[36mGET /static/DEFAULT_RECUERDOS/foto5.png HTTP/1.1[0m" 304 -
+2026-04-25 08:38:55,196 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:55,200 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[36mGET /static/capsula.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:55,204 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[36mGET /static/creador.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:55,207 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[36mGET /static/JuegoCorazones.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:55,212 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[36mGET /static/SaludoContextual.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:55,214 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[36mGET /static/NavigadorPaginas.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:55,216 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[36mGET /static/EasterEggManager.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:55,221 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[36mGET /static/js/immersive/boot.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:55,227 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 08:38:55,233 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "GET /api/estado HTTP/1.1" 200 -
+2026-04-25 08:38:55,233 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 08:38:55,249 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[36mGET /static/js/immersive/preview-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:55,264 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "GET /api/momento_dia HTTP/1.1" 200 -
+2026-04-25 08:38:55,450 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[33mGET /assets/js/main.js HTTP/1.1[0m" 404 -
+2026-04-25 08:38:55,451 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:55] "[33mGET /assets/js/index.js HTTP/1.1[0m" 404 -
+2026-04-25 08:38:56,013 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:56] "[36mGET /static/js/immersive/synth-sfx.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:56,019 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:56] "[36mGET /static/js/immersive/synth-music.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:56,026 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:56] "[36mGET /static/js/immersive/audio-engine.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:56,048 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:56] "[36mGET /static/js/immersive/scroll-engine.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:56,065 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:56] "[36mGET /static/js/immersive/tilt-cards.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:56,071 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:56] "[36mGET /static/js/immersive/bg-particles.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:56,082 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:56] "[36mGET /static/js/immersive/cinema-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:56,088 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:56] "[36mGET /static/js/immersive/cursor-trail.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:56,097 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:56] "[36mGET /static/js/immersive/audio-reactive-luna.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:56,120 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:56] "[36mGET /static/js/immersive/lyric-sync.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:56,150 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:56] "[36mGET /static/js/immersive/cake-3d.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:56,156 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:56] "[36mGET /static/js/immersive/memory-universe.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:56,163 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:56] "[36mGET /static/js/immersive/luyuromo-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:56,168 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:56] "[36mGET /static/js/immersive/preview-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:56,175 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:56] "[36mGET /static/js/immersive/debug-hud.js HTTP/1.1[0m" 304 -
+2026-04-25 08:38:57,227 [INFO] 127.0.0.1 - - [25/Apr/2026 08:38:57] "GET /api/visitas HTTP/1.1" 200 -
+2026-04-25 08:39:04,346 [INFO] 127.0.0.1 - - [25/Apr/2026 08:39:04] "GET /aurora HTTP/1.1" 200 -
+2026-04-25 08:39:04,369 [INFO] 127.0.0.1 - - [25/Apr/2026 08:39:04] "[36mGET /static/css/immersive.css HTTP/1.1[0m" 304 -
+2026-04-25 08:39:04,432 [INFO] 127.0.0.1 - - [25/Apr/2026 08:39:04] "[36mGET /static/js/immersive/boot-lite.js HTTP/1.1[0m" 304 -
+2026-04-25 08:39:04,505 [INFO] 127.0.0.1 - - [25/Apr/2026 08:39:04] "[36mGET /static/js/immersive/synth-sfx.js HTTP/1.1[0m" 304 -
+2026-04-25 08:39:04,527 [INFO] 127.0.0.1 - - [25/Apr/2026 08:39:04] "[36mGET /static/js/immersive/synth-music.js HTTP/1.1[0m" 304 -
+2026-04-25 08:39:04,537 [INFO] 127.0.0.1 - - [25/Apr/2026 08:39:04] "[36mGET /static/js/immersive/audio-engine.js HTTP/1.1[0m" 304 -
+2026-04-25 08:39:04,574 [INFO] 127.0.0.1 - - [25/Apr/2026 08:39:04] "[36mGET /static/js/immersive/tilt-cards.js HTTP/1.1[0m" 304 -
+2026-04-25 08:39:04,587 [INFO] 127.0.0.1 - - [25/Apr/2026 08:39:04] "[36mGET /static/js/immersive/lyric-sync.js HTTP/1.1[0m" 304 -
+2026-04-25 08:39:04,599 [INFO] 127.0.0.1 - - [25/Apr/2026 08:39:04] "[36mGET /static/js/immersive/debug-hud.js HTTP/1.1[0m" 304 -
+2026-04-25 08:39:04,648 [INFO] 127.0.0.1 - - [25/Apr/2026 08:39:04] "[33mGET /assets/js/main.js HTTP/1.1[0m" 404 -
+2026-04-25 08:39:04,650 [INFO] 127.0.0.1 - - [25/Apr/2026 08:39:04] "[33mGET /assets/js/index.js HTTP/1.1[0m" 404 -
+2026-04-25 08:39:18,169 [INFO] 127.0.0.1 - - [25/Apr/2026 08:39:18] "[33mGET /static/audio/sfx/ui-sprite.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 08:39:18,171 [INFO] 127.0.0.1 - - [25/Apr/2026 08:39:18] "[33mGET /static/audio/music/04-luna-ambient.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 08:39:18,277 [INFO] 127.0.0.1 - - [25/Apr/2026 08:39:18] "[33mGET /static/audio/music/04-luna-ambient.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 08:39:18,320 [INFO] 127.0.0.1 - - [25/Apr/2026 08:39:18] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-25 08:40:10,195 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "GET / HTTP/1.1" 200 -
+2026-04-25 08:40:10,229 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/styless.css HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,232 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/css/immersive.css HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,237 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/DEFAULT_RECUERDOS/foto1.png HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,238 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/DEFAULT_RECUERDOS/foto2.png HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,247 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/DEFAULT_RECUERDOS/foto3.png HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,248 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/DEFAULT_RECUERDOS/foto4.png HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,251 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/DEFAULT_RECUERDOS/foto5.png HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,255 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,263 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/capsula.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,266 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/creador.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,269 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/JuegoCorazones.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,272 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/NavigadorPaginas.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,283 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/EasterEggManager.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,283 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/SaludoContextual.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,285 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/boot.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,288 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 08:40:10,297 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 08:40:10,300 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "GET /api/estado HTTP/1.1" 200 -
+2026-04-25 08:40:10,303 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 08:40:10,321 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/preview-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,332 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "GET /api/momento_dia HTTP/1.1" 200 -
+2026-04-25 08:40:10,466 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/synth-sfx.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,472 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/synth-music.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,479 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/audio-engine.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,501 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/scroll-engine.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,522 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/tilt-cards.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,530 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[33mGET /assets/js/main.js HTTP/1.1[0m" 404 -
+2026-04-25 08:40:10,533 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[33mGET /assets/js/index.js HTTP/1.1[0m" 404 -
+2026-04-25 08:40:10,654 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/bg-particles.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,665 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/cinema-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,683 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/cursor-trail.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,692 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/audio-reactive-luna.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,725 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/lyric-sync.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,887 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/cake-3d.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,915 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/memory-universe.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,942 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/luyuromo-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,948 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/preview-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:10,953 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:10] "[36mGET /static/js/immersive/debug-hud.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:12,708 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:12] "GET /api/visitas HTTP/1.1" 200 -
+2026-04-25 08:40:17,016 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:17] "GET /timeline HTTP/1.1" 200 -
+2026-04-25 08:40:17,053 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:17] "[36mGET /static/css/immersive.css HTTP/1.1[0m" 304 -
+2026-04-25 08:40:17,128 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:17] "[36mGET /static/js/immersive/boot-lite.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:17,137 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:17] "GET /api/timeline HTTP/1.1" 200 -
+2026-04-25 08:40:17,143 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:17] "GET /api/frase_del_dia HTTP/1.1" 200 -
+2026-04-25 08:40:17,226 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:17] "[36mGET /static/js/immersive/synth-sfx.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:17,312 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:17] "[36mGET /static/js/immersive/synth-music.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:17,321 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:17] "[36mGET /static/js/immersive/audio-engine.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:17,350 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:17] "[36mGET /static/js/immersive/tilt-cards.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:17,399 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:17] "[33mGET /assets/js/main.js HTTP/1.1[0m" 404 -
+2026-04-25 08:40:17,401 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:17] "[33mGET /assets/js/index.js HTTP/1.1[0m" 404 -
+2026-04-25 08:40:18,344 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:18] "[36mGET /static/js/immersive/lyric-sync.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:18,383 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:18] "[36mGET /static/js/immersive/debug-hud.js HTTP/1.1[0m" 304 -
+2026-04-25 08:40:18,425 [INFO] 127.0.0.1 - - [25/Apr/2026 08:40:18] "POST /api/notificar HTTP/1.1" 200 -
+2026-04-25 08:41:06,684 [INFO] 127.0.0.1 - - [25/Apr/2026 08:41:06] "GET /api/capsula HTTP/1.1" 200 -
+2026-04-25 08:41:19,278 [INFO] 127.0.0.1 - - [25/Apr/2026 08:41:19] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 08:41:19,289 [INFO] 127.0.0.1 - - [25/Apr/2026 08:41:19] "[33mGET /static/audio/music/04-luna-ambient.mp3 HTTP/1.1[0m" 404 -
+2026-04-25 08:41:54,697 [INFO] 127.0.0.1 - - [25/Apr/2026 08:41:54] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 08:42:25,758 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:25] "GET / HTTP/1.1" 200 -
+2026-04-25 08:42:25,908 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:25] "[36mGET /static/DEFAULT_RECUERDOS/foto1.png HTTP/1.1[0m" 304 -
+2026-04-25 08:42:25,911 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:25] "[36mGET /static/DEFAULT_RECUERDOS/foto2.png HTTP/1.1[0m" 304 -
+2026-04-25 08:42:25,919 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:25] "[36mGET /static/styless.css HTTP/1.1[0m" 304 -
+2026-04-25 08:42:25,920 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:25] "[36mGET /static/css/immersive.css HTTP/1.1[0m" 304 -
+2026-04-25 08:42:25,958 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:25] "[36mGET /static/DEFAULT_RECUERDOS/foto3.png HTTP/1.1[0m" 304 -
+2026-04-25 08:42:25,965 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:25] "[36mGET /static/DEFAULT_RECUERDOS/foto4.png HTTP/1.1[0m" 304 -
+2026-04-25 08:42:25,968 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:25] "[36mGET /static/DEFAULT_RECUERDOS/foto5.png HTTP/1.1[0m" 304 -
+2026-04-25 08:42:26,004 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:26] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:26,013 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:26] "[36mGET /static/capsula.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:26,030 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:26] "[36mGET /static/creador.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:26,036 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:26] "[36mGET /static/JuegoCorazones.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:26,039 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:26] "GET /api/estado HTTP/1.1" 200 -
+2026-04-25 08:42:26,062 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:26] "[36mGET /static/NavigadorPaginas.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:26,063 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:26] "[35m[1mGET /static/cancion.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 08:42:26,067 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:26] "[35m[1mGET /static/cancion_luna.mp3 HTTP/1.1[0m" 206 -
+2026-04-25 08:42:26,074 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:26] "[36mGET /static/EasterEggManager.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:26,087 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:26] "[36mGET /static/js/immersive/boot.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:26,090 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:26] "[36mGET /static/SaludoContextual.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:26,149 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:26] "[36mGET /static/js/immersive/preview-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:26,325 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:26] "[33mGET /assets/js/main.js HTTP/1.1[0m" 404 -
+2026-04-25 08:42:26,327 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:26] "[33mGET /assets/js/index.js HTTP/1.1[0m" 404 -
+2026-04-25 08:42:26,835 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:26] "[36mGET /static/js/immersive/synth-sfx.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:26,868 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:26] "[36mGET /static/js/immersive/synth-music.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:27,083 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:27] "[36mGET /static/js/immersive/audio-engine.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:27,219 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:27] "[36mGET /static/js/immersive/scroll-engine.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:27,251 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:27] "[36mGET /static/js/immersive/tilt-cards.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:27,273 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:27] "[36mGET /static/js/immersive/bg-particles.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:27,294 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:27] "[36mGET /static/js/immersive/cinema-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:27,316 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:27] "[36mGET /static/js/immersive/cursor-trail.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:27,338 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:27] "[36mGET /static/js/immersive/audio-reactive-luna.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:27,361 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:27] "[36mGET /static/js/immersive/lyric-sync.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:27,384 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:27] "[36mGET /static/js/immersive/cake-3d.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:27,408 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:27] "[36mGET /static/js/immersive/memory-universe.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:27,432 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:27] "[36mGET /static/js/immersive/luyuromo-mode.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:27,456 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:27] "[36mGET /static/js/immersive/debug-hud.js HTTP/1.1[0m" 304 -
+2026-04-25 08:42:28,044 [INFO] 127.0.0.1 - - [25/Apr/2026 08:42:28] "GET /api/visitas HTTP/1.1" 200 -

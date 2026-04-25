@@ -6,6 +6,7 @@
   <title>💌 Carta para Luyuromo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,400;1,600&family=Playfair+Display:ital,wght@0,600;1,400&family=IM+Fell+English:ital@1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/immersive.css') }}">
   <style>
     :root { --tinta:#1a0a00; --papel:#f9f3e8; --dorado:#b8860b; --rosa:#c0705a; }
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
@@ -88,9 +89,9 @@
     }
   </style>
 </head>
-<body>
+<body data-music="promesas">
 <div class="sobre-wrap">
-  <div class="carta-papel">
+  <div class="carta-papel immersive-tilt">
     <div class="sello">💌</div>
     <p class="fecha" id="fechaHoy"></p>
     <p class="saludo">Para mi luna, Luyuromo:</p>
@@ -133,5 +134,8 @@
   const h = new Date();
   document.getElementById('fechaHoy').textContent = `${h.getDate()} de ${m[h.getMonth()]} de ${h.getFullYear()}`;
 </script>
+
+<!-- ── Capa inmersiva: la carta gana tilt 3D + música promesas. ── -->
+<script src="{{ url_for('static', filename='js/immersive/boot-lite.js') }}" defer></script>
 </body>
 </html>

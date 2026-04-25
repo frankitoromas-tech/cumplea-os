@@ -6,6 +6,7 @@
   <title>🌌 Aurora — Para Luyuromo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/immersive.css') }}">
   <style>
     :root { --rosa:#ff6b81; --dorado:#f5c842; --texto:#f0e8ff; }
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
@@ -84,7 +85,7 @@
     }
   </style>
 </head>
-<body>
+<body data-music="luna">
 <div id="cursor"></div>
 <canvas id="aurora"></canvas>
 <p id="instruccion">Mueve el mouse · Haz clic para crear destellos</p>
@@ -281,5 +282,8 @@ fetch('/api/notificar', {
   body: JSON.stringify({evento:'aurora'})
 }).catch(() => {});
 </script>
+
+<!-- ── Capa inmersiva (audio + tilt). NO toca el canvas de aurora. ── -->
+<script src="{{ url_for('static', filename='js/immersive/boot-lite.js') }}" defer></script>
 </body>
 </html>
