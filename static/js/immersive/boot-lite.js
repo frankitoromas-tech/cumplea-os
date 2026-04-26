@@ -50,30 +50,42 @@
     await loadScript('/static/js/immersive/magnetic-cursor.js');   // magnetismo también aquí
     await loadScript('/static/js/immersive/page-transitions.js');  // transiciones entre subpáginas
     await loadScript('/static/js/immersive/more-easter-eggs.js');  // huevos también en subpáginas
+    await loadScript('/static/js/immersive/ee-music.js');    // música por easter egg
     await loadScript('/static/js/immersive/debug-hud.js');   // Shift+D en cualquier página
 
     /* ── Resolver pista a reproducir ─────────────────────────
        1) Si <body data-music="..."> está, usa ese.
-       2) Si no, deduce por la URL (/aurora, /timeline, /carta, /universo).
+       2) Si no, deduce por la URL (cada página tiene su propia pista).
+       ACTUALIZADO: ahora cada página apunta a SU pista propia, no
+       comparten luna/recuerdos/promesas como antes.
        ──────────────────────────────────────────────────────── */
     const fromBody = document.body.dataset.music;
     const fromPath = (() => {
       const p = location.pathname.toLowerCase();
-      if (p.includes('aurora'))    return 'luna';
-      if (p.includes('timeline'))  return 'recuerdos';
-      if (p.includes('carta'))     return 'promesas';
-      if (p.includes('universo'))  return 'luna';
+      if (p.includes('aurora'))    return 'aurora';
+      if (p.includes('timeline'))  return 'timeline';
+      if (p.includes('carta'))     return 'carta';
+      if (p.includes('universo'))  return 'universo';
       return null;
     })();
     const trackKey = fromBody || fromPath;
+    console.info('[immersive-lite] track resolved:', trackKey, '(body:', fromBody, ', path:', fromPath, ')');
 
     /* ── Reanudar audio si ya fue desbloqueado en index ────── */
     const wasUnlocked = sessionStorage.getItem('immersive:wasUnlocked') === '1';
 
+    let started = false;
     function tryStart() {
-      if (trackKey && window.__immersiveAudio) {
-        window.__immersiveAudio.section(trackKey);
+      if (started) return;
+      if (!trackKey) { console.warn('[immersive-lite] sin trackKey, no arranco música'); started = true; return; }
+      if (!window.__immersiveAudio) {
+        console.warn('[immersive-lite] __immersiveAudio aún no listo, reintento en 250ms');
+        setTimeout(tryStart, 250);
+        return;
       }
+      console.info('[immersive-lite] arrancando pista:', trackKey);
+      window.__immersiveAudio.section(trackKey);
+      started = true;
     }
 
     if (wasUnlocked) {

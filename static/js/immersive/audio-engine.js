@@ -43,6 +43,13 @@
     recuerdos: '/static/audio/music/02-recuerdos-piano.mp3',
     promesas:  '/static/audio/music/03-promesas-rock-ballad.mp3',
     luna:      '/static/audio/music/04-luna-ambient.mp3',
+    // Tracks añadidos en la fase 5 — todos con fallback procedural
+    regalo:    '/static/audio/music/05-regalo-pizzicato.mp3',
+    fiesta:    '/static/audio/music/06-fiesta-strings.mp3',
+    carta:     '/static/audio/music/07-carta-epiano.mp3',
+    timeline:  '/static/audio/music/08-timeline-waltz.mp3',
+    aurora:    '/static/audio/music/09-aurora-shimmer.mp3',
+    universo:  '/static/audio/music/10-universo-cosmic.mp3',
   };
 
   /* ── Estado interno ─────────────────────────────────────────
@@ -158,6 +165,29 @@
     currentKey  = null;
   }
 
+  /* ── playTemporary(key, ms) ──────────────────────────────────
+     Cambia a una pista durante `ms` y restaura la pista anterior.
+     Pensado para easter eggs musicales (ee-music.js): cada huevo
+     gana su propio "flourish" sin pisar la sección de la página.
+     Si ya hay un temporary corriendo, lo cancela y arranca el nuevo.
+     ──────────────────────────────────────────────────────────── */
+  let tempTimer = 0;
+  let tempPrevKey = null;
+  function playTemporary(key, ms = 9000) {
+    if (!unlocked) return false;
+    if (!key) return false;
+    if (tempTimer) { clearTimeout(tempTimer); tempTimer = 0; }
+    if (tempPrevKey === null) tempPrevKey = currentKey;
+    playSection(key);
+    tempTimer = setTimeout(() => {
+      tempTimer = 0;
+      const back = tempPrevKey;
+      tempPrevKey = null;
+      if (back && back !== key) playSection(back);
+    }, ms);
+    return true;
+  }
+
   function toggleMute() {
     muted = !muted;
     sessionStorage.setItem(KEY_MUTE, muted ? '1' : '0');
@@ -244,11 +274,13 @@
   /* ── Exposición global ──────────────────────────────────────
      ──────────────────────────────────────────────────────────── */
   window.__immersiveAudio = {
-    sfx:        playSfx,
-    section:    playSection,
-    stop:       stopAll,
-    toggleMute: toggleMute,
-    isMuted:    isMuted,
-    isUnlocked: () => unlocked,
+    sfx:           playSfx,
+    section:       playSection,
+    playTemporary: playTemporary,    // ← nuevo: música por easter egg
+    stop:          stopAll,
+    toggleMute:    toggleMute,
+    isMuted:       isMuted,
+    isUnlocked:    () => unlocked,
+    currentKey:    () => currentKey,
   };
 })();

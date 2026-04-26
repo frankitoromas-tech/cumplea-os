@@ -83,6 +83,7 @@
       '/static/js/immersive/page-transitions.js',      // navegación cinemática
       '/static/js/immersive/luyuromo-mode.js',
       '/static/js/immersive/more-easter-eggs.js',      // teamo, triple-luna, long-press
+      '/static/js/immersive/ee-music.js',              // música por easter egg
       '/static/js/immersive/preview-mode.js',          // ?preview=1 → bypass cliente
       '/static/js/immersive/debug-hud.js',             // Shift+D → panel de estado
     ];

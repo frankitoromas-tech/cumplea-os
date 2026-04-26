@@ -443,15 +443,448 @@
         getMeasure: () => measure,
       };
     },
+
+    /* ═══════════════════════════════════════════════════════
+       REGALO — Anticipación lúdica (antes de abrir el regalo)
+       Pizzicato + soft kick + crescendo. Curiosidad creciente.
+       8 compases en bucle. C mayor.
+       ─────────────────────────────────────────────────────── */
+    regalo(Tone, key) {
+      const reverb = new Tone.Reverb({ decay: 2.2, wet: 0.18 }).toDestination();
+
+      const pizz = new Tone.Synth({
+        oscillator: { type: 'triangle' },
+        envelope: { attack: 0.001, decay: 0.18, sustain: 0, release: 0.1 },
+        volume: -10,
+      }).connect(reverb);
+
+      const pad = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: 'sine' },
+        envelope: { attack: 0.6, decay: 0.4, sustain: 0.6, release: 1.2 },
+        volume: -22,
+      }).connect(reverb);
+
+      const tap = new Tone.MembraneSynth({
+        pitchDecay: 0.04, octaves: 4,
+        envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.2 },
+        volume: -16,
+      }).toDestination();
+
+      const NOTAS_PIZZ = ['C5','E5','G5','B5','C6','G5','E5','D5'];
+      const ACORDES    = [['C4','E4','G4'], ['F4','A4','C5'], ['G4','B4','D5'], ['Am4','C5','E5']];
+
+      let cycle = 0;
+      const loop = new Tone.Loop(time => {
+        const m = cycle % 8;
+        const beat = Tone.Time('4n').toSeconds();
+        const intensidad = 0.5 + (m / 8) * 0.55;     // crescendo lineal
+
+        // Pizzicato en corcheas
+        for (let i = 0; i < 8; i++) {
+          const n = NOTAS_PIZZ[(m + i) % NOTAS_PIZZ.length];
+          pizz.triggerAttackRelease(n, '16n', time + i * (beat / 2), intensidad);
+        }
+        // Pad sostenido
+        const ch = ACORDES[m % ACORDES.length];
+        pad.triggerAttackRelease(ch.map(n => n.replace('Am','A')), '1m', time, 0.4);
+
+        // Tap rítmico cada beat
+        tap.triggerAttackRelease('C2', '8n', time, intensidad);
+        tap.triggerAttackRelease('C2', '8n', time + 2 * beat, intensidad);
+
+        Tone.Draw.schedule(() => {
+          fire('synthmusic:beat', { key, measure: m, section: 'anticipacion' });
+        }, time);
+
+        cycle++;
+      }, '1m').start(0);
+
+      Tone.Transport.bpm.value = 100;
+
+      return {
+        dispose: () => {
+          [pizz, pad, tap, reverb, loop].forEach(n => {
+            try { n.stop?.(); } catch (_) {}
+            try { n.dispose?.(); } catch (_) {}
+          });
+        },
+        getMeasure: () => cycle % 8,
+      };
+    },
+
+    /* ═══════════════════════════════════════════════════════
+       FIESTA — Celebración cálida (área del contenidoSorpresa)
+       Cuerdas + arpa + soft drum. Mayor brillante.
+       ─────────────────────────────────────────────────────── */
+    fiesta(Tone, key) {
+      const reverb = new Tone.Reverb({ decay: 4, wet: 0.3 }).toDestination();
+      const wide   = new Tone.StereoWidener(0.5).connect(reverb);
+
+      const cuerdas = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: 'fatsawtooth', count: 2, spread: 18 },
+        envelope: { attack: 0.7, decay: 0.4, sustain: 0.8, release: 1.8 },
+        volume: -14,
+      }).connect(wide);
+
+      const arpa = new Tone.PluckSynth({
+        attackNoise: 1, dampening: 5200, resonance: 0.84,
+        volume: -8,
+      }).connect(reverb);
+
+      const cajaR = new Tone.NoiseSynth({
+        noise: { type: 'pink' },
+        envelope: { attack: 0.001, decay: 0.06, sustain: 0 },
+        volume: -28,
+      }).toDestination();
+
+      // Progresión alegre: C-G-Am-F (la favorita del pop)
+      const PROG = [
+        ['C4','E4','G4','C5'],
+        ['G3','B3','D4','G4'],
+        ['A3','C4','E4','A4'],
+        ['F3','A3','C4','F4'],
+      ];
+
+      let cycle = 0;
+      const loop = new Tone.Loop(time => {
+        const m = cycle % 16;
+        const ch = PROG[m % 4];
+        const beat = Tone.Time('4n').toSeconds();
+
+        cuerdas.triggerAttackRelease(ch, '1m', time, 0.5);
+
+        // Arpegio ascendente en corcheas
+        const order = m % 2 === 0
+          ? [0, 1, 2, 3, 2, 1, 2, 3]
+          : [3, 2, 1, 0, 1, 2, 3, 2];
+        order.forEach((idx, i) => {
+          arpa.triggerAttackRelease(ch[idx], '8n', time + i * (beat / 2), 0.7);
+        });
+
+        // Caja rítmica en backbeat (2 y 4)
+        cajaR.triggerAttackRelease('16n', time + beat);
+        cajaR.triggerAttackRelease('16n', time + 3 * beat);
+
+        Tone.Draw.schedule(() => {
+          fire('synthmusic:beat', { key, measure: m, section: 'celebracion' });
+        }, time);
+
+        cycle++;
+      }, '1m').start(0);
+
+      Tone.Transport.bpm.value = 88;
+
+      return {
+        dispose: () => {
+          [cuerdas, arpa, cajaR, wide, reverb, loop].forEach(n => {
+            try { n.stop?.(); } catch (_) {}
+            try { n.dispose?.(); } catch (_) {}
+          });
+        },
+        getMeasure: () => cycle % 16,
+      };
+    },
+
+    /* ═══════════════════════════════════════════════════════
+       CARTA — Íntima, susurrada (página /carta)
+       Piano eléctrico cálido + cuerdas distantes en F mayor.
+       Tempo lentísimo, pausas largas, espacio para que la
+       carta se lea sola.
+       ─────────────────────────────────────────────────────── */
+    carta(Tone, key) {
+      const reverb = new Tone.Reverb({ decay: 10, wet: 0.55 }).toDestination();
+
+      const epiano = new Tone.PolySynth(Tone.FMSynth, {
+        harmonicity: 1.5, modulationIndex: 4,
+        envelope: { attack: 0.005, decay: 1.6, sustain: 0.05, release: 2.2 },
+        modulationEnvelope: { attack: 0.005, decay: 0.4, sustain: 0, release: 0.5 },
+        volume: -10,
+      }).connect(reverb);
+
+      const cuerdas = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: 'sine' },
+        envelope: { attack: 2.4, decay: 0.4, sustain: 0.85, release: 4 },
+        volume: -22,
+      }).connect(reverb);
+
+      // F-Am-Bb-C: progresión clásica de balada cálida
+      const PROG = [
+        ['F3','A3','C4'],
+        ['A3','C4','E4'],
+        ['Bb3','D4','F4'],
+        ['C4','E4','G4'],
+      ];
+      const MELODIA = ['F4','A4','C5','A4','G4','F4','E4','F4'];
+
+      let cycle = 0;
+      const loop = new Tone.Loop(time => {
+        const m = cycle % 16;
+        const ch = PROG[m % 4];
+
+        cuerdas.triggerAttackRelease(ch, '1m', time, 0.55);
+
+        if (m >= 4) {
+          // Después de 4 compases de espacio, entra el piano
+          const idx = (m - 4) % MELODIA.length;
+          epiano.triggerAttackRelease(MELODIA[idx], '2n',
+            time + Tone.Time('4n').toSeconds(), 0.75);
+          if (m >= 8) {
+            epiano.triggerAttackRelease(ch, '2n',
+              time + Tone.Time('2n').toSeconds() * 1.5, 0.45);
+          }
+        }
+
+        Tone.Draw.schedule(() => {
+          fire('synthmusic:beat', { key, measure: m, section: 'carta' });
+        }, time);
+
+        cycle++;
+      }, '1m').start(0);
+
+      Tone.Transport.bpm.value = 60;
+
+      return {
+        dispose: () => {
+          [epiano, cuerdas, reverb, loop].forEach(n => {
+            try { n.stop?.(); } catch (_) {}
+            try { n.dispose?.(); } catch (_) {}
+          });
+        },
+        getMeasure: () => cycle % 16,
+      };
+    },
+
+    /* ═══════════════════════════════════════════════════════
+       TIMELINE — Vals nostálgico (página /timeline)
+       3/4 a 84 BPM. Piano + caja de música + cuerdas suaves.
+       Sensación de viaje a través de momentos.
+       ─────────────────────────────────────────────────────── */
+    timeline(Tone, key) {
+      const reverb = new Tone.Reverb({ decay: 5, wet: 0.4 }).toDestination();
+      const delay  = new Tone.FeedbackDelay('4n.', 0.15).connect(reverb);
+
+      const cajaMusical = new Tone.FMSynth({
+        harmonicity: 2.5, modulationIndex: 7,
+        envelope: { attack: 0.001, decay: 1.2, sustain: 0, release: 2 },
+        volume: -8,
+      }).connect(delay);
+
+      const piano = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: 'triangle' },
+        envelope: { attack: 0.005, decay: 1.4, sustain: 0, release: 1.6 },
+        volume: -14,
+      }).connect(reverb);
+
+      const pad = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: 'sine' },
+        envelope: { attack: 1.5, decay: 0.3, sustain: 0.8, release: 2.5 },
+        volume: -24,
+      }).connect(reverb);
+
+      // C-G-Am-F en vals 3/4
+      const PROG = [
+        ['C3','E3','G3'],
+        ['G2','B2','D3'],
+        ['A2','C3','E3'],
+        ['F2','A2','C3'],
+      ];
+      const TEMA  = ['C5','E5','G5','E5','D5','C5'];
+
+      Tone.Transport.timeSignature = [3, 4];
+
+      let cycle = 0;
+      const loop = new Tone.Loop(time => {
+        const m = cycle % 12;
+        const ch = PROG[m % 4];
+        const beat = Tone.Time('4n').toSeconds();
+
+        // Vals: bajo en 1, acordes en 2 y 3
+        piano.triggerAttackRelease(ch[0].replace(/\d$/, '2'), '4n', time, 0.7);
+        piano.triggerAttackRelease(ch.slice(1), '4n', time + beat, 0.4);
+        piano.triggerAttackRelease(ch.slice(1), '4n', time + 2 * beat, 0.4);
+
+        // Caja musical sobre el tema (a partir del compás 4)
+        if (m >= 4) {
+          const idx = (m - 4) % TEMA.length;
+          cajaMusical.triggerAttackRelease(TEMA[idx], '4n.', time + beat / 2, 0.7);
+        }
+
+        // Pad sostenido
+        pad.triggerAttackRelease(ch, '1m', time, 0.5);
+
+        Tone.Draw.schedule(() => {
+          fire('synthmusic:beat', { key, measure: m, section: 'vals' });
+        }, time);
+
+        cycle++;
+      }, '1m').start(0);
+
+      Tone.Transport.bpm.value = 84;
+
+      return {
+        dispose: () => {
+          // Restaurar 4/4 al cerrar
+          try { Tone.Transport.timeSignature = [4, 4]; } catch (_) {}
+          [cajaMusical, piano, pad, delay, reverb, loop].forEach(n => {
+            try { n.stop?.(); } catch (_) {}
+            try { n.dispose?.(); } catch (_) {}
+          });
+        },
+        getMeasure: () => cycle % 12,
+      };
+    },
+
+    /* ═══════════════════════════════════════════════════════
+       AURORA — Etérea brillante (página /aurora)
+       Sintetizadores filtrados con sweep, campanas cristalinas,
+       sensación de luz polar danzando.
+       ─────────────────────────────────────────────────────── */
+    aurora(Tone, key) {
+      const reverb = new Tone.Reverb({ decay: 8, wet: 0.55 }).toDestination();
+      const delay  = new Tone.FeedbackDelay('8n.', 0.35).connect(reverb);
+      const filtro = new Tone.AutoFilter({
+        frequency: 0.12, depth: 0.7, baseFrequency: 600, octaves: 3,
+        type: 'sine',
+      }).start().connect(delay);
+
+      const padBrillante = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: 'fatsawtooth', count: 4, spread: 30 },
+        envelope: { attack: 1.8, decay: 0.4, sustain: 0.85, release: 4.5 },
+        volume: -16,
+      }).connect(filtro);
+
+      const cristal = new Tone.FMSynth({
+        harmonicity: 4, modulationIndex: 22,
+        envelope: { attack: 0.001, decay: 1.6, sustain: 0, release: 3 },
+        modulationEnvelope: { attack: 0.001, decay: 0.6, sustain: 0, release: 1.5 },
+        volume: -10,
+      }).connect(delay);
+
+      // Dm - F - C - G (modo dórico → mayor)
+      const PROG = [
+        ['D3','F3','A3','D4'],
+        ['F3','A3','C4','F4'],
+        ['C3','E3','G3','C4'],
+        ['G2','B2','D3','G3'],
+      ];
+      const NOTAS_CRISTAL = ['D5','F5','A5','C6','E6','G6','D6','A5'];
+
+      let cycle = 0;
+      const loop = new Tone.Loop(time => {
+        const m = cycle % 16;
+        const ch = PROG[m % 4];
+
+        padBrillante.triggerAttackRelease(ch, '1m', time, 0.55);
+
+        // Cristales aleatorios en cada compás
+        const n = NOTAS_CRISTAL[(m * 3) % NOTAS_CRISTAL.length];
+        cristal.triggerAttackRelease(n, '2n', time + Tone.Time('4n').toSeconds() * 1.5, 0.7);
+        if (m % 2 === 0) {
+          const n2 = NOTAS_CRISTAL[(m * 5 + 2) % NOTAS_CRISTAL.length];
+          cristal.triggerAttackRelease(n2, '4n',
+            time + Tone.Time('4n').toSeconds() * 0.5, 0.55);
+        }
+
+        Tone.Draw.schedule(() => {
+          fire('synthmusic:beat', { key, measure: m, section: 'aurora' });
+        }, time);
+
+        cycle++;
+      }, '1m').start(0);
+
+      Tone.Transport.bpm.value = 90;
+
+      return {
+        dispose: () => {
+          [padBrillante, cristal, filtro, delay, reverb, loop].forEach(n => {
+            try { n.stop?.(); } catch (_) {}
+            try { n.dispose?.(); } catch (_) {}
+          });
+        },
+        getMeasure: () => cycle % 16,
+      };
+    },
+
+    /* ═══════════════════════════════════════════════════════
+       UNIVERSO — Cósmica exploratoria (página /universo)
+       Drone abierto + arpegios "estrella" + cometas FM ocasionales.
+       Distinto del LUNA: más amplio, más rítmico, menos meditativo.
+       ─────────────────────────────────────────────────────── */
+    universo(Tone, key) {
+      const reverb = new Tone.Reverb({ decay: 16, wet: 0.65 }).toDestination();
+      const wide   = new Tone.StereoWidener(0.85).connect(reverb);
+
+      const drone = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: 'sine' },
+        envelope: { attack: 6, decay: 0.5, sustain: 0.9, release: 8 },
+        volume: -20,
+      }).connect(wide);
+      drone.triggerAttack(['D2','A2','E3','B3']);
+
+      const arpegio = new Tone.PluckSynth({
+        attackNoise: 0.6, dampening: 6800, resonance: 0.92,
+        volume: -10,
+      }).connect(reverb);
+
+      const cometa = new Tone.FMSynth({
+        harmonicity: 5.5, modulationIndex: 18,
+        envelope: { attack: 0.4, decay: 2.4, sustain: 0, release: 6 },
+        modulationEnvelope: { attack: 0.5, decay: 1.5, sustain: 0, release: 3 },
+        volume: -16,
+      }).connect(reverb);
+
+      const NOTAS_ARP = ['D4','F#4','A4','D5','F#5','A5','D6'];
+      let cycle = 0;
+      const loop = new Tone.Loop(time => {
+        const m = cycle % 16;
+        // Arpegio constante de 7 notas en cada compás
+        for (let i = 0; i < 7; i++) {
+          const idx = (i + (m * 2)) % NOTAS_ARP.length;
+          arpegio.triggerAttackRelease(NOTAS_ARP[idx], '8n',
+            time + i * Tone.Time('8n').toSeconds(), 0.5 + (i / 14));
+        }
+        // Cometa cada 4 compases
+        if (m % 4 === 0) {
+          const cometNotes = ['D3','A3','D4','F#4'];
+          cometa.triggerAttackRelease(cometNotes[(m / 4) % cometNotes.length], '2n',
+            time, 0.65);
+        }
+
+        Tone.Draw.schedule(() => {
+          fire('synthmusic:beat', { key, measure: m, section: 'cosmica' });
+        }, time);
+
+        cycle++;
+      }, '1m').start(0);
+
+      Tone.Transport.bpm.value = 70;
+
+      return {
+        dispose: () => {
+          [drone, arpegio, cometa, wide, reverb, loop].forEach(n => {
+            try { n.stop?.(); } catch (_) {}
+            try { n.dispose?.(); } catch (_) {}
+          });
+        },
+        getMeasure: () => cycle % 16,
+      };
+    },
   };
 
   /* ── API pública ────────────────────────────────────────── */
   async function play(key) {
-    if (!COMPOSERS[key]) return false;
+    if (!COMPOSERS[key]) {
+      console.warn('[synth-music] composer no existe:', key);
+      return false;
+    }
     const Tone = await ensureTone();
-    if (!Tone) return false;
+    if (!Tone) {
+      console.warn('[synth-music] Tone.js no se pudo cargar');
+      return false;
+    }
 
     if (active[key]) return true;
+    console.info('[synth-music] ▶ ', key);
 
     // BUG FIX: Unificar AudioContext con Howler para que el analyser
     // de bg-particles también vea la música procedural.
@@ -478,7 +911,8 @@
   function stop(key) {
     const a = active[key];
     if (!a) return;
-    try { a.dispose(); } catch (_) {}
+    console.info('[synth-music] ■ ', key);
+    try { a.dispose(); } catch (e) { console.warn('[synth-music] dispose fail:', e.message); }
     delete active[key];
     fire('synthmusic:stop', { key });
     if (Object.keys(active).length === 0 && window.Tone?.Transport) {

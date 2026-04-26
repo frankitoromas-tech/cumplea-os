@@ -70,6 +70,66 @@
       4: 'Si te quedaras dormida ahora,',
       6: 'el cielo se quedaría contigo.',
     },
+
+    // Anticipación — antes de abrir el regalo
+    regalo: {
+      0: '',
+      2: '✦ algo brilla en tus manos ✦',
+      4: 'No abras todavía. Cierra los ojos.',
+      6: 'Estoy contando contigo del otro lado.',
+    },
+
+    // Celebración — área central del cumple
+    fiesta: {
+      0: '',
+      2: 'Hoy el universo cuenta tus años,',
+      4: 'y suspira aliviado de tenerte.',
+      6: '',
+      8: 'Pide despacio. El tiempo aprende rápido.',
+      10: '',
+      12: 'Todo lo que mereces ya viene en camino.',
+      14: '',
+    },
+
+    // Carta — íntima, susurrada
+    carta: {
+      0: '',
+      4: 'Hay personas que entran sin permiso',
+      6: 'y se quedan sin pedirlo.',
+      8: 'Tú eres esa persona para mí.',
+      10: '',
+      12: 'Léeme despacio.',
+      14: 'Esta carta lleva tu nombre por dentro.',
+    },
+
+    // Timeline — vals nostálgico
+    timeline: {
+      0: '',
+      4: 'El día que te miré demasiado tiempo,',
+      6: 'el día que me miraste de vuelta.',
+      8: 'Cada momento — un compás más.',
+      10: 'Y aquí estamos, aún bailando.',
+    },
+
+    // Aurora — etérea brillante
+    aurora: {
+      0: '',
+      4: 'Si pudiera pintarte el cielo,',
+      6: 'lo haría con los colores que llevas tú.',
+      8: '',
+      12: 'Toda aurora aprende algo de quien la mira.',
+      14: 'La de hoy tiene tu mirada.',
+    },
+
+    // Universo — cósmica exploratoria
+    universo: {
+      0: '',
+      4: 'Si el cosmos cabe en una mirada,',
+      6: 'la tuya lo contiene entero.',
+      8: '',
+      12: 'Cada estrella tiene un nombre.',
+      14: 'La mayoría dice el tuyo.',
+    },
   };
 
   /* ── DOM del karaoke ─────────────────────────────────────

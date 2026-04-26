@@ -40,6 +40,17 @@
            document.body.classList.contains('memory-universe-open');
   }
 
+  /* ── BUG FIX: el botón de regalo se anima con .abriendo-caja
+     vía transforms en CSS. Si seguimos escribiendo style.transform
+     inline, ANULAMOS la animación de apertura. Detectamos ese estado
+     y limpiamos el inline transform inmediatamente. ── */
+  function shouldSkip(el) {
+    if (!el) return true;
+    if (el.classList.contains('abriendo-caja')) return true;
+    if (el.classList.contains('caja-abierta'))   return true;
+    return false;
+  }
+
   function scan() {
     document.querySelectorAll('.magnetic, [data-magnetic], .caja-regalo, #botonRegalo, #immersiveMuteBtn, #btnEntrarUniverso').forEach(attach);
   }
@@ -76,6 +87,12 @@
     document.querySelectorAll('.magnetic, [data-magnetic], .caja-regalo, #botonRegalo, #immersiveMuteBtn, #btnEntrarUniverso').forEach(el => {
       const s = tracked.get(el);
       if (!s) return;
+      // BUG FIX: si el elemento está animándose por CSS, soltarlo.
+      if (shouldSkip(el)) {
+        if (el.style.transform) el.style.transform = '';
+        s.x = s.y = s.tx = s.ty = 0;
+        return;
+      }
       const r = el.getBoundingClientRect();
       const cx = r.left + r.width  / 2;
       const cy = r.top  + r.height / 2;

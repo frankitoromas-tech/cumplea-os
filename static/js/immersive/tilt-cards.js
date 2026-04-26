@@ -52,6 +52,14 @@
     }
 
     function loop() {
+      // BUG FIX: si el elemento se está animando con CSS clases propias
+      // del proyecto (ej: .abriendo-caja en el regalo), soltamos el control.
+      if (el.classList.contains('abriendo-caja') ||
+          el.classList.contains('caja-abierta')) {
+        el.style.transform = '';
+        state.raf = 0;
+        return;
+      }
       state.rx += (state.try_ - state.rx) * SMOOTH;
       state.ry += (state.trx - state.ry) * SMOOTH;
       el.style.transform =

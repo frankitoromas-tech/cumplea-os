@@ -123,14 +123,21 @@
   --heartbeat-pulse: 0;
 }
 .heartbeat-pulse {
-  /* Un escalado y un glow muy sutiles, casi imperceptibles. La idea
-     es que SIENTAS un ritmo, no que lo veas como un blinker. */
-  transform: scale(calc(1 + var(--heartbeat-pulse) * 0.012));
+  /* Un escalado y un glow muy sutiles, casi imperceptibles.
+     IMPORTANTE: solo aplicamos filter (drop-shadow) para NO pisar
+     transform de animaciones CSS existentes (.abriendo-caja, etc).
+     El transform-scale se omitió tras descubrir que rompía la
+     animación de apertura del regalo en styless.css. */
   filter: drop-shadow(
     0 0 calc(8px + var(--heartbeat-pulse) * 14px)
     rgba(255, 130, 165, calc(0.18 + var(--heartbeat-pulse) * 0.30))
   );
   transition: filter .18s ease-out;
+}
+/* No aplicar heartbeat al botón cuando se está abriendo */
+.heartbeat-pulse.abriendo-caja,
+.heartbeat-pulse.caja-abierta {
+  filter: none !important;
 }
 
 /* ── Pastel 3D y portal mágico (cake-3d.js) ─────────────── */
