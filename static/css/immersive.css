@@ -114,6 +114,22 @@
 #immersiveMuteBtn:hover { transform: translateY(-2px); background: rgba(255,107,129,.18); }
 #immersiveMuteBtn[data-muted="1"] { color: rgba(255,255,255,.4); }
 
+/* ── Lock screen scroll fix (testing real, foto 4) ──────────
+   Cuando la pantalla de bloqueo está visible, garantizamos que
+   se pueda hacer scroll dentro de ella si el contenido excede
+   la altura del viewport (móviles, ventanas pequeñas). Sin esto,
+   en pantallas <800px de alto se cortaba el buzón secreto. */
+.pantalla-bloqueo:not(.oculto) {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  max-height: 100vh;
+}
+#pantallaAuth:not(.oculto) {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  max-height: 100vh;
+}
+
 /* ── Latido emocional global (shared-heartbeat.js) ──────────
    Las CSS variables --heartbeat (0..1 sine) y --heartbeat-pulse
    (lub-dub spike) están actualizándose constantemente en :root.

@@ -26,9 +26,25 @@
   if (hasGsap) gsap.registerPlugin(ScrollTrigger);
 
   /* ── Lenis ──────────────────────────────────────────────────
+     BUG FIX (testing real): Lenis intercepta wheel sobre document
+     incluso con .stop(). Cuando la luna ve la pantalla de bloqueo,
+     el scroll nativo se quedaba muerto. Solución: NO instanciar
+     Lenis hasta que la pantalla de bloqueo/auth haya desaparecido.
      ──────────────────────────────────────────────────────────── */
   let lenis = null;
-  if (hasLenis && !reduced) {
+
+  function isLocked() {
+    const bloqueo = document.getElementById('pantallaBloqueo');
+    const auth    = document.getElementById('pantallaAuth');
+    return (bloqueo && !bloqueo.classList.contains('oculto')) ||
+           (auth    && !auth.classList.contains('oculto'));
+  }
+
+  function initLenis() {
+    if (lenis || !hasLenis || reduced) return;
+    if (isLocked()) return;       // todavía bloqueado, no instanciar
+    console.info('[scroll-engine] inicializando Lenis (lock liberado)');
+
     lenis = new Lenis({
       duration: 1.15,
       easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -49,18 +65,17 @@
       gsap.ticker.add(t => lenis.raf(t * 1000));
       gsap.ticker.lagSmoothing(0);
     }
+  }
 
-    // Detener el scroll cuando la pantalla de bloqueo o auth están visibles.
-    // Estas dos NO deben recibir smooth scroll porque tienen su propio canvas.
-    function syncLenisLock() {
-      const bloqueo = document.getElementById('pantallaBloqueo');
-      const auth    = document.getElementById('pantallaAuth');
-      const lock = (bloqueo && !bloqueo.classList.contains('oculto')) ||
-                   (auth    && !auth.classList.contains('oculto'));
-      lenis[lock ? 'stop' : 'start']();
-    }
-    syncLenisLock();
-    new MutationObserver(syncLenisLock).observe(document.body, {
+  // Probar de inmediato — si ya no hay lock, Lenis arranca ya
+  initLenis();
+
+  // Y observar cambios: cuando la pantalla de bloqueo o auth se oculten,
+  // intentar inicializar Lenis. Si ya está, no hace nada.
+  if (hasLenis && !reduced) {
+    new MutationObserver(() => {
+      if (!lenis && !isLocked()) initLenis();
+    }).observe(document.body, {
       subtree: true, attributes: true, attributeFilter: ['class'],
     });
   }

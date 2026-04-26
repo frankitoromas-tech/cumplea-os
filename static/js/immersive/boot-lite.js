@@ -51,6 +51,7 @@
     await loadScript('/static/js/immersive/page-transitions.js');  // transiciones entre subpáginas
     await loadScript('/static/js/immersive/more-easter-eggs.js');  // huevos también en subpáginas
     await loadScript('/static/js/immersive/ee-music.js');    // música por easter egg
+    await loadScript('/static/js/immersive/aurora-fix.js');  // arregla NaN en aurora.html
     await loadScript('/static/js/immersive/debug-hud.js');   // Shift+D en cualquier página
 
     /* ── Resolver pista a reproducir ─────────────────────────

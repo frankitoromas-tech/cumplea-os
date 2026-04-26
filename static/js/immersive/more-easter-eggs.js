@@ -146,22 +146,39 @@
     'Capítulo IV — Cuando hicimos del caos algo nuestro.',
     'Capítulo V — Hasta donde alcance este universo.',
   ];
+  /* BUG FIX CRÍTICO: si el usuario hace scroll con el dedo apoyado en
+     una foto, el long-press se disparaba a los 1.5s y bloqueaba el
+     área. Ahora cancelamos el timer si el cursor/dedo se mueve más
+     de MOVE_THRESHOLD px desde el inicio del press. Es lo que hace
+     cualquier librería decente de long-press. */
+  const MOVE_THRESHOLD = 8;   // px
   let pressTimer = 0;
   let pressedEl  = null;
+  let pressX = 0, pressY = 0;
   document.addEventListener('pointerdown', e => {
     const m = e.target.closest?.('.marco-foto');
     if (!m) return;
     pressedEl = m;
+    pressX = e.clientX;
+    pressY = e.clientY;
     pressTimer = setTimeout(() => {
       const idx = [...document.querySelectorAll('.marco-foto')].indexOf(m);
       const meta = PHOTO_META[idx % PHOTO_META.length];
       revelarMeta(m, meta);
       pressTimer = 0;
     }, 1500);
-  });
+  }, { passive: true });
+  document.addEventListener('pointermove', e => {
+    if (!pressTimer) return;
+    if (Math.hypot(e.clientX - pressX, e.clientY - pressY) > MOVE_THRESHOLD) {
+      cancelPress();
+    }
+  }, { passive: true });
   document.addEventListener('pointerup',     () => cancelPress());
   document.addEventListener('pointercancel', () => cancelPress());
   document.addEventListener('pointerleave',  () => cancelPress());
+  // Cancelar también al hacer scroll real
+  window.addEventListener('scroll', () => cancelPress(), { passive: true });
   function cancelPress() {
     if (pressTimer) { clearTimeout(pressTimer); pressTimer = 0; }
     pressedEl = null;

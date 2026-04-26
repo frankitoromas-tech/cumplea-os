@@ -74,8 +74,8 @@
 
       const pad = new Tone.PolySynth(Tone.Synth, {
         oscillator: { type: 'fatsawtooth', count: 3, spread: 22 },
-        envelope:   { attack: 1.6, decay: 0.4, sustain: 0.85, release: 4 },
-        volume: -16,
+        envelope:   { attack: 0.6, decay: 0.3, sustain: 0.85, release: 3 },  // attack reducido de 1.6 → 0.6
+        volume: -12,                                                          // y +4dB para ser audible
       }).connect(wide);
 
       const arpa = new Tone.PluckSynth({
@@ -534,7 +534,7 @@
       const cajaR = new Tone.NoiseSynth({
         noise: { type: 'pink' },
         envelope: { attack: 0.001, decay: 0.06, sustain: 0 },
-        volume: -28,
+        volume: -18,    // antes -28: era inaudible
       }).toDestination();
 
       // Progresión alegre: C-G-Am-F (la favorita del pop)
@@ -603,8 +603,8 @@
 
       const cuerdas = new Tone.PolySynth(Tone.Synth, {
         oscillator: { type: 'sine' },
-        envelope: { attack: 2.4, decay: 0.4, sustain: 0.85, release: 4 },
-        volume: -22,
+        envelope: { attack: 0.6, decay: 0.4, sustain: 0.85, release: 3 },  // attack reducido de 2.4 → 0.6
+        volume: -16,                                                         // +6dB
       }).connect(reverb);
 
       // F-Am-Bb-C: progresión clásica de balada cálida
@@ -677,8 +677,8 @@
 
       const pad = new Tone.PolySynth(Tone.Synth, {
         oscillator: { type: 'sine' },
-        envelope: { attack: 1.5, decay: 0.3, sustain: 0.8, release: 2.5 },
-        volume: -24,
+        envelope: { attack: 0.4, decay: 0.3, sustain: 0.8, release: 2 },  // attack reducido de 1.5 → 0.4
+        volume: -18,                                                        // +6dB
       }).connect(reverb);
 
       // C-G-Am-F en vals 3/4
@@ -735,68 +735,90 @@
     },
 
     /* ═══════════════════════════════════════════════════════
-       AURORA — Etérea brillante (página /aurora)
-       Sintetizadores filtrados con sweep, campanas cristalinas,
-       sensación de luz polar danzando.
+       AURORA — REESCRITA v2 (audible, melódica, identificable)
+       Diseño:
+         • Bell principal con melodía cantable (FMSynth, attack instantáneo)
+         • Bajo pulsante en negras (mantiene ritmo)
+         • Pad cálido con attack RÁPIDO (0.3s, no 1.8s)
+         • Delay corto + reverb medio para shimmer
+       Estructura: Dm-F-C-G → 16 compases con verso A y B distintos.
+       BPM 84 (un pelín más lento, más cinematográfico).
        ─────────────────────────────────────────────────────── */
     aurora(Tone, key) {
-      const reverb = new Tone.Reverb({ decay: 8, wet: 0.55 }).toDestination();
-      const delay  = new Tone.FeedbackDelay('8n.', 0.35).connect(reverb);
-      const filtro = new Tone.AutoFilter({
-        frequency: 0.12, depth: 0.7, baseFrequency: 600, octaves: 3,
-        type: 'sine',
-      }).start().connect(delay);
+      const reverb = new Tone.Reverb({ decay: 5, wet: 0.42 }).toDestination();
+      const delay  = new Tone.FeedbackDelay('8n', 0.28).connect(reverb);
 
-      const padBrillante = new Tone.PolySynth(Tone.Synth, {
-        oscillator: { type: 'fatsawtooth', count: 4, spread: 30 },
-        envelope: { attack: 1.8, decay: 0.4, sustain: 0.85, release: 4.5 },
-        volume: -16,
-      }).connect(filtro);
-
-      const cristal = new Tone.FMSynth({
-        harmonicity: 4, modulationIndex: 22,
-        envelope: { attack: 0.001, decay: 1.6, sustain: 0, release: 3 },
-        modulationEnvelope: { attack: 0.001, decay: 0.6, sustain: 0, release: 1.5 },
-        volume: -10,
+      // Bell principal — protagonista melódico, FMSynth brillante
+      const bell = new Tone.FMSynth({
+        harmonicity: 3.5,
+        modulationIndex: 18,
+        oscillator: { type: 'sine' },
+        envelope: { attack: 0.003, decay: 1.8, sustain: 0, release: 2.5 },
+        modulationEnvelope: { attack: 0.005, decay: 0.7, sustain: 0, release: 1.2 },
+        volume: -4,                  // ← AUDIBLE de verdad
       }).connect(delay);
 
-      // Dm - F - C - G (modo dórico → mayor)
+      // Bajo cálido pulsante
+      const bajo = new Tone.MonoSynth({
+        oscillator: { type: 'triangle' },
+        envelope: { attack: 0.05, decay: 0.4, sustain: 0.5, release: 0.6 },
+        filter: { Q: 1, type: 'lowpass' },
+        filterEnvelope: { attack: 0.04, decay: 0.3, sustain: 0.5, release: 0.6,
+                          baseFrequency: 280, octaves: 2 },
+        volume: -8,
+      }).toDestination();
+
+      // Pad cálido detrás — attack 0.3s para que se oiga ya
+      const pad = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: 'fatsawtooth', count: 3, spread: 24 },
+        envelope: { attack: 0.3, decay: 0.4, sustain: 0.7, release: 2.0 },
+        volume: -14,
+      }).connect(reverb);
+
+      // Progresión Dm-F-C-G (clásica, emotiva, en re menor)
       const PROG = [
-        ['D3','F3','A3','D4'],
-        ['F3','A3','C4','F4'],
-        ['C3','E3','G3','C4'],
-        ['G2','B2','D3','G3'],
+        { bajo: 'D2', pad: ['D3','F3','A3'] },   // Dm
+        { bajo: 'F2', pad: ['F3','A3','C4'] },   // F
+        { bajo: 'C2', pad: ['C3','E3','G3'] },   // C
+        { bajo: 'G2', pad: ['G2','B2','D3'] },   // G
       ];
-      const NOTAS_CRISTAL = ['D5','F5','A5','C6','E6','G6','D6','A5'];
+
+      // Dos versiones de melodía para que no sea repetitiva
+      const MEL_A = ['D5','F5','A5','F5', 'C5','F5','A5','G5'];
+      const MEL_B = ['F5','A5','C6','A5', 'G5','E5','D5','F5'];
 
       let cycle = 0;
       const loop = new Tone.Loop(time => {
         const m = cycle % 16;
         const ch = PROG[m % 4];
+        const beat = Tone.Time('4n').toSeconds();
 
-        padBrillante.triggerAttackRelease(ch, '1m', time, 0.55);
+        // Bajo: dos golpes por compás (1 y 3)
+        bajo.triggerAttackRelease(ch.bajo, '4n', time, 0.85);
+        bajo.triggerAttackRelease(ch.bajo, '4n', time + 2 * beat, 0.7);
 
-        // Cristales aleatorios en cada compás
-        const n = NOTAS_CRISTAL[(m * 3) % NOTAS_CRISTAL.length];
-        cristal.triggerAttackRelease(n, '2n', time + Tone.Time('4n').toSeconds() * 1.5, 0.7);
-        if (m % 2 === 0) {
-          const n2 = NOTAS_CRISTAL[(m * 5 + 2) % NOTAS_CRISTAL.length];
-          cristal.triggerAttackRelease(n2, '4n',
-            time + Tone.Time('4n').toSeconds() * 0.5, 0.55);
-        }
+        // Pad: acorde sostenido todo el compás
+        pad.triggerAttackRelease(ch.pad, '1m', time, 0.5);
+
+        // Melodía bell: 2 notas por compás (en beats 2 y 4)
+        const mel = m < 8 ? MEL_A : MEL_B;
+        const idxA = (m * 2) % mel.length;
+        const idxB = (m * 2 + 1) % mel.length;
+        bell.triggerAttackRelease(mel[idxA], '4n.', time + beat, 0.85);
+        bell.triggerAttackRelease(mel[idxB], '8n', time + 3 * beat, 0.7);
 
         Tone.Draw.schedule(() => {
-          fire('synthmusic:beat', { key, measure: m, section: 'aurora' });
+          fire('synthmusic:beat', { key, measure: m, section: m < 8 ? 'aurora-A' : 'aurora-B' });
         }, time);
 
         cycle++;
       }, '1m').start(0);
 
-      Tone.Transport.bpm.value = 90;
+      Tone.Transport.bpm.value = 84;
 
       return {
         dispose: () => {
-          [padBrillante, cristal, filtro, delay, reverb, loop].forEach(n => {
+          [bell, bajo, pad, delay, reverb, loop].forEach(n => {
             try { n.stop?.(); } catch (_) {}
             try { n.dispose?.(); } catch (_) {}
           });
