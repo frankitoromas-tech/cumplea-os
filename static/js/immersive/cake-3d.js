@@ -287,29 +287,35 @@
       const dt = t - lastT;
       if (dt > 0 && lastT) {
         const speed = Math.hypot(x - lastMx, y - lastMy) / dt;  // px/ms
-        if (speed > 0.6) {
-          // Posición normalizada del puntero en NDC
-          const ndcX = (x / rect.width)  * 2 - 1;
-          const ndcY = -(y / rect.height) * 2 + 1;
-          const v = new THREE.Vector3(ndcX, ndcY, 0.5).unproject(camera);
-          // Buscar vela viva más cercana en pantalla
-          let best = -1, bestD = Infinity;
-          candles.forEach((c, i) => {
-            if (!c.alive) return;
-            const wp = c.grp.getWorldPosition(new THREE.Vector3());
-            const sp = wp.clone().project(camera);
-            const sx = (sp.x + 1) * 0.5 * rect.width;
-            const sy = (1 - sp.y) * 0.5 * rect.height;
-            const d = Math.hypot(sx - x, sy - y);
-            if (d < bestD) { bestD = d; best = i; }
-          });
-          if (best >= 0 && bestD < 80) {
-            apagarVela(best);
-          }
+        // BUG FIX: bajamos de 0.6 a 0.25 (mucho más sensible al soplido)
+        if (speed > 0.25) {
+          tryApagarCercana(x, y, rect, /*radio=*/110);
         }
       }
       lastMx = x; lastMy = y; lastT = t;
     });
+
+    /* ── NUEVO: click directo en una vela también la apaga ───── */
+    cv.addEventListener('click', e => {
+      const rect = cv.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      tryApagarCercana(x, y, rect, /*radio=*/90);
+    });
+
+    function tryApagarCercana(x, y, rect, radio) {
+      let best = -1, bestD = Infinity;
+      candles.forEach((c, i) => {
+        if (!c.alive) return;
+        const wp = c.grp.getWorldPosition(new THREE.Vector3());
+        const sp = wp.clone().project(camera);
+        const sx = (sp.x + 1) * 0.5 * rect.width;
+        const sy = (1 - sp.y) * 0.5 * rect.height;
+        const d = Math.hypot(sx - x, sy - y);
+        if (d < bestD) { bestD = d; best = i; }
+      });
+      if (best >= 0 && bestD < radio) apagarVela(best);
+    }
 
     /* ── Apagar vela: dispara el mouseenter en .llama original ──
        para que script.js mantenga su contador y dispare confetti. ── */

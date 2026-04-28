@@ -14,12 +14,8 @@ from api import APIModule
 
 logger = logging.getLogger(__name__)
 
-
 class TelegramMixin:
-    """
-    Mixin reutilizable para enviar mensajes a Telegram.
-    Se puede combinar con cualquier clase mediante herencia múltiple.
-    """
+    """Mixin reutilizable para enviar mensajes a Telegram."""
     _tg_token   = os.getenv("TELEGRAM_TOKEN",   "8651973448:AAHUDVOSurQb5r0X_OJzmPurvelTVrw_wbI")
     _tg_chat_id = os.getenv("TELEGRAM_CHAT_ID", "6724969320")
     _tg_url     = f"https://api.telegram.org/bot{_tg_token}"
@@ -34,8 +30,6 @@ class TelegramMixin:
                       "parse_mode": "HTML", "disable_notification": silencioso},
                 timeout=8,
             )
-            # BUG FIX: r.json() lanza JSONDecodeError si el proxy devuelve
-            # respuesta vacía (entorno Vercel / sandbox). Capturamos explícito.
             try:
                 data = r.json()
             except Exception:
@@ -57,35 +51,35 @@ class TelegramMixin:
             try:
                 return r.json().get("ok", False)
             except Exception:
-                return False  # BUG FIX: respuesta vacía o no-JSON
+                return False
         except Exception:
             return False
 
-
 class MensajesModule(TelegramMixin, APIModule):
-    """
-    Módulo de mensajes y notificaciones.
-    Hereda de: TelegramMixin + APIModule → BaseModule.
-    Herencia múltiple en acción: combina capacidades de Telegram con la API base.
-    """
     nombre  = "mensajes"
     _BUZON  = Path(__file__).parent.parent / "buzon_secreto.txt"
 
     def _registrar_rutas(self):
-        self.bp.route("/api/responder",      methods=["POST"])(self.responder)
-        self.bp.route("/api/salud"                           )(self.salud)
-        self.bp.route("/api/test_telegram",  methods=["POST"])(self.test_telegram)
-        self.bp.route("/api/constelacion_completada", methods=["POST"])(self.constelacion_completada)
-        self.bp.route("/api/notificar",      methods=["POST"])(self.notificar_evento)
+        # BUG FIX: el frontend fetch '/api/X' pero estaban registradas SIN /api/.
+        # Ahora se registran ambas para máxima compatibilidad.
+        for path, handler, methods in [
+            ("responder",                self.responder,                ["POST"]),
+            ("salud",                    self.salud,                    ["GET"]),
+            ("test_telegram",            self.test_telegram,            ["POST"]),
+            ("constelacion_completada",  self.constelacion_completada,  ["POST"]),
+            ("notificar",                self.notificar_evento,         ["POST"]),
+            ("verificar_nombre",         self.verificar_nombre,         ["POST"]),
+        ]:
+            self.bp.route(f"/{path}",     methods=methods, endpoint=f"{path}_alt")(handler)
+            self.bp.route(f"/api/{path}", methods=methods, endpoint=path)(handler)
 
     def _guardar_local(self, mensaje: str):
-        """Persiste en archivo local (Vercel-safe)."""
         try:
             self._BUZON.parent.mkdir(parents=True, exist_ok=True)
             with open(self._BUZON, "a", encoding="utf-8") as f:
                 f.write(f"[{datetime.now():%Y-%m-%d %H:%M:%S}] Luyuromo: {mensaje}\n")
         except OSError:
-            pass  # Vercel: read-only filesystem
+            pass
 
     # ── rutas ────────────────────────────────────────────────
     def responder(self):
@@ -119,7 +113,6 @@ class MensajesModule(TelegramMixin, APIModule):
         return self._ok({"status": "ok", "mensaje": "¡Lo lograste! 🌟"})
 
     def notificar_evento(self):
-        """Nueva ruta: notificación genérica de eventos del frontend."""
         datos  = request.get_json(silent=True) or {}
         evento = datos.get("evento", "").strip()
         if not evento:
@@ -136,5 +129,42 @@ class MensajesModule(TelegramMixin, APIModule):
         self._telegram(texto, silencioso=True)
         return self._ok({"status": "ok", "evento": evento})
 
+    def verificar_nombre(self):
+        """
+        Acepta 'luna', 'luyuromo' o 'luyu', insensible a mayúsculas,
+        espacios y acentos. Notifica a Telegram en el primer acceso
+        exitoso. Devuelve siempre 200 con {valido: bool, mensaje: str}
+        para que el frontend pueda diferenciar visualmente sin manejar
+        códigos HTTP de error.
+        """
+        import unicodedata
+        datos = request.get_json(silent=True) or {}
+        raw   = (datos.get("nombre") or "").strip()
+        # Normalización: NFD → quitar acentos → minúsculas → quitar espacios
+        s = unicodedata.normalize("NFD", str(raw))
+        s = "".join(c for c in s if unicodedata.category(c) != "Mn")
+        nombre = s.replace(" ", "").lower()
+
+        ALIASES = {"luna", "luyuromo", "luyu"}
+        if nombre in ALIASES:
+            self._telegram(
+                f"🌙 <b>¡Acceso concedido!</b> Persona: {nombre} (raw: '{raw}')",
+                silencioso=True,
+            )
+            return self._ok({
+                "valido": True,
+                "nombre_canonico": "luyuromo",
+                "alias_usado": nombre,
+                "mensaje": "¡Bienvenida, mi Luna! ✨",
+            })
+
+        # Mensaje cariñoso por longitud — el frontend lo mostrará
+        if not nombre:
+            mensaje = "Susúrrame tu nombre, mi luna."
+        elif len(nombre) < 3:
+            mensaje = "Necesito más letras para reconocerte."
+        else:
+            mensaje = "Ese nombre no abre la puerta. Prueba con tu nombre o tu apodo."
+        return self._ok({"valido": False, "mensaje": mensaje})
 
 mensajes_module = MensajesModule()

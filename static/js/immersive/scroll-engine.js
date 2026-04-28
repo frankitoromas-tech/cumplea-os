@@ -205,11 +205,38 @@
     if (document.fonts?.ready) document.fonts.ready.then(refresh);
   }
 
+  /* ── RED DE SEGURIDAD: si ScrollTrigger no dispara, fuerza reveal ──
+     Algunos elementos críticos (#botonRegalo, etc) pueden quedar
+     invisibles si ScrollTrigger se confunde con .oculto/display:none.
+     Pasados 1.5s, marcamos como visibles los [data-reveal] que sigan
+     ocultos. La luna NUNCA verá un elemento esencial invisible. ── */
+  function safetyNet() {
+    setTimeout(() => {
+      document.querySelectorAll('[data-reveal]').forEach(el => {
+        if (el.classList.contains('immersive-reveal--in')) return;
+        const cs = getComputedStyle(el);
+        if (parseFloat(cs.opacity) < 0.5) {
+          el.classList.add('immersive-reveal--in');
+          // Limpiar inline transform que GSAP haya dejado a medio camino
+          if (el.style.opacity) el.style.opacity = '';
+          if (el.style.transform && /translate|scale/.test(el.style.transform)) {
+            el.style.transform = '';
+          }
+        }
+      });
+    }, 1500);
+    // Re-check cuando .oculto cambia (revelación de #contenidoSorpresa)
+    new MutationObserver(() => safetyNet._fire?.()).observe(document.body, {
+      subtree: true, attributes: true, attributeFilter: ['class'],
+    });
+  }
+
   function init() {
     bindReveals();
     bindParallax();
     bindPin();
     watchOcultoChanges();
+    safetyNet();
     if (hasGsap) ScrollTrigger.refresh();
   }
 

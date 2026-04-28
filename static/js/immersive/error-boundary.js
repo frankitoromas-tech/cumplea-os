@@ -21,10 +21,23 @@
     /loadAudio|onloaderror/i,        // Howler escupe esto cuando un MP3 no existe
     /Tone is not defined/i,          // Tone.js sin cargar es esperable
     /THREE is not defined/i,         // Three.js sin cargar es esperable
+    /Lenis is not defined/i,         // Lenis lazy
+    /ScrollTrigger is not defined/i, // ScrollTrigger lazy
     /MutationObserver/i,             // ruido de extensiones
     /ResizeObserver loop/i,
     /Script error/i,                 // CORS opaco — no aporta
+    /AudioContext/i,                 // contextos suspendidos esperables
+    /play\(\) failed/i,              // autoplay block esperable
+    /NotAllowedError/i,
+    /AbortError/i,
+    /load failed/i,                  // CDNs lentos, ya filtramos
+    /404/,                           // recursos opcionales
   ];
+
+  // Ignorar TODOS los errores en los primeros 3 segundos: la carga de
+  // CDNs puede dar errores temporales que NO son culpa real del cliente.
+  const STARTUP_GRACE_MS = 3000;
+  const startedAt = performance.now();
 
   let critical = 0;
   let bannerShown = false;
@@ -116,20 +129,24 @@
   }
 
   /* ── Captura global de errores ─────────────────────────── */
+  function inGrace() { return (performance.now() - startedAt) < STARTUP_GRACE_MS; }
+
   window.addEventListener('error', e => {
     const msg = e.message || (e.error && e.error.message);
     if (isSilenced(msg)) return;
+    if (inGrace()) return;          // ignorar errores tempranos por CDNs
     critical++;
     report('error', { message: msg });
-    if (critical >= 3) showBanner();
+    if (critical >= 5) showBanner(); // antes 3 → ahora 5, menos sensible
   });
 
   window.addEventListener('unhandledrejection', e => {
     const reason = e.reason?.message || String(e.reason || '');
     if (isSilenced(reason)) return;
+    if (inGrace()) return;
     critical++;
     report('rejection', { reason });
-    if (critical >= 3) showBanner();
+    if (critical >= 5) showBanner();
   });
 
   /* ── API útil para otros módulos ──────────────────────── */

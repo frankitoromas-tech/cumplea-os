@@ -42,6 +42,9 @@ from controllers.api_contenido      import contenido_module
 from controllers.api_efectos        import efectos_module     # registra /aurora, /timeline
 from controllers.api_constelaciones import creador_bp
 from controllers.api_capsula        import capsula_bp
+# NOTA: api_auth.py existe pero NO se registra para evitar duplicar
+# /verificar_nombre que ya vive en api_mensajes (con notificación Telegram).
+# Se conserva el archivo por si en el futuro se separa la auth en su módulo.
 
 app.register_blueprint(mensajes_module.bp)
 app.register_blueprint(estadisticas_module.bp)

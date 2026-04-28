@@ -37,8 +37,11 @@ class NavigadorPaginas {
       const a = document.createElement('a');
       a.href  = p.href;
       a.title = p.tooltip;
-      a.target = '_blank';
-      a.rel    = 'noopener';
+      // BUG FIX: la luna pidió que TODO se abra en la misma pestaña.
+      // Antes: a.target = '_blank' → rompía la memoria de auth y desorientaba.
+      // Ahora: navegación normal → page-transitions.js pone fade-to-black bonito.
+      // a.target queda vacío (default = _self).
+      a.rel = 'noopener';
       a.style.cssText = `
         display:inline-flex; flex-direction:column; align-items:center;
         gap:2px; text-decoration:none; padding:6px 14px; border-radius:40px;

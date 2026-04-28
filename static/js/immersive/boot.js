@@ -78,6 +78,11 @@
       '/static/js/immersive/lyric-sync.js',            // karaoke poético sync
       '/static/js/immersive/cake-3d.js',               // pastel Three.js con velas reales
       '/static/js/immersive/memory-universe.js',       // galaxia navegable de recuerdos
+      '/static/js/immersive/gift-burst.js',            // burst dramático al abrir el regalo
+      '/static/js/immersive/auth-enhance.js',          // luna+luyuromo, Enter, mejor UX
+      '/static/js/immersive/whispers.js',              // pistas progresivas para EEs
+      '/static/js/immersive/stellar-decrypt.js',       // efecto desencriptación al revelar
+      '/static/js/immersive/audio-stars.js',           // estrellas reactivas al audio
       '/static/js/immersive/shared-heartbeat.js',      // latido global a 76 BPM
       '/static/js/immersive/magnetic-cursor.js',       // botones que atraen el cursor
       '/static/js/immersive/page-transitions.js',      // navegación cinemática

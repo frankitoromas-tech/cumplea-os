@@ -52,6 +52,9 @@
     await loadScript('/static/js/immersive/more-easter-eggs.js');  // huevos también en subpáginas
     await loadScript('/static/js/immersive/ee-music.js');    // música por easter egg
     await loadScript('/static/js/immersive/aurora-fix.js');  // arregla NaN en aurora.html
+    await loadScript('/static/js/immersive/whispers.js');    // pistas progresivas
+    await loadScript('/static/js/immersive/audio-stars.js'); // estrellas reactivas al audio
+    await loadScript('/static/js/immersive/aurora-dynamics.js'); // capa dinámica /aurora
     await loadScript('/static/js/immersive/debug-hud.js');   // Shift+D en cualquier página
 
     /* ── Resolver pista a reproducir ─────────────────────────

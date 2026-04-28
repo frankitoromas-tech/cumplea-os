@@ -489,8 +489,18 @@ function crearGlobos() {
 /* ══════════════════════════════════════════════════════════════
    8 · MÁQUINA DE ESCRIBIR
    ══════════════════════════════════════════════════════════════ */
-function escribirMaquina(mensajes, contenedor, idx = 0, callback = null) {
+function escribirMaquina(mensajes, contenedor, idx = 0, callback = null, instantaneo = false) {
   if (idx >= mensajes.length) { if (callback) callback(); return; }
+  // Modo instantáneo: pinta todos los mensajes de golpe sin animación
+  if (instantaneo) {
+    mensajes.slice(idx).forEach(m => {
+      const p = document.createElement('p');
+      p.innerText = '✨ ' + m;
+      contenedor.appendChild(p);
+    });
+    if (callback) callback();
+    return;
+  }
   const p   = document.createElement('p');
   contenedor.appendChild(p);
   const txt = '✨ ' + mensajes[idx];
@@ -511,7 +521,8 @@ function escribirMaquina(mensajes, contenedor, idx = 0, callback = null) {
 /* ══════════════════════════════════════════════════════════════
    9 · MOSTRAR FIESTA (función central)
    ══════════════════════════════════════════════════════════════ */
-function mostrarFiesta(datos) {
+function mostrarFiesta(datos, opciones = {}) {
+  const instantaneo = !!opciones.instantaneo;
   $('tituloMensaje').innerText    = datos.titulo;
   $('estadisticasAstro').innerText = datos.estadisticas;
 
@@ -550,6 +561,10 @@ function mostrarFiesta(datos) {
     firma.innerText = datos.firma;
     firma.classList.remove('oculto'); firma.classList.add('mostrar');
 
+    const t1 = instantaneo ? 0    : 1200;
+    const t2 = instantaneo ? 0    : 800;
+    const t3 = instantaneo ? 0    : 6000;
+
     setTimeout(() => {
       const col = $('collageMemorias');
       if (col) { col.classList.remove('oculto'); col.classList.add('mostrar'); }
@@ -561,10 +576,35 @@ function mostrarFiesta(datos) {
         setTimeout(() => {
           const pista = $('pistaSecreta');
           if (pista) pista.classList.add('pista-visible');
-        }, 6000);
-      }, 800);
-    }, 1200);
-  });
+        }, t3);
+      }, t2);
+    }, t1);
+  }, instantaneo);
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Helper: entrar a la fiesta SIN animación de regalo/intro.
+   Se usa cuando el usuario vuelve de una subpágina (carta, universo,
+   timeline, aurora) y la flag luna:regaloAbierto está activa.
+   ─────────────────────────────────────────────────────────── */
+function entrarFiestaDirecto() {
+  const intro = $('introAnimada');
+  if (intro) intro.remove();
+  const boton = $('botonRegalo');
+  if (boton) boton.style.display = 'none';
+
+  const musica = $('musicaFondo');
+  if (musica) { musica.volume = .5; musica.play().catch(() => {}); }
+
+  fetch('/api/abrir_regalo')
+    .then(r => r.json())
+    .then(d => mostrarFiesta(d, { instantaneo: true }))
+    .catch(() => mostrarFiesta({
+      titulo: '¡Feliz Cumpleaños! 🎉',
+      estadisticas: 'Eres la persona más brillante de mi universo.',
+      mensajes: ['Eres increíble y te mereces lo mejor.', 'Que este año esté lleno de amor y alegría.'],
+      firma: 'Con amor, Frank',
+    }, { instantaneo: true }));
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -601,53 +641,176 @@ function iniciarBloqueo(segundosTotales) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   11 · ESTADO — fetch inicial
+   11 · FLUJO INVERTIDO — Auth PRIMERO, estado DESPUÉS
+   ──────────────────────────────────────────────────────────────
+   v3 — Memoria robusta:
+   - sessionStorage SOBREVIVE a navegación entre páginas (carta, etc.)
+   - F5 detectado vía Performance Navigation API → borra estado
+   - Tab cerrada → sessionStorage se limpia automáticamente
    ══════════════════════════════════════════════════════════════ */
-fetch('/api/estado')
-  .then(r => r.json())
-  .then(data => {
-    if (data.bloqueado) {
-      $('contenedorPrincipal').style.display = 'none';
-      $('pantallaBloqueo').classList.remove('oculto');
-      iniciarBloqueo(data.segundos_faltantes);
-    } else {
-      $('contenedorPrincipal').style.display = 'none'; // Ocultar regalo primero
-      $('pantallaAuth').classList.remove('oculto');    // Mostrar pedir nombre
 
-      $('btnVerificarAuth').addEventListener('click', function() {
-        const inputNombre = $('inputNombreAuth').value.toLowerCase().trim();
-        
-        if (inputNombre === 'luyuromo') {
-          $('pantallaAuth').classList.add('oculto');
-          $('contenedorPrincipal').style.display = ''; // Revelar la fiesta
-          
-          crearFondoEstrellas();
+// ─── F5 detection: si la página fue recargada, borrar auth.
+// Si fue navegación normal (link, back/forward), conservar.
+(function detectarF5() {
+  try {
+    const nav = performance.getEntriesByType('navigation')[0];
+    const tipo = nav?.type;     // 'reload' | 'navigate' | 'back_forward' | 'prerender'
+    if (tipo === 'reload') {
+      sessionStorage.removeItem('luna:authPassed');
+      sessionStorage.removeItem('luna:authFailCount');
+      sessionStorage.removeItem('luna:regaloAbierto');
+    }
+  } catch (_) {
+    // Performance API no disponible — sin problema, falla a "no auth"
+  }
+})();
+
+function isAuthPassed() {
+  return sessionStorage.getItem('luna:authPassed') === '1' || window.__authPassed === true;
+}
+function setAuthPassed() {
+  window.__authPassed = true;
+  try { sessionStorage.setItem('luna:authPassed', '1'); } catch (_) {}
+}
+
+function lanzarFlujo() {
+  console.info('[flujo] lanzarFlujo() iniciado. authPassed=', isAuthPassed());
+
+  // Si ya pasamos auth en esta sesión (sin F5), saltar directo al estado
+  if (isAuthPassed()) {
+    $('pantallaAuth')?.classList.add('oculto');
+    cruzarEstado();
+    return;
+  }
+
+  // Mostrar auth siempre primero
+  $('contenedorPrincipal').style.display = 'none';
+  $('pantallaBloqueo')?.classList.add('oculto');
+  $('pantallaAuth').classList.remove('oculto');
+
+  const btn = $('btnVerificarAuth');
+  if (!btn) {
+    console.error('[flujo] btnVerificarAuth NO EXISTE en el DOM');
+    return;
+  }
+  console.info('[flujo] enganchando listener al btnVerificarAuth');
+
+  btn.addEventListener('click', async function () {
+    const inputNombre = $('inputNombreAuth').value.toLowerCase().trim();
+    console.info('[flujo] click Verificar — nombre:', JSON.stringify(inputNombre));
+    try {
+      const response = await fetch('/api/verificar_nombre', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: inputNombre }),
+      });
+      console.info('[flujo] respuesta /api/verificar_nombre:', response.status);
+      const dataAuth = await response.json();
+      console.info('[flujo] data:', dataAuth);
+
+      if (dataAuth.valido) {
+        setAuthPassed();
+        $('pantallaAuth').classList.add('oculto');
+        showToast('✅ ' + (dataAuth.mensaje || 'Identidad confirmada. Bienvenida, mi Luna.'));
+        cruzarEstado();
+      } else {
+        $('msgErrorAuth').innerText = dataAuth.mensaje || dataAuth.error
+          || 'Ese no es el nombre correcto...';
+        $('msgErrorAuth').style.display = 'block';
+        $('inputNombreAuth').value = '';
+        const fc = (parseInt(sessionStorage.getItem('luna:authFailCount') || '0') + 1);
+        try { sessionStorage.setItem('luna:authFailCount', String(fc)); } catch (_) {}
+        window.__authFailCount = fc;
+        document.dispatchEvent(new CustomEvent('auth:fail', { detail: { count: fc } }));
+        setTimeout(() => { $('msgErrorAuth').style.display = 'none'; }, 3000);
+      }
+    } catch (error) {
+      console.error('[flujo] error en POST /api/verificar_nombre:', error);
+      showToast('❌ Error de conexión estelar.');
+    }
+  });
+
+  $('inputNombreAuth').addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      $('btnVerificarAuth').click();
+    }
+  });
+}
+
+/**
+ * Tras validar auth: pregunta al backend si el regalo está abierto.
+ * Si lo está → muestra contenedorPrincipal. Si no → countdown.
+ * Función separada para que pueda invocarse también si el usuario
+ * cierra una interfaz interna y vuelve (NO repedir contraseña).
+ */
+function cruzarEstado() {
+  console.info('[flujo] cruzarEstado() — fetching /api/estado');
+  fetch('/api/estado')
+    .then(r => {
+      console.info('[flujo] /api/estado status:', r.status);
+      return r.json();
+    })
+    .then(data => {
+      console.info('[flujo] /api/estado data:', data);
+      if (data.bloqueado) {
+        // Aún no es la fecha → countdown (la luna ya pasó la auth)
+        // BUG FIX: forzar display:flex además de quitar .oculto, porque
+        // pantalla-bloqueo en styless.css depende del flex layout y a veces
+        // el .oculto deja un display:none residual de la cascada.
+        const bloq = $('pantallaBloqueo');
+        $('contenedorPrincipal').style.display = 'none';
+        if (bloq) {
+          bloq.classList.remove('oculto');
+          bloq.style.cssText += ';display:flex !important;opacity:1 !important;visibility:visible !important;';
+          console.info('[flujo] pantallaBloqueo desocultada y forzada display:flex');
+        } else {
+          console.error('[flujo] #pantallaBloqueo NO existe en DOM!');
+        }
+        try {
+          iniciarBloqueo(data.segundos_faltantes);
+          console.info('[flujo] iniciarBloqueo(', data.segundos_faltantes, ') OK');
+        } catch (err) {
+          console.error('[flujo] iniciarBloqueo lanzó error:', err);
+        }
+      } else {
+        // ¡Día del cumple! Mostrar regalo
+        $('contenedorPrincipal').style.display = '';
+        crearFondoEstrellas();
+
+        // Si el regalo ya fue abierto en esta sesión (p.ej. el usuario
+        // navegó a /carta y volvió con el botón "Volver"), saltamos la
+        // animación del regalo y entramos directo al estado de fiesta.
+        if (sessionStorage.getItem('luna:regaloAbierto') === '1') {
+          entrarFiestaDirecto();
+        } else {
           iniciarIntroCanvas();
           iniciarAuraRegalo();
           cargarFraseDia();
-          showToast('✅ Identidad confirmada. Bienvenida, mi Luna.');
-        } else {
-          $('msgErrorAuth').style.display = 'block';
-          $('inputNombreAuth').value = '';
-          setTimeout(() => { $('msgErrorAuth').style.display = 'none'; }, 3000);
+          document.dispatchEvent(new CustomEvent('regalo:listo'));
         }
-      });
+      }
+    })
+    .catch(() => {
+      // Sin backend, asumimos cumple
+      $('contenedorPrincipal').style.display = '';
+      crearFondoEstrellas();
 
-      $('inputNombreAuth').addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-          event.preventDefault(); 
-          $('btnVerificarAuth').click(); 
-        }
-      });
-    }
-  }) 
-  .catch(() => {
-    crearFondoEstrellas();
-    iniciarIntroCanvas();
-    iniciarAuraRegalo();
-    cargarFraseDia();
-  });
+      if (sessionStorage.getItem('luna:regaloAbierto') === '1') {
+        entrarFiestaDirecto();
+      } else {
+        iniciarIntroCanvas();
+        iniciarAuraRegalo();
+        cargarFraseDia();
+      }
+    });
+}
 
+// Exponer para que módulos auxiliares (auth-enhance, whispers) puedan re-cruzar
+window.__cruzarEstado = cruzarEstado;
+window.__lanzarFlujo  = lanzarFlujo;
+
+lanzarFlujo();
 /* ══════════════════════════════════════════════════════════════
    12 · BUZÓN EN PANTALLA DE BLOQUEO
    ══════════════════════════════════════════════════════════════ */
@@ -684,13 +847,19 @@ $('botonRegalo')?.addEventListener('click', function() {
     this.style.display = 'none';
     fetch('/api/abrir_regalo')
       .then(r => r.json())
-      .then(mostrarFiesta)
-      .catch(() => mostrarFiesta({
-        titulo: '¡Feliz Cumpleaños! 🎉',
-        estadisticas: 'Eres la persona más brillante de mi universo.',
-        mensajes: ['Eres increíble y te mereces lo mejor.', 'Que este año esté lleno de amor y alegría.'],
-        firma: 'Con amor, Frank',
-      }));
+      .then(d => {
+        try { sessionStorage.setItem('luna:regaloAbierto', '1'); } catch(_) {}
+        mostrarFiesta(d);
+      })
+      .catch(() => {
+        try { sessionStorage.setItem('luna:regaloAbierto', '1'); } catch(_) {}
+        mostrarFiesta({
+          titulo: '¡Feliz Cumpleaños! 🎉',
+          estadisticas: 'Eres la persona más brillante de mi universo.',
+          mensajes: ['Eres increíble y te mereces lo mejor.', 'Que este año esté lleno de amor y alegría.'],
+          firma: 'Con amor, Frank',
+        });
+      });
   }, 900);
 }, { once: true });
 
@@ -1056,3 +1225,175 @@ setTimeout(() => {
     mostrarVisitas();
   }
 }, 2000);
+
+/* ══════════════════════════════════════════════════════════════
+   21 · CONTROL DE MÚSICA — flotante (volumen +/− y pausa)
+   ──────────────────────────────────────────────────────────────
+   Aparece cuando la música arranca (al abrir el regalo o al volver
+   de una subpágina con la flag luna:regaloAbierto activa). Persiste
+   volumen y estado pause/play en localStorage para que se mantenga
+   entre páginas (carta, universo, timeline, aurora) y entre sesiones.
+   ══════════════════════════════════════════════════════════════ */
+(function controlMusicaWidget() {
+  if (window.__controlMusica) return;
+  window.__controlMusica = true;
+
+  const STORE = 'luna:musicaConfig';
+
+  // ── CSS ────────────────────────────────────────────────────
+  const css = document.createElement('style');
+  css.textContent = `
+    .control-musica {
+      position: fixed; bottom: 64px; right: 16px; z-index: 9999;
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 8px;
+      background: rgba(8, 12, 32, .78);
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 999px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, .4);
+      opacity: 0; transform: translateY(12px) scale(.96);
+      pointer-events: none;
+      transition: opacity .4s ease, transform .4s ease;
+      font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    }
+    .control-musica.visible {
+      opacity: 1; transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    .control-musica .cm-btn {
+      background: rgba(255, 255, 255, .08);
+      color: #f0e8ff;
+      border: 1px solid rgba(255, 255, 255, .15);
+      border-radius: 999px;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; line-height: 1; cursor: pointer;
+      user-select: none;
+      transition: background .2s ease, transform .12s ease, border-color .2s ease;
+    }
+    .control-musica .cm-btn:hover {
+      background: rgba(255, 107, 129, .18);
+      border-color: rgba(255, 107, 129, .4);
+    }
+    .control-musica .cm-btn:active { transform: scale(.9); }
+    .control-musica .cm-btn.cm-mini { width: 28px; height: 28px; font-size: 16px; }
+    .control-musica .cm-toggle {
+      background: linear-gradient(135deg, #ff4757, #ff6b81);
+      border-color: rgba(255, 107, 129, .45);
+      color: white; font-size: 13px;
+    }
+    .control-musica .cm-vol {
+      width: 54px; height: 5px;
+      background: rgba(255, 255, 255, .1);
+      border-radius: 999px; overflow: hidden;
+    }
+    .control-musica .cm-vol-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff6b81, #f5c842);
+      width: 50%;
+      transition: width .2s ease;
+    }
+    @media (max-width: 480px) {
+      .control-musica { bottom: 60px; right: 10px; padding: 5px 7px; gap: 5px; }
+      .control-musica .cm-btn { width: 32px; height: 32px; }
+      .control-musica .cm-btn.cm-mini { width: 26px; height: 26px; }
+      .control-musica .cm-vol { width: 44px; }
+    }
+  `;
+  document.head.appendChild(css);
+
+  // ── DOM ────────────────────────────────────────────────────
+  const cm = document.createElement('div');
+  cm.id = 'controlMusica';
+  cm.className = 'control-musica';
+  cm.setAttribute('role', 'group');
+  cm.setAttribute('aria-label', 'Control de música');
+  cm.innerHTML = `
+    <button class="cm-btn cm-toggle" id="cmToggle" aria-label="Pausar o reanudar música" title="Pausar/Reanudar">⏸</button>
+    <button class="cm-btn cm-mini" id="cmMenos" aria-label="Bajar volumen" title="Bajar volumen">−</button>
+    <div class="cm-vol" aria-label="Nivel de volumen"><div class="cm-vol-fill" id="cmVolFill"></div></div>
+    <button class="cm-btn cm-mini" id="cmMas" aria-label="Subir volumen" title="Subir volumen">+</button>
+  `;
+  document.body.appendChild(cm);
+
+  // ── Estado persistido ──────────────────────────────────────
+  let cfg = { vol: 0.5, pausada: false };
+  try {
+    const raw = localStorage.getItem(STORE);
+    if (raw) cfg = Object.assign(cfg, JSON.parse(raw));
+  } catch (_) {}
+
+  function guardar() {
+    try { localStorage.setItem(STORE, JSON.stringify(cfg)); } catch (_) {}
+  }
+
+  function audios() {
+    return [document.getElementById('musicaFondo'),
+            document.getElementById('musicaLuna')].filter(Boolean);
+  }
+
+  function aplicarVolumen() {
+    audios().forEach(a => { a.volume = cfg.vol; });
+    const fill = document.getElementById('cmVolFill');
+    if (fill) fill.style.width = (cfg.vol * 100) + '%';
+  }
+
+  function aplicarPausa() {
+    const tog = document.getElementById('cmToggle');
+    audios().forEach(a => {
+      if (cfg.pausada) {
+        if (!a.paused) a.pause();
+      } else {
+        // Solo reanudar la que ya tenía progreso (estaba sonando antes)
+        if (a.paused && a.currentTime > 0 && !a.ended) {
+          a.play().catch(() => {});
+        }
+      }
+    });
+    if (tog) tog.textContent = cfg.pausada ? '▶' : '⏸';
+  }
+
+  // ── Handlers ───────────────────────────────────────────────
+  document.getElementById('cmMenos').addEventListener('click', () => {
+    cfg.vol = Math.max(0, Math.round((cfg.vol - 0.1) * 10) / 10);
+    aplicarVolumen(); guardar();
+  });
+  document.getElementById('cmMas').addEventListener('click', () => {
+    cfg.vol = Math.min(1, Math.round((cfg.vol + 0.1) * 10) / 10);
+    aplicarVolumen(); guardar();
+  });
+  document.getElementById('cmToggle').addEventListener('click', () => {
+    cfg.pausada = !cfg.pausada;
+    aplicarPausa(); guardar();
+  });
+
+  // ── Mostrar el widget cuando arranque alguna música ────────
+  function mostrar() { cm.classList.add('visible'); }
+
+  audios().forEach(a => {
+    a.addEventListener('play', () => {
+      mostrar();
+      a.volume = cfg.vol;
+      // Si el usuario había pausado antes, respetar la pausa
+      if (cfg.pausada) a.pause();
+    });
+    a.addEventListener('volumechange', () => {
+      // Si algún otro código cambia el volumen, sincronizamos la barra
+      if (Math.abs(a.volume - cfg.vol) > 0.01) {
+        cfg.vol = Math.round(a.volume * 10) / 10;
+        const fill = document.getElementById('cmVolFill');
+        if (fill) fill.style.width = (cfg.vol * 100) + '%';
+      }
+    });
+  });
+
+  // Estado inicial visible
+  aplicarVolumen();
+
+  // Si al cargar la página alguna música ya está sonando (caso entrarFiestaDirecto)
+  setTimeout(() => {
+    if (audios().some(a => !a.paused)) mostrar();
+  }, 600);
+})();

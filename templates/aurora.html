@@ -109,7 +109,11 @@
 const cvs = document.getElementById('aurora');
 const ctx = cvs.getContext('2d');
 const cur = document.getElementById('cursor');
-let W, H, mx = W/2, my = H/2, t = 0;
+// BUG FIX: W y H se declaraban undefined → mx = NaN → createRadialGradient
+// lanzaba DOMException en el primer frame → la animación moría y los fetch
+// posteriores nunca se ejecutaban → "Cargando..." se quedaba clavado.
+let W = window.innerWidth, H = window.innerHeight;
+let mx = W/2, my = H/2, t = 0;
 let fraseActual = '';
 let coloresPaleta = ['#0d1b2a','#1b4332','#40916c','#74c69d'];
 
