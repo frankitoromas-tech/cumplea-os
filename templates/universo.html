@@ -79,7 +79,7 @@
     .btn-volver:hover { background:rgba(255,255,255,.14); color:white; transform:translateX(-50%) translateY(-2px); }
   </style>
 </head>
-<body data-music="universo">
+<body data-music="universo" data-music-src="{{ url_for('static', filename='audio/universo.mp3') }}">
 <div id="cur"></div>
 <canvas id="c"></canvas>
 
@@ -300,5 +300,7 @@ fetch('/api/estadisticas_amor').then(r=>r.json()).then(d=>{
 
 <!-- ── Capa inmersiva (audio + tilt). NO toca el sistema solar. ── -->
 <script src="{{ url_for('static', filename='js/immersive/boot-lite.js') }}" defer></script>
+<!-- Control de música + canción propia del universo -->
+<script src="{{ url_for('static', filename='js/control-musica.js') }}" defer></script>
 </body>
 </html>

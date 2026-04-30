@@ -12,14 +12,13 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/immersive.css') }}">
 </head>
 <body>
-
 <div id="cursor"></div>
 <div id="cursor-ring"></div>
 
 <div id="toast"></div>
 
-<audio id="musicaFondo"  src="{{ url_for('static', filename='cancion.mp3') }}"      loop></audio>
-<audio id="musicaLuna"   src="{{ url_for('static', filename='cancion_luna.mp3') }}" loop></audio>
+<audio id="musicaFondo"  src="{{ url_for('static', filename='audio/cancion.mp3') }}"      loop></audio>
+<audio id="musicaLuna"   src="{{ url_for('static', filename='audio/cancion_luna.mp3') }}" loop></audio>
 
 <div id="pantallaBloqueo" class="pantalla-bloqueo oculto">
 
@@ -211,6 +210,7 @@
 <script src="{{ url_for('static', filename='NavigadorPaginas.js') }}"></script>
 <script src="{{ url_for('static', filename='SaludoContextual.js') }}"></script>
 <script src="{{ url_for('static', filename='EasterEggManager.js') }}"></script>
+<script src="{{ url_for('static', filename='js/control-musica.js') }}" defer></script>
 
 <!-- Easter Egg: escribir "frank" -->
 <div id="eeFrankOverlay">

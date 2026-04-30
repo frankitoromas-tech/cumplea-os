@@ -43,13 +43,16 @@
     recuerdos: '/static/audio/music/02-recuerdos-piano.mp3',
     promesas:  '/static/audio/music/03-promesas-rock-ballad.mp3',
     luna:      '/static/audio/music/04-luna-ambient.mp3',
-    // Tracks añadidos en la fase 5 — todos con fallback procedural
     regalo:    '/static/audio/music/05-regalo-pizzicato.mp3',
     fiesta:    '/static/audio/music/06-fiesta-strings.mp3',
-    carta:     '/static/audio/music/07-carta-epiano.mp3',
-    timeline:  '/static/audio/music/08-timeline-waltz.mp3',
-    aurora:    '/static/audio/music/09-aurora-shimmer.mp3',
-    universo:  '/static/audio/music/10-universo-cosmic.mp3',
+    // ── Pistas reales del proyecto (subidas por el usuario) ──
+    // Estas las gestiona también control-musica.js vía data-music-src
+    // en cada subpágina; aquí quedan apuntando al archivo correcto por
+    // si algún easter egg o sección las consulta a través del engine.
+    carta:     '/static/audio/carta.mp3',
+    timeline:  '/static/audio/timeline.mp3',
+    aurora:    '/static/audio/aurora.mp3',
+    universo:  '/static/audio/universo.mp3',
   };
 
   /* ── Estado interno ─────────────────────────────────────────
@@ -127,6 +130,21 @@
   }
 
   function playSection(key) {
+    // ── Guard "audio real" ─────────────────────────────────────
+    // Si hay un <audio> propio REPRODUCIÉNDOSE (no solo presente),
+    // NO mezclamos pistas procedurales encima. Evita el "audio doble".
+    // Versión menos agresiva: requiere que esté efectivamente sonando.
+    const audiosReales = ['musicaFondo', 'musicaLuna', 'musicaPagina']
+      .map(id => document.getElementById(id))
+      .filter(Boolean);
+    const hayAudioRealSonando = audiosReales.some(a => !a.paused && !a.ended);
+    if (hayAudioRealSonando) {
+      try { if (currentHowl) { currentHowl.fade(currentHowl.volume(), 0, 600); } } catch (_) {}
+      try { if (window.__synthMusic) window.__synthMusic.stopAll(); } catch (_) {}
+      currentKey = key;
+      return;
+    }
+
     if (!unlocked) { currentKey = key; return; }   // se reanudará al desbloquear
     if (key === currentKey) return;
     const next = loadTrack(key);

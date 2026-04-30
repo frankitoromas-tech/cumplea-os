@@ -5,137 +5,525 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>💌 Carta para Luyuromo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,400;1,600&family=Playfair+Display:ital,wght@0,600;1,400&family=IM+Fell+English:ital@1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400;1,600&family=Playfair+Display:ital,wght@0,600;1,400&family=IM+Fell+English:ital@1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/immersive.css') }}">
   <style>
-    :root { --tinta:#1a0a00; --papel:#f9f3e8; --dorado:#b8860b; --rosa:#c0705a; }
+    :root {
+      --tinta:#1a0a00; --papel:#f9f3e8; --dorado:#b8860b; --rosa:#c0705a;
+      --cobre:#8b4513;
+    }
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     body {
       min-height:100vh; height:auto; background:#2c1810;
       background-image: radial-gradient(ellipse at 30% 20%, rgba(100,40,20,.6) 0%, transparent 60%),
-                        radial-gradient(ellipse at 70% 80%, rgba(40,10,5,.8) 0%, transparent 60%);
+                        radial-gradient(ellipse at 70% 80%, rgba(40,10,5,.85) 0%, transparent 60%);
       display:flex; justify-content:center; align-items:flex-start;
-      padding:60px 20px 80px; overflow-y:auto; cursor:default;
+      padding:50px 16px 120px; overflow-x:hidden; overflow-y:auto; cursor:default;
+      font-family: 'Cormorant Garamond', serif;
     }
-    .sobre-wrap { width:100%; max-width:680px; }
+
+    /* ── Contenedor general del "libro" ───────────────────────── */
+    .carta-libro {
+      width:100%; max-width:760px; position:relative;
+    }
+
+    /* ── Pista deslizante ─────────────────────────────────────── */
+    .carta-viewport {
+      overflow:hidden; border-radius:2px;
+    }
+    .carta-track {
+      display:flex; align-items:flex-start;
+      transition: transform .75s cubic-bezier(.22,1,.36,1);
+      will-change: transform;
+    }
+    .carta-pagina {
+      flex: 0 0 100%; width:100%;
+      padding: 0 6px;
+    }
+
+    /* ── La hoja de papel ─────────────────────────────────────── */
     .carta-papel {
       background:var(--papel);
       background-image: repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(180,140,100,.18) 28px);
-      border-radius:2px; padding:60px 60px 70px;
-      box-shadow: 0 20px 80px rgba(0,0,0,.5), 0 2px 4px rgba(0,0,0,.3),
-                  inset 0 0 60px rgba(180,140,100,.08);
+      border-radius:3px; padding:60px 56px 70px;
+      box-shadow:
+        0 22px 80px rgba(0,0,0,.55),
+        0 2px 4px rgba(0,0,0,.35),
+        inset 0 0 80px rgba(180,140,100,.10);
       position:relative;
-      animation: desplegar 1.2s cubic-bezier(.22,1,.36,1) both;
+      animation: desplegar 1.1s cubic-bezier(.22,1,.36,1) both;
     }
+    .carta-papel::before, .carta-papel::after {
+      content:'✦'; position:absolute; font-size:1rem; color:rgba(184,134,11,.32);
+    }
+    .carta-papel::before { top:20px; left:24px; }
+    .carta-papel::after  { bottom:24px; right:28px; }
+
     @keyframes desplegar {
-      from { opacity:0; transform:rotateX(-25deg) scaleY(.85) translateY(-30px); }
+      from { opacity:0; transform:rotateX(-22deg) scaleY(.88) translateY(-26px); }
       to   { opacity:1; transform:rotateX(0deg) scaleY(1) translateY(0); }
     }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(12px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* ── Sello (solo en la primera página) ────────────────────── */
     .sello {
       position:absolute; top:-28px; left:50%; transform:translateX(-50%);
-      width:56px; height:56px; border-radius:50%;
+      width:58px; height:58px; border-radius:50%;
       background:radial-gradient(circle at 35% 35%,#e05555,#8b1a1a);
       box-shadow:0 4px 16px rgba(150,20,20,.6);
-      display:flex; align-items:center; justify-content:center; font-size:1.6rem;
+      display:flex; align-items:center; justify-content:center; font-size:1.7rem;
       animation: sello .6s .8s ease both;
+      z-index:2;
     }
     @keyframes sello {
       from { opacity:0; transform:translateX(-50%) scale(0) rotate(-45deg); }
       to   { opacity:1; transform:translateX(-50%) scale(1) rotate(0deg); }
     }
-    .carta-papel::before, .carta-papel::after {
-      content:'✦'; position:absolute; font-size:1rem; color:rgba(184,134,11,.3);
+
+    /* ── Marca de agua con número de página ───────────────────── */
+    .marca-pagina {
+      position:absolute; bottom:18px; left:50%; transform:translateX(-50%);
+      font-family:'IM Fell English',serif; font-style:italic;
+      color:rgba(184,134,11,.45); font-size:.78rem; letter-spacing:.2em;
     }
-    .carta-papel::before { top:20px; left:24px; }
-    .carta-papel::after  { bottom:24px; right:28px; }
-    .fecha { text-align:right; font-family:'Cormorant Garamond',serif; font-style:italic;
-             color:var(--dorado); font-size:.95rem; margin-bottom:36px;
-             animation:fadeUp .7s 1s ease both; opacity:0; }
-    .saludo { font-family:'Playfair Display',serif; font-style:italic; font-size:1.8rem;
-              color:var(--rosa); margin-bottom:28px;
-              animation:fadeUp .7s 1.2s ease both; opacity:0; }
-    .parrafo { font-family:'Cormorant Garamond',serif; font-size:1.15rem; line-height:1.95;
-               color:var(--tinta); margin-bottom:22px; text-align:justify; opacity:0;
-               animation:fadeUp .8s ease both; }
-    .parrafo:nth-child(3){animation-delay:1.4s} .parrafo:nth-child(4){animation-delay:1.7s}
-    .parrafo:nth-child(5){animation-delay:2.0s} .parrafo:nth-child(6){animation-delay:2.3s}
-    .parrafo:nth-child(7){animation-delay:2.6s}
-    .firma-bloque { margin-top:36px; text-align:right;
-                    animation:fadeUp .8s 3s ease both; opacity:0; }
-    .firma-label  { font-family:'Cormorant Garamond',serif; font-style:italic;
-                    color:var(--tinta); font-size:1rem; margin-bottom:6px; }
-    .firma-nombre { font-family:'Playfair Display',serif; font-style:italic;
-                    font-size:2rem; color:var(--rosa); display:block; }
-    .pd { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:.95rem;
-          color:var(--dorado); margin-top:30px; border-top:1px dashed rgba(180,140,100,.3);
-          padding-top:18px; animation:fadeUp .8s 3.4s ease both; opacity:0; }
-    @keyframes fadeUp {
-      from { opacity:0; transform:translateY(12px); }
-      to   { opacity:1; transform:translateY(0); }
+
+    /* ── Tipografías de contenido ─────────────────────────────── */
+    .fecha {
+      text-align:right; font-style:italic; color:var(--dorado);
+      font-size:.95rem; margin-bottom:36px;
+      animation:fadeUp .7s 1s ease both; opacity:0;
     }
+    .capitulo {
+      font-family:'IM Fell English', serif; font-style:italic;
+      color:var(--cobre); font-size:.95rem; letter-spacing:.18em;
+      text-transform:uppercase; text-align:center; margin-bottom:8px;
+      animation:fadeUp .7s 1.1s ease both; opacity:0;
+    }
+    .saludo {
+      font-family:'Playfair Display',serif; font-style:italic;
+      font-size:1.85rem; color:var(--rosa); margin-bottom:30px;
+      animation:fadeUp .7s 1.2s ease both; opacity:0;
+    }
+    .titulo-pag {
+      font-family:'Playfair Display',serif; font-style:italic;
+      font-size:1.6rem; color:var(--rosa); margin-bottom:26px;
+      animation:fadeUp .7s 1.1s ease both; opacity:0;
+    }
+    .parrafo {
+      font-size:1.16rem; line-height:1.95; color:var(--tinta);
+      margin-bottom:22px; text-align:justify; opacity:0;
+      animation:fadeUp .8s ease both;
+    }
+    .parrafo.destacado {
+      font-style:italic; color:var(--cobre);
+      border-left:2px solid rgba(184,134,11,.35);
+      padding-left:18px;
+    }
+    /* Stagger para todos los párrafos */
+    .carta-pagina.activa .parrafo:nth-of-type(1){animation-delay:1.4s; opacity:0; animation-name:fadeUp;}
+    .carta-pagina.activa .parrafo:nth-of-type(2){animation-delay:1.7s; opacity:0; animation-name:fadeUp;}
+    .carta-pagina.activa .parrafo:nth-of-type(3){animation-delay:2.0s; opacity:0; animation-name:fadeUp;}
+    .carta-pagina.activa .parrafo:nth-of-type(4){animation-delay:2.3s; opacity:0; animation-name:fadeUp;}
+    .carta-pagina.activa .parrafo:nth-of-type(5){animation-delay:2.6s; opacity:0; animation-name:fadeUp;}
+
+    .firma-bloque {
+      margin-top:38px; text-align:right;
+      animation:fadeUp .8s 2.6s ease both; opacity:0;
+    }
+    .firma-label  {
+      font-style:italic; color:var(--tinta); font-size:1rem; margin-bottom:6px;
+    }
+    .firma-nombre {
+      font-family:'Playfair Display',serif; font-style:italic;
+      font-size:2rem; color:var(--rosa); display:block;
+    }
+    .pd {
+      font-style:italic; font-size:.95rem; color:var(--dorado);
+      margin-top:30px; border-top:1px dashed rgba(180,140,100,.3);
+      padding-top:18px; animation:fadeUp .8s 3s ease both; opacity:0;
+    }
+
+    /* ── Botones de navegación (flechas) ──────────────────────── */
+    .nav-flecha {
+      position:fixed; top:50%; transform:translateY(-50%);
+      width:54px; height:54px; border-radius:50%;
+      background:rgba(255,255,255,.08); color:rgba(255,255,255,.85);
+      border:1px solid rgba(255,255,255,.18);
+      font-family:'Playfair Display',serif; font-size:1.4rem;
+      cursor:pointer; backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      transition: all .3s ease;
+      z-index:100; display:flex; align-items:center; justify-content:center;
+      user-select:none;
+    }
+    .nav-flecha:hover {
+      background:rgba(192,112,90,.28);
+      border-color:rgba(192,112,90,.55); color:white;
+      transform:translateY(-50%) scale(1.06);
+    }
+    .nav-flecha:active { transform:translateY(-50%) scale(.94); }
+    .nav-flecha:disabled {
+      opacity:.25; cursor:not-allowed; transform:translateY(-50%);
+    }
+    .nav-flecha.prev { left:24px; }
+    .nav-flecha.next { right:24px; }
+    @media (max-width: 760px) {
+      .nav-flecha { width:44px; height:44px; font-size:1.1rem; }
+      .nav-flecha.prev { left:8px; }
+      .nav-flecha.next { right:8px; }
+    }
+
+    /* ── Indicador de página (puntitos) ───────────────────────── */
+    .indicador-pag {
+      position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+      display:flex; gap:10px; z-index:90;
+      background:rgba(0,0,0,.4); padding:8px 16px; border-radius:50px;
+      backdrop-filter:blur(10px);
+    }
+    .indicador-pag .punto {
+      width:9px; height:9px; border-radius:50%;
+      background:rgba(255,255,255,.25);
+      transition:all .35s ease; cursor:pointer;
+    }
+    .indicador-pag .punto.activo {
+      background:linear-gradient(135deg, #e05555, #c0705a);
+      transform:scale(1.3);
+      box-shadow:0 0 8px rgba(192,112,90,.6);
+    }
+
+    /* ── Hint inicial ─────────────────────────────────────────── */
+    .swipe-hint {
+      position:fixed; bottom:65px; left:50%; transform:translateX(-50%);
+      font-family:'Cormorant Garamond',serif; font-style:italic;
+      color:rgba(255,255,255,.5); font-size:.85rem;
+      pointer-events:none;
+      animation: hintIn .6s 4s ease both, hintOut .6s 9s ease both;
+      z-index:80;
+    }
+    @keyframes hintIn  { from{opacity:0; transform:translateX(-50%) translateY(8px);} to{opacity:.7; transform:translateX(-50%) translateY(0);} }
+    @keyframes hintOut { from{opacity:.7;} to{opacity:0; visibility:hidden;} }
+
+    /* ── Botón volver (FIXED, siempre visible) ─────────────────── */
     .btn-volver {
-      display:block; width:fit-content; margin:30px auto 0;
-      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
-      color:rgba(255,255,255,.7); padding:10px 24px; border-radius:50px;
-      font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1rem;
-      text-decoration:none; transition:all .3s;
-      animation:fadeUp .6s 3.8s ease both; opacity:0;
+      position:fixed; top:18px; left:50%; transform:translateX(-50%);
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18);
+      color:rgba(255,255,255,.78); padding:9px 22px; border-radius:50px;
+      font-family:'Cormorant Garamond',serif; font-style:italic; font-size:.95rem;
+      text-decoration:none; transition:all .3s; z-index:120;
+      backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+      animation: fadeUp .6s 1.5s ease both; opacity:0;
     }
-    .btn-volver:hover { background:rgba(255,255,255,.14); color:white; transform:translateY(-2px); }
+    .btn-volver:hover {
+      background:rgba(192,112,90,.28); color:white;
+      transform:translateX(-50%) translateY(-2px);
+      border-color:rgba(192,112,90,.55);
+    }
+
     @media (max-width:560px) {
-      .carta-papel { padding:50px 28px 55px; }
+      .carta-papel { padding:50px 28px 60px; }
       .saludo { font-size:1.5rem; }
-      .parrafo { font-size:1.05rem; }
+      .titulo-pag { font-size:1.3rem; }
+      .parrafo { font-size:1.05rem; line-height:1.85; }
+      body { padding:40px 8px 100px; }
     }
   </style>
 </head>
-<body data-music="carta">
-<div class="sobre-wrap">
-  <div class="carta-papel immersive-tilt">
-    <div class="sello">💌</div>
-    <p class="fecha" id="fechaHoy"></p>
-    <p class="saludo">Para mi luna, Luyuromo:</p>
-    <p class="parrafo">
-      Hay personas que entran en tu vida sin avisar, sin permiso, sin hacer ruido.
-      Y de repente están en todos lados: en tus pensamientos, en tus sueños,
-      en ese espacio que no sabías que existía hasta que alguien lo llenó.
-      Tú eres esa persona para mí.
-    </p>
-    <p class="parrafo">
-      No sé exactamente cuándo ocurrió. No hubo un momento preciso, una fecha
-      marcada en el calendario. Fue algo más silencioso y más profundo:
-      un día te miré y me di cuenta de que quería seguir mirándote para siempre.
-    </p>
-    <p class="parrafo">
-      Eres brillante de una manera que no se aprende ni se finge.
-      Tienes esa rara capacidad de hacer que todo a tu alrededor valga más.
-      Cuando estás cerca, el mundo parece más ligero, más bonito, más posible.
-    </p>
-    <p class="parrafo">
-      Quiero que sepas que cada cosa que compartimos, por pequeña que parezca,
-      la guardo como si fuera un tesoro. Cada conversación, cada risa, cada momento
-      de silencio cómodo. Todos son parte de algo que valoro más de lo que las palabras
-      pueden decir.
-    </p>
-    <p class="parrafo">
-      Feliz cumpleaños, Luyuromo. Que este año te traiga todo lo que mereces:
-      paz, logros, risas y la certeza de que eres amada más de lo que imaginas.
-    </p>
-    <div class="firma-bloque">
-      <p class="firma-label">Con todo mi amor,</p>
-      <span class="firma-nombre">Frank</span>
+<body data-music="carta" data-music-src="{{ url_for('static', filename='audio/carta.mp3') }}">
+
+<div class="carta-libro" id="cartaLibro">
+
+  <button class="nav-flecha prev" id="navPrev" aria-label="Página anterior" title="Página anterior">←</button>
+  <button class="nav-flecha next" id="navNext" aria-label="Página siguiente" title="Página siguiente">→</button>
+
+  <div class="carta-viewport">
+    <div class="carta-track" id="cartaTrack">
+
+      <!-- ─────────── PÁGINA 1: EL DÍA QUE LLEGASTE ─────────── -->
+      <article class="carta-pagina activa" data-pagina="1">
+        <div class="carta-papel immersive-tilt">
+          <div class="sello">💌</div>
+          <p class="fecha" id="fechaHoy"></p>
+          <p class="capitulo">— I —</p>
+          <p class="saludo">Para mi luna, mi Luyuromo:</p>
+
+          <p class="parrafo">
+            Hay personas que entran en tu vida sin avisar, sin permiso, sin hacer ruido.
+            No traen banderas, no piden espacio, no llegan con prisa. Simplemente,
+            un día están. Y al día siguiente, te das cuenta de que ya no recuerdas
+            cómo era el mundo antes de ellas. Tú eres esa persona para mí.
+          </p>
+
+          <p class="parrafo">
+            Antes de ti, mis días eran un orden tranquilo: cosas por hacer,
+            horas que se gastaban con cierta eficiencia, sueños que ya casi
+            no dolían porque los había guardado en un cajón. Vivía sin esperar
+            nada distinto, y eso me parecía suficiente. Hasta que apareciste,
+            y entendí que "suficiente" era apenas una forma educada de no
+            haber vivido lo que merecía.
+          </p>
+
+          <p class="parrafo">
+            No sé exactamente cuándo ocurrió. No hubo un momento preciso, una
+            fecha marcada en el calendario, una frase que pueda señalar como
+            el inicio. Fue algo más silencioso y más profundo que eso: un día
+            te miré, y me di cuenta de que quería seguir mirándote para siempre.
+            Y otro día más tarde, descubrí que ya lo estaba haciendo desde
+            hacía mucho tiempo, sin darme cuenta.
+          </p>
+
+          <p class="parrafo destacado">
+            Recuerdo, eso sí, la primera vez que reíste delante de mí sin
+            pedir permiso. Esa risa que llega de algún lugar muy adentro y
+            se te escapa antes de que la puedas guardar. En esa risa cabía
+            todo lo que yo no sabía que estaba buscando.
+          </p>
+
+          <p class="parrafo">
+            Y así, sin avisar, te volviste el motivo por el que las mañanas
+            ahora valen la pena. La razón por la que las canciones de amor
+            volvieron a tener sentido. La luz pequeña que llevo conmigo
+            incluso los días en que el cielo se pone difícil.
+          </p>
+
+          <p class="marca-pagina">— Página 1 de 3 —</p>
+        </div>
+      </article>
+
+      <!-- ─────────── PÁGINA 2: LO QUE VEO EN TI ─────────── -->
+      <article class="carta-pagina" data-pagina="2">
+        <div class="carta-papel immersive-tilt">
+          <p class="capitulo">— II —</p>
+          <p class="titulo-pag">Lo que veo cuando te miro</p>
+
+          <p class="parrafo">
+            Eres brillante de una manera que no se aprende ni se finge. No es
+            la luz prestada de quien se esfuerza por agradar; es algo tuyo,
+            antiguo, que llevas como quien lleva un nombre. Tienes esa rara
+            capacidad de hacer que todo a tu alrededor valga más, sin
+            proponértelo, sin notarlo siquiera.
+          </p>
+
+          <p class="parrafo">
+            Me detengo a pensar en las cosas pequeñas que haces y que probablemente
+            crees invisibles: la forma en que te concentras cuando algo te importa
+            de verdad, los gestos de la mano cuando explicas algo que te emociona,
+            el silencio breve antes de decir algo que te cuesta. Todo eso,
+            Luyuromo, es lo que yo aprendí a leer como un idioma propio nuestro.
+          </p>
+
+          <p class="parrafo destacado">
+            Hay una fuerza en ti que no siempre ves, pero que yo sí veo.
+            Una valentía silenciosa, esa de levantarse otra vez sin hacer
+            ruido. Y una ternura que sobrevivió a cosas que la habrían
+            apagado en otra persona. Eso me parece, sinceramente,
+            el milagro más bonito al que he asistido.
+          </p>
+
+          <p class="parrafo">
+            Cuando ríes, todo dentro de mí responde. Cuando dudas, quiero
+            recordarte que te admiro precisamente porque dudas: porque sigues
+            pensando, sigues sintiendo, sigues siendo honesta contigo misma
+            incluso cuando lo más cómodo sería mentirse. Esa honestidad tuya
+            con la que cargas el alma — esa, mi Luna, es la que me enamoró
+            antes de que yo supiera qué nombre ponerle.
+          </p>
+
+          <p class="parrafo">
+            Y por si nadie te lo ha dicho hoy con la calma que merece: eres
+            preciosa. No solo porque lo seas — que lo eres — sino porque tu
+            belleza es la consecuencia de algo más grande: de cómo piensas,
+            de cómo cuidas, de cómo amas. Eres preciosa de adentro hacia afuera,
+            y por eso no se gasta, no se borra, no envejece.
+          </p>
+
+          <p class="marca-pagina">— Página 2 de 3 —</p>
+        </div>
+      </article>
+
+      <!-- ─────────── PÁGINA 3: LO QUE TE PROMETO ─────────── -->
+      <article class="carta-pagina" data-pagina="3">
+        <div class="carta-papel immersive-tilt">
+          <p class="capitulo">— III —</p>
+          <p class="titulo-pag">Lo que te prometo y lo que te deseo</p>
+
+          <p class="parrafo">
+            Quiero que sepas que cada cosa que compartimos, por pequeña que
+            parezca, la guardo como si fuera un tesoro. Cada conversación,
+            cada risa, cada silencio cómodo, cada noche en que me quedé
+            pensando en ti antes de dormir. Todo eso es parte de algo que
+            valoro más de lo que las palabras pueden decir, y que voy a
+            seguir cuidando aunque pase el tiempo y cambie el clima del mundo.
+          </p>
+
+          <p class="parrafo destacado">
+            Te prometo no faltarte cuando me necesites. No irme cuando dudes
+            de ti misma. Recordarte tu valor las veces que haga falta —y
+            harán falta, porque a veces uno se olvida de las cosas más
+            evidentes—. Hacer espacio para tus silencios cuando los necesites
+            y para tu voz cuando quieras alzarla. Y, sobre todo, prometerte
+            que mi amor no es una promesa de un momento: es una manera de
+            vivir.
+          </p>
+
+          <p class="parrafo">
+            Hoy es tu cumpleaños, Luyuromo. Y aunque el mundo cumpla años
+            contigo en este día, soy yo quien tiene la suerte de poder
+            celebrarlo a tu lado. Que este año te traiga todo lo que mereces:
+            paz para los días difíciles, logros que te hagan sonreír sola,
+            risas que aparezcan sin avisar, abrazos largos cuando los necesites,
+            descanso cuando estés cansada, y la certeza absoluta de que
+            eres amada — más, siempre más, de lo que te imaginas.
+          </p>
+
+          <p class="parrafo">
+            Que te encuentres a ti misma muchas veces este año, en lugares
+            distintos, en versiones nuevas, y que cada vez que lo hagas, te
+            gustes un poquito más. Que el universo conspire a tu favor en las
+            cosas pequeñas y en las grandes. Que la suerte se te pegue como
+            si supiera lo bien que la tratas.
+          </p>
+
+          <p class="parrafo">
+            Y mientras tanto, aquí estaré yo. No como un cumpleaños — que
+            son una vez al año — sino como las mañanas, todos los días.
+            Para escribirte cosas como esta, para escuchar tus historias,
+            para celebrarte en lo invisible y en lo evidente. Para
+            recordarte que existir contigo es el regalo más grande que
+            me ha hecho la vida.
+          </p>
+
+          <div class="firma-bloque">
+            <p class="firma-label">Con todo mi amor, hoy y todos los días,</p>
+            <span class="firma-nombre">Frank</span>
+          </div>
+          <p class="pd">
+            P.D. — Si encontraste esta carta, es porque eres exactamente
+            quien debías ser. Y porque, sin saberlo, ya cambiaste el final
+            de mi historia. 🌙
+          </p>
+
+          <p class="marca-pagina">— Página 3 de 3 —</p>
+        </div>
+      </article>
+
     </div>
-    <p class="pd">P.D. — Si encontraste esta carta, es porque eres exactamente quien debías ser. 🌙</p>
   </div>
+
   <a href="/" class="btn-volver">← Volver a la sorpresa</a>
+
+  <div class="indicador-pag" id="indicadorPag" aria-label="Indicador de páginas">
+    <span class="punto activo" data-ir="1" tabindex="0" role="button" aria-label="Página 1"></span>
+    <span class="punto"        data-ir="2" tabindex="0" role="button" aria-label="Página 2"></span>
+    <span class="punto"        data-ir="3" tabindex="0" role="button" aria-label="Página 3"></span>
+  </div>
+
+  <p class="swipe-hint">Usa las flechas ← → o desliza para pasar de página</p>
+
 </div>
+
 <script>
-  const m = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  const h = new Date();
-  document.getElementById('fechaHoy').textContent = `${h.getDate()} de ${m[h.getMonth()]} de ${h.getFullYear()}`;
+'use strict';
+
+// ─── Fecha de cabecera ─────────────────────────────────────────
+const meses = ['enero','febrero','marzo','abril','mayo','junio',
+               'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const hoy = new Date();
+document.getElementById('fechaHoy').textContent =
+  `${hoy.getDate()} de ${meses[hoy.getMonth()]} de ${hoy.getFullYear()}`;
+
+// ─── Sistema de páginas tipo libro ─────────────────────────────
+(function () {
+  const track     = document.getElementById('cartaTrack');
+  const paginas   = Array.from(track.querySelectorAll('.carta-pagina'));
+  const btnPrev   = document.getElementById('navPrev');
+  const btnNext   = document.getElementById('navNext');
+  const puntos    = Array.from(document.querySelectorAll('.indicador-pag .punto'));
+  const TOTAL     = paginas.length;
+
+  let actual = 0;
+  let bloqueada = false;
+
+  function pintarEstado() {
+    track.style.transform = `translateX(-${actual * 100}%)`;
+
+    paginas.forEach((p, i) => {
+      p.classList.toggle('activa', i === actual);
+    });
+    puntos.forEach((p, i) => p.classList.toggle('activo', i === actual));
+
+    btnPrev.disabled = actual === 0;
+    btnNext.disabled = actual === TOTAL - 1;
+  }
+
+  function ir(idx) {
+    if (bloqueada) return;
+    idx = Math.max(0, Math.min(TOTAL - 1, idx));
+    if (idx === actual) return;
+    bloqueada = true;
+    actual = idx;
+    pintarEstado();
+    // Scroll suave al inicio del papel al cambiar de página
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => { bloqueada = false; }, 780);
+  }
+
+  // ─── Botones flecha ──────────────────────────────────────────
+  btnPrev.addEventListener('click', () => ir(actual - 1));
+  btnNext.addEventListener('click', () => ir(actual + 1));
+
+  // ─── Click en puntitos ───────────────────────────────────────
+  puntos.forEach(p => {
+    const handler = () => ir(parseInt(p.dataset.ir, 10) - 1);
+    p.addEventListener('click', handler);
+    p.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); }
+    });
+  });
+
+  // ─── Teclado: ← → ────────────────────────────────────────────
+  document.addEventListener('keydown', (e) => {
+    // No interferir si está escribiendo en un input/textarea
+    const t = e.target.tagName;
+    if (t === 'INPUT' || t === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight') { ir(actual + 1); }
+    if (e.key === 'ArrowLeft')  { ir(actual - 1); }
+  });
+
+  // ─── Swipe / drag horizontal ─────────────────────────────────
+  let xInicio = null, yInicio = null;
+  const UMBRAL = 60; // px
+
+  function onDown(e) {
+    const punto = e.touches ? e.touches[0] : e;
+    xInicio = punto.clientX;
+    yInicio = punto.clientY;
+  }
+  function onUp(e) {
+    if (xInicio === null) return;
+    const punto = e.changedTouches ? e.changedTouches[0] : e;
+    const dx = punto.clientX - xInicio;
+    const dy = punto.clientY - yInicio;
+    xInicio = yInicio = null;
+    // Solo cuenta como swipe si el movimiento es claramente horizontal
+    if (Math.abs(dx) > UMBRAL && Math.abs(dx) > Math.abs(dy) * 1.4) {
+      if (dx < 0) ir(actual + 1); else ir(actual - 1);
+    }
+  }
+  track.addEventListener('touchstart', onDown, { passive: true });
+  track.addEventListener('touchend',   onUp,   { passive: true });
+  track.addEventListener('mousedown',  onDown);
+  document.addEventListener('mouseup', onUp);
+
+  pintarEstado();
+})();
 </script>
 
-<!-- ── Capa inmersiva: la carta gana tilt 3D + música promesas. ── -->
+<!-- ── Capa inmersiva: la carta gana tilt 3D + música. ── -->
 <script src="{{ url_for('static', filename='js/immersive/boot-lite.js') }}" defer></script>
+<!-- Control de música + canción propia de la carta -->
+<script src="{{ url_for('static', filename='js/control-musica.js') }}" defer></script>
 </body>
 </html>

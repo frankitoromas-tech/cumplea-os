@@ -144,7 +144,7 @@
     }
   </style>
 </head>
-<body data-music="timeline">
+<body data-music="timeline" data-music-src="{{ url_for('static', filename='audio/timeline.mp3') }}">
 <div id="cursor"></div>
 
 <div class="tl-header" data-reveal="up">
@@ -225,5 +225,7 @@ fetch('/api/notificar', {
 <!-- ── Capa inmersiva (audio + tilt). El timeline ya tiene su propio
      IntersectionObserver para .tl-item.visible, no lo pisamos. ── -->
 <script src="{{ url_for('static', filename='js/immersive/boot-lite.js') }}" defer></script>
+<!-- Control de música + canción propia del timeline -->
+<script src="{{ url_for('static', filename='js/control-musica.js') }}" defer></script>
 </body>
 </html>

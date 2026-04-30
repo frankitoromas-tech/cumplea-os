@@ -81,6 +81,15 @@
     let started = false;
     function tryStart() {
       if (started) return;
+      // Si la página ya declara su propia canción con data-music-src
+      // (sistema simple de control-musica.js), NO arrancamos también el
+      // audio-engine procedural: evitaría audio doble (la pista del usuario
+      // + la procedural del fallback synth sonando a la vez).
+      if (document.body.dataset.musicSrc) {
+        console.info('[immersive-lite] data-music-src presente → no arranco audio-engine, lo gestiona control-musica.js');
+        started = true;
+        return;
+      }
       if (!trackKey) { console.warn('[immersive-lite] sin trackKey, no arranco música'); started = true; return; }
       if (!window.__immersiveAudio) {
         console.warn('[immersive-lite] __immersiveAudio aún no listo, reintento en 250ms');
