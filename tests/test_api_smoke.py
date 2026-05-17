@@ -24,6 +24,18 @@ class APISmokeTests(unittest.TestCase):
                 self.assertIn("application/json", response.content_type)
                 self.assertEqual(response.get_json()["status"], "ok")
 
+    def test_security_headers_exist(self):
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("X-Content-Type-Options", response.headers)
+        self.assertIn("X-Frame-Options", response.headers)
+        self.assertIn("Content-Security-Policy", response.headers)
+
+    def test_api_has_no_store_cache_control(self):
+        response = self.client.get("/api/healthz")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers.get("Cache-Control"), "no-store, max-age=0")
+
     def test_core_api_endpoints_are_available(self):
         for path in [
             "/api/estado",
@@ -76,6 +88,16 @@ class APISmokeTests(unittest.TestCase):
         data = response.get_json()
         self.assertIn("fecha_apertura", data)
         self.assertIn("estado", data)
+
+    def test_rate_limit_blocks_after_threshold(self):
+        with patch("controllers.api_mensajes.mensajes_module._telegram", return_value={"ok": True}):
+            for _ in range(5):
+                response = self.client.post("/api/test_telegram")
+                self.assertEqual(response.status_code, 200)
+            blocked = self.client.post("/api/test_telegram")
+        self.assertEqual(blocked.status_code, 429)
+        data = blocked.get_json()
+        self.assertEqual(data["status"], "error")
 
 
 if __name__ == "__main__":

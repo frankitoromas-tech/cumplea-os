@@ -31,6 +31,9 @@ Variables clave:
 - `TELEGRAM_TOKEN`, `TELEGRAM_CHAT_ID`
 - `CORS_ALLOWED_ORIGINS` (por defecto `*`)
 - `APP_DATA_DIR` (directorio base para persistencia JSON)
+- `APP_ENCRYPTION_KEY` (cifra datos sensibles en disco con Fernet)
+- `MAX_CONTENT_LENGTH_BYTES` (limita tamano de request)
+- `LEGACY_PLAINTEXT_MESSAGE_LOG=0` (evita logs sensibles en texto plano)
 
 ## Ejecucion local
 
@@ -68,6 +71,22 @@ Pasos:
    - `APP_DATA_DIR=/app/data` (recomendado con volumen)
 3. Adjuntar un volumen y montarlo en `/app/data` para persistencia real.
 4. Deploy.
+
+## Seguridad
+
+- Headers de seguridad HTTP activados (`HSTS`, `CSP`, `X-Frame-Options`, `nosniff`, etc.).
+- Rate limiting en endpoints sensibles para reducir abuso automatizado.
+- Cifrado opcional de datos persistidos (mensajes/JSON) con `APP_ENCRYPTION_KEY`.
+- Datos sensibles removidos del versionado (`.env`, mensajes y JSON runtime).
+
+Generar clave de cifrado:
+
+```bash
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
+
+Nota: si una credencial estuvo en el repo publico en el pasado, debes rotarla en el proveedor
+correspondiente (por ejemplo Telegram token/chat id).
 
 ## Persistencia de datos
 

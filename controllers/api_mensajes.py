@@ -1,25 +1,30 @@
 """
-api/mensajes.py
-MensajesModule — hereda de APIModule
-Todo lo relacionado con Telegram, buzón y notificaciones.
+controllers/api_mensajes.py
+MensajesModule - Telegram notifications and secret mailbox endpoints.
 """
 from __future__ import annotations
-import os
+
 import logging
-from html import escape
+import os
 from datetime import datetime
+from html import escape
 from pathlib import Path
-from flask import request
+
 import requests as http_requests
+from flask import request
+
 from api import APIModule
+from services.buzon_service import ServicioBuzon
 
 logger = logging.getLogger(__name__)
 
+
 class TelegramMixin:
-    """Mixin reutilizable para enviar mensajes a Telegram."""
-    _tg_token   = os.getenv("TELEGRAM_TOKEN", "")
+    """Reusable helpers to send Telegram messages safely."""
+
+    _tg_token = os.getenv("TELEGRAM_TOKEN", "")
     _tg_chat_id = os.getenv("TELEGRAM_CHAT_ID", "")
-    _tg_url     = f"https://api.telegram.org/bot{_tg_token}"
+    _tg_url = f"https://api.telegram.org/bot{_tg_token}"
 
     def _telegram(self, texto: str, silencioso: bool = False) -> dict:
         if not self._tg_token or "PEGA" in self._tg_token:
@@ -27,154 +32,183 @@ class TelegramMixin:
         if not self._tg_chat_id:
             return {"ok": False, "error": "Chat ID no configurado"}
         try:
-            r = http_requests.post(
+            response = http_requests.post(
                 f"{self._tg_url}/sendMessage",
-                json={"chat_id": self._tg_chat_id, "text": texto,
-                      "parse_mode": "HTML", "disable_notification": silencioso},
+                json={
+                    "chat_id": self._tg_chat_id,
+                    "text": texto,
+                    "parse_mode": "HTML",
+                    "disable_notification": silencioso,
+                },
                 timeout=8,
             )
-            try:
-                data = r.json()
-            except Exception:
-                return {"ok": False, "error": "respuesta no es JSON"}
+            data = response.json()
             if not data.get("ok"):
                 logger.warning("Telegram error: %s", data.get("description"))
             return data
         except http_requests.exceptions.Timeout:
             return {"ok": False, "error": "timeout"}
         except http_requests.exceptions.ConnectionError:
-            return {"ok": False, "error": "sin conexión"}
-        except Exception as e:
-            return {"ok": False, "error": str(e)}
+            return {"ok": False, "error": "sin conexion"}
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
 
     def _tg_ok(self) -> bool:
-        """Comprueba si el bot de Telegram está operativo."""
         try:
-            r = http_requests.get(f"{self._tg_url}/getMe", timeout=6)
-            try:
-                return r.json().get("ok", False)
-            except Exception:
-                return False
+            response = http_requests.get(f"{self._tg_url}/getMe", timeout=6)
+            return bool(response.json().get("ok", False))
         except Exception:
             return False
 
+
 class MensajesModule(TelegramMixin, APIModule):
-    nombre  = "mensajes"
-    _BUZON  = Path(__file__).parent.parent / "buzon_secreto.txt"
+    nombre = "mensajes"
     _MAX_MENSAJE_CHARS = 500
 
+    def __init__(self):
+        self._buzon = ServicioBuzon()
+        self._legacy_plaintext = os.getenv("LEGACY_PLAINTEXT_MESSAGE_LOG", "0") == "1"
+        self._legacy_path = Path(__file__).resolve().parent.parent / "buzon_secreto.txt"
+        super().__init__()
+
     def _registrar_rutas(self):
-        # BUG FIX: el frontend fetch '/api/X' pero estaban registradas SIN /api/.
-        # Ahora se registran ambas para máxima compatibilidad.
-        for path, handler, methods in [
-            ("responder",                self.responder,                ["POST"]),
-            ("salud",                    self.salud,                    ["GET"]),
-            ("test_telegram",            self.test_telegram,            ["POST"]),
-            ("constelacion_completada",  self.constelacion_completada,  ["POST"]),
-            ("notificar",                self.notificar_evento,         ["POST"]),
-            ("verificar_nombre",         self.verificar_nombre,         ["POST"]),
-        ]:
-            self.bp.route(f"/{path}",     methods=methods, endpoint=f"{path}_alt")(handler)
+        routes = [
+            ("responder", self.responder, ["POST"]),
+            ("salud", self.salud, ["GET"]),
+            ("test_telegram", self.test_telegram, ["POST"]),
+            ("constelacion_completada", self.constelacion_completada, ["POST"]),
+            ("notificar", self.notificar_evento, ["POST"]),
+            ("verificar_nombre", self.verificar_nombre, ["POST"]),
+        ]
+        for path, handler, methods in routes:
+            self.bp.route(f"/{path}", methods=methods, endpoint=f"{path}_alt")(handler)
             self.bp.route(f"/api/{path}", methods=methods, endpoint=path)(handler)
 
     def _guardar_local(self, mensaje: str):
-        try:
-            self._BUZON.parent.mkdir(parents=True, exist_ok=True)
-            with open(self._BUZON, "a", encoding="utf-8") as f:
-                seguro = " ".join(mensaje.splitlines()).strip()
-                f.write(f"[{datetime.now():%Y-%m-%d %H:%M:%S}] Luyuromo: {seguro}\n")
-        except OSError:
-            pass
+        limpio = " ".join(mensaje.splitlines()).strip()
+        if not limpio:
+            return
 
-    # ── rutas ────────────────────────────────────────────────
+        guardado = self._buzon.guardar_mensaje(limpio)
+        if not guardado:
+            logger.warning("No se pudo guardar mensaje en almacenamiento persistente.")
+
+        # Optional fallback for manual legacy audits.
+        if self._legacy_plaintext:
+            try:
+                self._legacy_path.parent.mkdir(parents=True, exist_ok=True)
+                with self._legacy_path.open("a", encoding="utf-8") as handle:
+                    handle.write(f"[{datetime.now():%Y-%m-%d %H:%M:%S}] Luyuromo: {limpio}\n")
+            except OSError:
+                logger.warning("No se pudo guardar mensaje en log legacy.")
+
     def responder(self):
-        datos   = request.get_json(silent=True) or {}
-        mensaje = datos.get("mensaje", "").strip()
+        datos = request.get_json(silent=True) or {}
+        mensaje = (datos.get("mensaje") or "").strip()
         if not mensaje:
-            return self._error("Mensaje vacío")
+            return self._error("Mensaje vacio")
         if len(mensaje) > self._MAX_MENSAJE_CHARS:
             return self._error(
-                f"Mensaje demasiado largo. Máximo: {self._MAX_MENSAJE_CHARS} caracteres."
+                f"Mensaje demasiado largo. Maximo: {self._MAX_MENSAJE_CHARS} caracteres."
             )
+
         self._guardar_local(mensaje)
         mensaje_safe = escape(mensaje)
-        texto_tg = (f"💌 <b>¡MENSAJE DE LUYUROMO!</b>\n\n"
-                    f"<i>«{mensaje_safe}»</i>\n\n📅 {datetime.now():%d/%m/%Y %H:%M}")
+        texto_tg = (
+            "<b>MENSAJE DE LUYUROMO</b>\n\n"
+            f"<i>{mensaje_safe}</i>\n\n"
+            f"{datetime.now():%d/%m/%Y %H:%M}"
+        )
         resultado = self._telegram(texto_tg)
-        logger.info("Mensaje | TG OK: %s | %.50s", resultado.get("ok"), mensaje)
-        return self._ok({"status": "ok",
-                         "respuesta": "¡Mensaje enviado a las estrellas (y a Frank)! 🚀",
-                         "telegram": resultado.get("ok", False)})
+        logger.info(
+            "Mensaje recibido. telegram_ok=%s length=%s",
+            resultado.get("ok"),
+            len(mensaje),
+        )
+        return self._ok(
+            {
+                "status": "ok",
+                "respuesta": "Mensaje enviado.",
+                "telegram": resultado.get("ok", False),
+            }
+        )
 
     def salud(self):
-        tg_status = "✅ Conectado" if self._tg_ok() else "❌ Sin conexión"
-        return self._ok({"servidor": "✅ OK", "telegram": tg_status,
-                         "timestamp": datetime.now().isoformat()})
+        tg_status = "conectado" if self._tg_ok() else "sin conexion"
+        return self._ok(
+            {
+                "servidor": "ok",
+                "telegram": tg_status,
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
 
     def test_telegram(self):
-        r = self._telegram("🔔 <b>Test OK</b>\nLa API funciona. 🎉")
-        if r.get("ok"):
-            return self._ok({"status": "ok", "mensaje": "✅ Telegram conectado"})
-        return self._error(f"Fallo Telegram: {r.get('error','?')}", 503)
+        result = self._telegram("<b>Test OK</b>\nAPI funcionando.")
+        if result.get("ok"):
+            return self._ok({"status": "ok", "mensaje": "Telegram conectado"})
+        return self._error(f"Fallo Telegram: {result.get('error', '?')}", 503)
 
     def constelacion_completada(self):
-        self._telegram("🌟 <b>¡Luyuromo completó la Constelación del Amor!</b>\n\n"
-                       "Conectó todas las estrellas y formó el corazón 💖", silencioso=True)
-        return self._ok({"status": "ok", "mensaje": "¡Lo lograste! 🌟"})
+        self._telegram(
+            "<b>Constelacion completada</b>\nSe completo la constelacion del amor.",
+            silencioso=True,
+        )
+        return self._ok({"status": "ok", "mensaje": "Logro registrado"})
 
     def notificar_evento(self):
-        datos  = request.get_json(silent=True) or {}
-        evento = datos.get("evento", "").strip()
+        datos = request.get_json(silent=True) or {}
+        evento = (datos.get("evento") or "").strip()
         if not evento:
-            return self._error("Evento vacío")
-        EVENTOS_VALIDOS = {
-            "juego_corazones": "💕 <b>¡Luyuromo jugó el juego de corazones!</b>",
-            "konami":          "🎮 <b>¡Luyuromo encontró el código Konami!</b> ↑↑↓↓←→←→BA",
-            "frank":           "💌 <b>¡Luyuromo escribió 'frank' en el teclado!</b>",
-            "pastel_secreto":  "🎂 <b>¡Luyuromo descubrió el secreto del pastel!</b>",
-            "aurora":          "🌌 <b>¡Luyuromo visitó la página Aurora!</b>",
-            "timeline":        "📖 <b>¡Luyuromo vio la línea del tiempo!</b>",
+            return self._error("Evento vacio")
+
+        eventos_validos = {
+            "juego_corazones": "<b>Evento</b>: Juego de corazones.",
+            "konami": "<b>Evento</b>: Codigo Konami.",
+            "frank": "<b>Evento</b>: Palabra frank detectada.",
+            "pastel_secreto": "<b>Evento</b>: Pastel secreto descubierto.",
+            "aurora": "<b>Evento</b>: Visita a Aurora.",
+            "timeline": "<b>Evento</b>: Visita a timeline.",
         }
-        texto = EVENTOS_VALIDOS.get(evento, f"✨ <b>Evento: {escape(evento[:50])}</b>")
+        texto = eventos_validos.get(evento, f"<b>Evento</b>: {escape(evento[:50])}")
         self._telegram(texto, silencioso=True)
         return self._ok({"status": "ok", "evento": evento})
 
     def verificar_nombre(self):
-        """
-        Acepta 'luna', 'luyuromo' o 'luyu', insensible a mayúsculas,
-        espacios y acentos. Notifica a Telegram en el primer acceso
-        exitoso. Devuelve siempre 200 con {valido: bool, mensaje: str}
-        para que el frontend pueda diferenciar visualmente sin manejar
-        códigos HTTP de error.
-        """
         import unicodedata
-        datos = request.get_json(silent=True) or {}
-        raw   = (datos.get("nombre") or "").strip()
-        # Normalización: NFD → quitar acentos → minúsculas → quitar espacios
-        s = unicodedata.normalize("NFD", str(raw))
-        s = "".join(c for c in s if unicodedata.category(c) != "Mn")
-        nombre = s.replace(" ", "").lower()
 
-        ALIASES = {"luna", "luyuromo", "luyu"}
-        if nombre in ALIASES:
+        datos = request.get_json(silent=True) or {}
+        raw = (datos.get("nombre") or "").strip()
+
+        normalizado = unicodedata.normalize("NFD", str(raw))
+        normalizado = "".join(
+            ch for ch in normalizado if unicodedata.category(ch) != "Mn"
+        )
+        nombre = normalizado.replace(" ", "").lower()
+
+        aliases = {"luna", "luyuromo", "luyu"}
+        if nombre in aliases:
             self._telegram(
-                f"🌙 <b>¡Acceso concedido!</b> Persona: {nombre} (raw: '{raw}')",
+                f"<b>Acceso concedido</b>: alias {escape(nombre)}",
                 silencioso=True,
             )
-            return self._ok({
-                "valido": True,
-                "nombre_canonico": "luyuromo",
-                "alias_usado": nombre,
-                "mensaje": "¡Bienvenida, mi Luna! ✨",
-            })
+            return self._ok(
+                {
+                    "valido": True,
+                    "nombre_canonico": "luyuromo",
+                    "alias_usado": nombre,
+                    "mensaje": "Bienvenida, mi Luna.",
+                }
+            )
 
-        # Mensaje cariñoso por longitud — el frontend lo mostrará
         if not nombre:
-            mensaje = "Susúrrame tu nombre, mi luna."
+            mensaje = "Susurrame tu nombre, mi luna."
         elif len(nombre) < 3:
-            mensaje = "Necesito más letras para reconocerte."
+            mensaje = "Necesito mas letras para reconocerte."
         else:
-            mensaje = "Ese nombre no abre la puerta. Prueba con tu nombre o tu apodo."
+            mensaje = "Ese nombre no abre la puerta."
         return self._ok({"valido": False, "mensaje": mensaje})
 
+
 mensajes_module = MensajesModule()
+
