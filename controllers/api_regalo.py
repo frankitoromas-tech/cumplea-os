@@ -6,6 +6,7 @@ Gestiona la apertura del regalo y las páginas principales.
 from __future__ import annotations
 from datetime import datetime
 from flask import render_template
+from jinja2 import TemplateNotFound
 from controllers.api_contenido import ContenidoModule
 
 
@@ -54,17 +55,29 @@ class RegaloBase(ContenidoModule):
         }
 
     # ── rutas ────────────────────────────────────────────────
+    def _render_template_compat(self, *nombres: str):
+        """
+        Render robusto ante diferencias de mayus/minus entre Windows y Linux.
+        """
+        for nombre in nombres:
+            try:
+                return render_template(nombre)
+            except TemplateNotFound:
+                continue
+        self.log.error("No se encontro ninguna plantilla valida: %s", nombres)
+        return self._error("Plantilla no encontrada", 500)
+
     def index(self):
-        return render_template("index.html")
+        return self._render_template_compat("index.html")
 
     def admin(self):
-        return render_template("admin.html")
+        return self._render_template_compat("admin.html", "ADMIN.HTML")
 
     def carta(self):
-        return render_template("carta.html")
+        return self._render_template_compat("carta.html")
 
     def universo(self):
-        return render_template("universo.html")
+        return self._render_template_compat("universo.html")
 
     def abrir_regalo(self):
         return self._ok(self.empaquetar())

@@ -6,6 +6,7 @@ Todo lo relacionado con Telegram, buzón y notificaciones.
 from __future__ import annotations
 import os
 import logging
+from html import escape
 from datetime import datetime
 from pathlib import Path
 from flask import request
@@ -16,13 +17,15 @@ logger = logging.getLogger(__name__)
 
 class TelegramMixin:
     """Mixin reutilizable para enviar mensajes a Telegram."""
-    _tg_token   = os.getenv("TELEGRAM_TOKEN",   "8651973448:AAHUDVOSurQb5r0X_OJzmPurvelTVrw_wbI")
-    _tg_chat_id = os.getenv("TELEGRAM_CHAT_ID", "6724969320")
+    _tg_token   = os.getenv("TELEGRAM_TOKEN", "")
+    _tg_chat_id = os.getenv("TELEGRAM_CHAT_ID", "")
     _tg_url     = f"https://api.telegram.org/bot{_tg_token}"
 
     def _telegram(self, texto: str, silencioso: bool = False) -> dict:
         if not self._tg_token or "PEGA" in self._tg_token:
             return {"ok": False, "error": "Token no configurado"}
+        if not self._tg_chat_id:
+            return {"ok": False, "error": "Chat ID no configurado"}
         try:
             r = http_requests.post(
                 f"{self._tg_url}/sendMessage",
@@ -58,6 +61,7 @@ class TelegramMixin:
 class MensajesModule(TelegramMixin, APIModule):
     nombre  = "mensajes"
     _BUZON  = Path(__file__).parent.parent / "buzon_secreto.txt"
+    _MAX_MENSAJE_CHARS = 500
 
     def _registrar_rutas(self):
         # BUG FIX: el frontend fetch '/api/X' pero estaban registradas SIN /api/.
@@ -77,7 +81,8 @@ class MensajesModule(TelegramMixin, APIModule):
         try:
             self._BUZON.parent.mkdir(parents=True, exist_ok=True)
             with open(self._BUZON, "a", encoding="utf-8") as f:
-                f.write(f"[{datetime.now():%Y-%m-%d %H:%M:%S}] Luyuromo: {mensaje}\n")
+                seguro = " ".join(mensaje.splitlines()).strip()
+                f.write(f"[{datetime.now():%Y-%m-%d %H:%M:%S}] Luyuromo: {seguro}\n")
         except OSError:
             pass
 
@@ -87,9 +92,14 @@ class MensajesModule(TelegramMixin, APIModule):
         mensaje = datos.get("mensaje", "").strip()
         if not mensaje:
             return self._error("Mensaje vacío")
+        if len(mensaje) > self._MAX_MENSAJE_CHARS:
+            return self._error(
+                f"Mensaje demasiado largo. Máximo: {self._MAX_MENSAJE_CHARS} caracteres."
+            )
         self._guardar_local(mensaje)
+        mensaje_safe = escape(mensaje)
         texto_tg = (f"💌 <b>¡MENSAJE DE LUYUROMO!</b>\n\n"
-                    f"<i>«{mensaje}»</i>\n\n📅 {datetime.now():%d/%m/%Y %H:%M}")
+                    f"<i>«{mensaje_safe}»</i>\n\n📅 {datetime.now():%d/%m/%Y %H:%M}")
         resultado = self._telegram(texto_tg)
         logger.info("Mensaje | TG OK: %s | %.50s", resultado.get("ok"), mensaje)
         return self._ok({"status": "ok",
@@ -125,7 +135,7 @@ class MensajesModule(TelegramMixin, APIModule):
             "aurora":          "🌌 <b>¡Luyuromo visitó la página Aurora!</b>",
             "timeline":        "📖 <b>¡Luyuromo vio la línea del tiempo!</b>",
         }
-        texto = EVENTOS_VALIDOS.get(evento, f"✨ <b>Evento: {evento[:50]}</b>")
+        texto = EVENTOS_VALIDOS.get(evento, f"✨ <b>Evento: {escape(evento[:50])}</b>")
         self._telegram(texto, silencioso=True)
         return self._ok({"status": "ok", "evento": evento})
 

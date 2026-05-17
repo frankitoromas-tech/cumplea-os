@@ -12,11 +12,13 @@ capsula_bp = Blueprint("capsula", __name__)
 # ── Fecha en que se abre la cápsula ─────────────────────────
 # BUG FIX: era datetime(2025, 8, 30) → ya había pasado → siempre "abierta"
 _FECHA_CAPSULA = datetime(2026, 8, 30, 0, 0)
+_IMAGEN_CAPSULA = "/static/DEFAULT_RECUERDOS/foto5.png"
 
 
 @capsula_bp.route("/api/capsula")
 def verificar_capsula():
     ahora = datetime.now()
+    diferencia = _FECHA_CAPSULA - ahora
 
     if ahora >= _FECHA_CAPSULA:
         return jsonify({
@@ -25,12 +27,14 @@ def verificar_capsula():
             "mensaje":    ("Quería dejarte este mensaje para recordarte que, "
                            "incluso semanas después de tu cumpleaños, "
                            "mi amor por ti sigue creciendo..."),
-            "imagen_url": "/static/DEFAULT_RECUERDOS/foto_secreta.png",
+            "fecha_apertura": _FECHA_CAPSULA.isoformat(),
+            "imagen_url": _IMAGEN_CAPSULA,
         })
 
-    diferencia = _FECHA_CAPSULA - ahora
     return jsonify({
         "estado":  "cerrada",
         "mensaje": f"Esta cápsula estelar se abrirá en {diferencia.days} días. Vuelve pronto.",
+        "fecha_apertura": _FECHA_CAPSULA.isoformat(),
         "dias_restantes": diferencia.days,
+        "segundos_restantes": max(int(diferencia.total_seconds()), 0),
     })
