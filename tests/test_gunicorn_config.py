@@ -38,7 +38,11 @@ class GunicornConfigTests(unittest.TestCase):
 
     def test_railway_caps_workers(self):
         conf = self._reload(RAILWAY_ENVIRONMENT="production")
-        self.assertLessEqual(conf.workers, 2)
+        self.assertLessEqual(conf.workers, 1)
+
+    def test_web_concurrency_capped_on_railway(self):
+        conf = self._reload(RAILWAY_ENVIRONMENT="production", WEB_CONCURRENCY="32")
+        self.assertEqual(conf.workers, 1)
 
     def test_default_worker_count_function(self):
         conf = self._reload()

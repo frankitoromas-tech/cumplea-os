@@ -109,17 +109,43 @@ La suite (62 tests) cubre:
 
 ## Despliegue en Railway
 
-`railway.json` y `gunicorn.conf.py` ya estan configurados. Pasos:
+El repo incluye **Dockerfile** (recomendado) y `railway.json` con **1 worker** fijo.
 
-1. Crear el servicio y conectar el repo.
-2. Variables de entorno obligatorias:
-   - `ADMIN_TOKEN`
-   - `APP_DATA_DIR=/app/data` (recomendado con volumen)
-   - (Opcional) `GUNICORN_WORKERS=2` — en Railway el default ya se limita a 2 workers para evitar OOM
-3. Variables opcionales pero recomendadas:
-   - `TELEGRAM_TOKEN`, `TELEGRAM_CHAT_ID`
-   - `APP_ENCRYPTION_KEY`
-4. Adjuntar un volumen montado en `/app/data` para persistencia real.
+**Si ves "La aplicacion no respondio":** suele ser RAM agotada. En Variables pon:
+
+| Variable | Valor |
+|---|---|
+| `GUNICORN_WORKERS` | `1` |
+| `WEB_CONCURRENCY` | `1` |
+| `ADMIN_TOKEN` | (tu token) |
+| `APP_DATA_DIR` | `/app/data` |
+
+Railway → Settings → Builder: **Dockerfile**. Redeploy.
+
+Limites habituales del plan hobby: ~512MB RAM, credito mensual, el servicio puede dormir si no hay trafico.
+
+### Alternativa A — Sin Railway (tunnel gratis, 2 minutos)
+
+En Windows, con [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) instalado:
+
+```powershell
+.\scripts\serve_public.ps1
+```
+
+Te da una URL publica `https://....trycloudflare.com` mientras tu PC este encendida.
+
+### Alternativa B — Render.com
+
+1. Sube el repo a GitHub.
+2. [Render](https://render.com) → New → Blueprint → conecta el repo (`render.yaml` incluido).
+3. Define `ADMIN_TOKEN` en el dashboard.
+
+### Pasos Railway (Docker)
+
+1. Conectar repo y activar builder **Dockerfile**.
+2. Variables obligatorias: `ADMIN_TOKEN`, `APP_DATA_DIR=/app/data` (volumen en `/app/data`).
+3. Opcionales: `TELEGRAM_TOKEN`, `TELEGRAM_CHAT_ID`, `APP_ENCRYPTION_KEY`, `PREVIEW_MODE_ENABLED=1`.
+4. Probar `GET /healthz` tras el deploy.
 
 ## Seguridad
 

@@ -1,0 +1,22 @@
+# https://render.com — free tier, suele ser mas estable que Railway hobby
+services:
+  - type: web
+    name: cumplea-os
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app -c gunicorn.conf.py --workers 1 --threads 4 --bind 0.0.0.0:$PORT
+    healthCheckPath: /healthz
+    envVars:
+      - key: APP_DATA_DIR
+        value: /var/data
+      - key: GUNICORN_WORKERS
+        value: "1"
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+    disk:
+      name: cumplea-data
+      mountPath: /var/data
+      sizeGB: 1

@@ -1,0 +1,10 @@
+# Nixpacks / Railpack hints (Railway)
+[variables]
+GUNICORN_WORKERS = "1"
+WEB_CONCURRENCY = "1"
+RAILWAY_GUNICORN_WORKERS_MAX = "1"
+GUNICORN_THREADS = "4"
+LOG_LEVEL = "INFO"
+
+[phases.setup]
+nixPkgs = ["python311"]
