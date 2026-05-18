@@ -56,12 +56,14 @@ def service_worker():
 # first for static assets so the app opens instantly and works offline. API
 # calls always go to the network so dynamic content stays fresh.
 _SW_TEMPLATE = """\
-const CACHE = 'cumpleaos-shell-v2';
+const CACHE = 'cumpleaos-shell-v3';
+const HOME = '{home}';
 const SHELL = [
-  '{home}',
-  '/static/styless.css',
+  HOME,
+  '/static/styless.css?v=20260518d',
   '/static/css/immersive.css',
-  '/static/script.js',
+  '/static/script.js?v=20260518c',
+  '/static/js/control-musica.js?v=20260518d',
   '/static/DEFAULT_RECUERDOS/foto5.png',
   '/manifest.webmanifest',
 ];
@@ -82,6 +84,12 @@ self.addEventListener('activate', (event) => {{
   self.clients.claim();
 }});
 
+function putInCache(request, response) {{
+  if (!response || response.status !== 200 || response.type !== 'basic') return;
+  const copy = response.clone();
+  caches.open(CACHE).then((cache) => cache.put(request, copy)).catch(() => {{}});
+}}
+
 self.addEventListener('fetch', (event) => {{
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -94,18 +102,37 @@ self.addEventListener('fetch', (event) => {{
     return;
   }}
 
+  const accept = req.headers.get('accept') || '';
+  const isNavigation = req.mode === 'navigate' || accept.includes('text/html');
+  const isMutableStaticAsset =
+    url.pathname.startsWith('/static/') &&
+    (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'));
+
+  // Network-first for HTML + mutable assets so deploys are reflected quickly.
+  if (isNavigation || isMutableStaticAsset) {{
+    event.respondWith(
+      fetch(req)
+        .then((res) => {{
+          putInCache(req, res);
+          return res;
+        }})
+        .catch(() =>
+          caches.match(req).then((hit) => hit || caches.match(HOME))
+        )
+    );
+    return;
+  }}
+
+  // Cache-first for everything else (images/media/fonts/manifest).
   event.respondWith(
     caches.match(req).then((hit) => {{
       if (hit) return hit;
       return fetch(req)
         .then((res) => {{
-          if (res && res.status === 200 && res.type === 'basic') {{
-            const copy = res.clone();
-            caches.open(CACHE).then((cache) => cache.put(req, copy)).catch(() => {{}});
-          }}
+          putInCache(req, res);
           return res;
         }})
-        .catch(() => caches.match('{home}'));
+        .catch(() => caches.match(HOME));
     }})
   );
 }});

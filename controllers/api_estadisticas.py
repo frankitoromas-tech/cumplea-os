@@ -66,6 +66,11 @@ class EstadisticasModule(APIModule):
         return (os.getenv("PREVIEW_MODE_ENABLED") or "").strip() == "1"
 
     @staticmethod
+    def _flag_verdadero(raw: str | None) -> bool:
+        value = (raw or "").strip().lower()
+        return value in {"1", "true", "on", "yes"}
+
+    @staticmethod
     def _parse_iso_datetime(raw: str) -> datetime | None:
         if not raw:
             return None
@@ -95,6 +100,38 @@ class EstadisticasModule(APIModule):
             return fecha_preview, "preview-custom"
 
         return base, "real"
+
+    def _estado_preview_cliente(self, ahora: datetime) -> dict | None:
+        if not self._flag_verdadero(request.args.get("preview_client")):
+            return None
+
+        estado_preview = (request.args.get("preview_state") or "").strip().lower()
+        fecha_preview = self._parse_iso_datetime(
+            (request.args.get("preview_open_at") or "").strip()
+        )
+
+        if estado_preview in {"open", "abierto"}:
+            apertura = ahora - timedelta(seconds=3)
+            fuente = "preview-client-open"
+        elif estado_preview in {"locked", "bloqueado"}:
+            apertura = ahora + timedelta(days=7)
+            fuente = "preview-client-locked"
+        elif fecha_preview:
+            apertura = fecha_preview
+            fuente = "preview-client-custom"
+        else:
+            apertura = ahora - timedelta(seconds=3)
+            fuente = "preview-client-default-open"
+
+        bloqueado = ahora < apertura
+        segundos_faltantes = max(int((apertura - ahora).total_seconds()), 0)
+        return {
+            "activo": True,
+            "fuente_apertura": fuente,
+            "fecha_apertura": apertura.isoformat(),
+            "bloqueado": bloqueado,
+            "segundos_faltantes": segundos_faltantes,
+        }
 
     # ── rutas ────────────────────────────────────────────────
     def estado_regalo(self):
@@ -165,17 +202,44 @@ class EstadisticasModule(APIModule):
     def preview_estado(self):
         ahora = datetime.now()
         base = self._fecha_apertura_configurada()
-        apertura, fuente = self._fecha_apertura_efectiva()
-        bloqueado = ahora < apertura
+        apertura_backend, fuente_backend = self._fecha_apertura_efectiva()
+        bloqueado_backend = ahora < apertura_backend
+        segundos_backend = max(int((apertura_backend - ahora).total_seconds()), 0)
+
+        estado_cliente = self._estado_preview_cliente(ahora)
+        usa_fallback_cliente = bool(estado_cliente)
+
+        if usa_fallback_cliente:
+            apertura_efectiva = estado_cliente["fecha_apertura"]
+            fuente_efectiva = estado_cliente["fuente_apertura"]
+            bloqueado_efectivo = estado_cliente["bloqueado"]
+            segundos_efectivos = estado_cliente["segundos_faltantes"]
+            capa_efectiva = "client"
+        else:
+            apertura_efectiva = apertura_backend.isoformat()
+            fuente_efectiva = fuente_backend
+            bloqueado_efectivo = bloqueado_backend
+            segundos_efectivos = segundos_backend
+            capa_efectiva = "backend"
+
         return self._ok(
             {
                 "preview_mode_enabled": self._preview_habilitado(),
+                "preview_client_requested": self._flag_verdadero(request.args.get("preview_client")),
+                "preview_client_fallback_active": usa_fallback_cliente,
                 "now": ahora.isoformat(),
                 "fecha_apertura_base": base.isoformat(),
-                "fecha_apertura_efectiva": apertura.isoformat(),
-                "fuente_apertura": fuente,
-                "bloqueado": bloqueado,
-                "segundos_faltantes": max(int((apertura - ahora).total_seconds()), 0),
+                "fecha_apertura_efectiva": apertura_efectiva,
+                "fuente_apertura": fuente_efectiva,
+                "bloqueado": bloqueado_efectivo,
+                "segundos_faltantes": segundos_efectivos,
+                "capa_efectiva": capa_efectiva,
+                "backend": {
+                    "fecha_apertura_efectiva": apertura_backend.isoformat(),
+                    "fuente_apertura": fuente_backend,
+                    "bloqueado": bloqueado_backend,
+                    "segundos_faltantes": segundos_backend,
+                },
                 "uso": {
                     "estado_open": "/api/estado?preview_state=open",
                     "estado_locked": "/api/estado?preview_state=locked",

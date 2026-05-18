@@ -290,6 +290,18 @@ class APISmokeTests(unittest.TestCase):
         self.assertFalse(r_open.get_json()["bloqueado"])
         self.assertTrue(r_locked.get_json()["bloqueado"])
 
+    def test_preview_estado_expone_fallback_cliente_efectivo(self):
+        with patch.dict(os.environ, {"PREVIEW_MODE_ENABLED": "0"}):
+            response = self.client.get("/api/preview_estado?preview_state=locked&preview_client=1")
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertFalse(data["preview_mode_enabled"])
+        self.assertTrue(data["preview_client_fallback_active"])
+        self.assertEqual(data["capa_efectiva"], "client")
+        self.assertTrue(data["bloqueado"])
+        self.assertIn("backend", data)
+        self.assertIn("bloqueado", data["backend"])
+
 
 if __name__ == "__main__":
     unittest.main()

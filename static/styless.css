@@ -281,7 +281,7 @@ body {
    REGALO
    ══════════════════════════════════════════════════════════ */
 .contenedor {
-  z-index: 10; position: relative;
+  z-index: 120; position: relative;
   width: 100%; max-width: 700px; margin: auto;
   text-align: center;
 }
@@ -448,16 +448,23 @@ body {
   padding: 24px 28px; border-radius: 18px;
   border: 1px solid var(--glass-borde);
   backdrop-filter: blur(12px); max-width: 500px; width: 100%;
+  position: relative;
+  z-index: 130;
+  isolation: isolate;
 }
 .buzon h3 { color: var(--rosa); font-family: var(--fuente-titulo); font-size: 1.4rem; margin-bottom: 8px; }
 .buzon p  { font-size: .95rem; opacity: .8; margin-bottom: 14px; }
 .buzon textarea {
-  width: 100%; height: 80px; background: rgba(0,0,0,.4);
+  width: 100%; height: 92px; background: rgba(5,9,28,.72);
   color: var(--texto); border: 1px solid var(--rosa2);
   border-radius: 8px; padding: 12px; font-family: var(--fuente-cuerpo);
   font-size: 1rem; resize: none; transition: border-color .3s; display: block;
+  line-height: 1.45;
 }
 .buzon textarea:focus { outline: none; border-color: var(--rosa); }
+.buzon textarea::placeholder {
+  color: rgba(240,232,255,.62);
+}
 .buzon button {
   background: linear-gradient(135deg, var(--rosa2), var(--rosa));
   color: white; border: none; padding: 12px 26px; border-radius: 50px;
@@ -502,7 +509,7 @@ body {
 
 .globo {
   position: fixed; top: -10vh; font-size: 3rem;
-  z-index: 50; animation: caer linear infinite;
+  z-index: 24; animation: caer linear infinite;
   cursor: pointer; user-select: none;
 }
 @keyframes caer { to { transform: translateY(115vh) rotate(360deg); } }
@@ -671,7 +678,7 @@ body {
   transform: translate(-50%,-50%);
 }
 .burst {
-  position: fixed; pointer-events: none; z-index: 99999;
+  position: fixed; pointer-events: none; z-index: 90;
   font-size: 1.5rem; animation: burstAnim 1s ease forwards;
 }
 @keyframes burstAnim {

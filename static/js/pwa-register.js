@@ -8,8 +8,22 @@
     return;
   }
   window.addEventListener('load', function () {
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloading = false;
+
+    if (hadController) {
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (reloading) return;
+        reloading = true;
+        window.location.reload();
+      });
+    }
+
     navigator.serviceWorker
       .register('/sw.js', { scope: '/' })
+      .then(function (registration) {
+        registration.update().catch(function () {});
+      })
       .catch(function (err) {
         console.warn('[pwa] sw registration failed:', err);
       });

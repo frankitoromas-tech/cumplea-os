@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Preview Lab · Luna</title>
+  <title>Preview Lab - Luna</title>
   <style>
     :root {
       --bg: #070b1a;
@@ -14,6 +14,7 @@
       --accent: #ff6b81;
       --accent2: #f5c842;
       --ok: #15d19a;
+      --warn: #ff9aac;
     }
     * { box-sizing: border-box; }
     body {
@@ -96,7 +97,7 @@
       letter-spacing: .02em;
     }
     .tag.ok { background: rgba(21,209,154,.18); color: var(--ok); }
-    .tag.warn { background: rgba(255,107,129,.17); color: #ff9aac; }
+    .tag.warn { background: rgba(255,107,129,.17); color: var(--warn); }
     .tips {
       margin-top: 14px;
       border-top: 1px solid rgba(255,255,255,.12);
@@ -111,14 +112,14 @@
 <body>
   <div class="wrap">
     <h1>Preview Lab</h1>
-    <p class="muted">Panel de pruebas para ver la web en estado bloqueado/abierto y testear fechas sin tocar código cada vez.</p>
+    <p class="muted">Panel de pruebas para ver la web en estado bloqueado/abierto y testear fechas sin tocar codigo cada vez.</p>
 
     <div class="grid">
       <section class="panel">
-        <h2>1) Estado de simulación</h2>
+        <h2>1) Estado de simulacion</h2>
         <label for="modo">Modo</label>
         <select id="modo">
-          <option value="real">Real (sin simulación)</option>
+          <option value="real">Real (sin simulacion)</option>
           <option value="locked">Forzar bloqueado</option>
           <option value="open">Forzar abierto</option>
           <option value="custom">Fecha custom</option>
@@ -130,7 +131,7 @@
 
         <div class="btns">
           <button id="btnAplicar">Abrir preview</button>
-          <button id="btnNueva" class="secondary">Abrir en pestaña nueva</button>
+          <button id="btnNueva" class="secondary">Abrir en pestana nueva</button>
         </div>
         <div class="tips">
           <div><strong>Recomendado:</strong> usa <em>Bypass cliente</em> para revisar UI al instante.</div>
@@ -139,7 +140,7 @@
       </section>
 
       <section class="panel">
-        <h2>2) Estado backend actual</h2>
+        <h2>2) Estado efectivo actual</h2>
         <p id="estadoLinea" class="muted">Cargando...</p>
         <pre id="estadoJson">{}</pre>
       </section>
@@ -164,14 +165,21 @@
     const lineEl = document.getElementById('estadoLinea');
     const btnCopiar = document.getElementById('btnCopiar');
 
+    let previewBackendEnabled = false;
+
     function modeRequiereBackend(mode) {
       return ['open', 'locked', 'custom'].includes(mode);
     }
 
+    function extractQuery(url) {
+      return url.includes('?') ? url.slice(url.indexOf('?')) : '';
+    }
+
     function buildPreviewUrl(opts = {}) {
-      const forProbe = !!opts.forProbe;
+      const includeClientFallback = opts.includeClientFallback !== false;
       const mode = modeEl.value;
       const q = new URLSearchParams();
+
       if (mode === 'bypass') {
         q.set('preview', '1');
       } else if (mode === 'open') {
@@ -181,42 +189,58 @@
       } else if (mode === 'custom' && dateEl.value) {
         q.set('preview_open_at', dateEl.value);
       }
-      if (!forProbe && modeRequiereBackend(mode) && !previewBackendEnabled) {
+
+      if (includeClientFallback && modeRequiereBackend(mode) && !previewBackendEnabled) {
         q.set('preview_client', '1');
       }
+
       const query = q.toString();
       return query ? `/?${query}` : '/';
     }
 
     function refreshUrlBox() {
-      urlEl.textContent = buildPreviewUrl();
+      urlEl.textContent = buildPreviewUrl({ includeClientFallback: true });
     }
 
-    let previewBackendEnabled = false;
+    async function fetchPreviewState(query) {
+      const resp = await fetch(`/api/preview_estado${query}`);
+      if (!resp.ok) throw new Error(`preview_estado ${resp.status}`);
+      return resp.json();
+    }
 
     async function loadEstado() {
-      const src = buildPreviewUrl({ forProbe: true });
-      const query = src.includes('?') ? src.slice(src.indexOf('?')) : '';
-      const r = await fetch(`/api/preview_estado${query}`);
-      const d = await r.json();
-      previewBackendEnabled = !!d.preview_mode_enabled;
+      const probeQuery = extractQuery(buildPreviewUrl({ includeClientFallback: false }));
+      const backendData = await fetchPreviewState(probeQuery);
+      previewBackendEnabled = !!backendData.preview_mode_enabled;
+      refreshUrlBox();
 
-      const tag = d.preview_mode_enabled
+      const effectiveQuery = extractQuery(buildPreviewUrl({ includeClientFallback: true }));
+      let effectiveData = backendData;
+      if (effectiveQuery !== probeQuery) {
+        effectiveData = await fetchPreviewState(effectiveQuery);
+      }
+
+      const backendTag = backendData.preview_mode_enabled
         ? '<span class="tag ok">Preview backend habilitado</span>'
         : '<span class="tag warn">Preview backend deshabilitado</span>';
+      const syncTag = effectiveData.preview_client_fallback_active
+        ? '<span class="tag warn">Fallback cliente activo</span>'
+        : '<span class="tag ok">Sin fallback cliente</span>';
 
       lineEl.innerHTML =
-        `${tag} · apertura efectiva: <strong>${d.fecha_apertura_efectiva}</strong> · bloqueado: <strong>${d.bloqueado}</strong>` +
-        (d.preview_mode_enabled ? '' : ' · usa modo "Bypass cliente" o activa PREVIEW_MODE_ENABLED=1');
-      jsonEl.textContent = JSON.stringify(d, null, 2);
+        `${backendTag} · ${syncTag} · capa efectiva: <strong>${effectiveData.capa_efectiva}</strong>` +
+        ` · apertura: <strong>${effectiveData.fecha_apertura_efectiva}</strong>` +
+        ` · bloqueado: <strong>${effectiveData.bloqueado}</strong>` +
+        (backendData.preview_mode_enabled ? '' : ' · para simular con backend, activa PREVIEW_MODE_ENABLED=1');
+      jsonEl.textContent = JSON.stringify(effectiveData, null, 2);
     }
 
     function openPreview(newTab = false) {
       const mode = modeEl.value;
       if (!previewBackendEnabled && modeRequiereBackend(mode)) {
-        alert('Preview backend deshabilitado. Se aplicará fallback cliente para test visual de fecha.');
+        alert('Preview backend deshabilitado. Se aplicara fallback cliente para test visual de fecha.');
       }
-      const target = buildPreviewUrl();
+      const target = buildPreviewUrl({ includeClientFallback: true });
       if (newTab) {
         window.open(target, '_blank', 'noopener,noreferrer');
       } else {
@@ -230,12 +254,12 @@
     document.getElementById('btnNueva').addEventListener('click', () => openPreview(true));
     btnCopiar.addEventListener('click', async () => {
       try {
-        const absolute = `${window.location.origin}${buildPreviewUrl()}`;
+        const absolute = `${window.location.origin}${buildPreviewUrl({ includeClientFallback: true })}`;
         await navigator.clipboard.writeText(absolute);
         btnCopiar.textContent = 'Copiado';
         setTimeout(() => { btnCopiar.textContent = 'Copiar URL'; }, 1400);
       } catch (_) {
-        alert('No se pudo copiar automaticamente. URL: ' + buildPreviewUrl());
+        alert('No se pudo copiar automaticamente. URL: ' + buildPreviewUrl({ includeClientFallback: true }));
       }
     });
 

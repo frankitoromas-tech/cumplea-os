@@ -10,11 +10,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styless.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styless.css', v='20260518d') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/immersive.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/pastel.css', v='20260518c') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-polish.css', v='20260518c') }}">
-  <script src="{{ url_for('static', filename='js/pwa-register.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/pwa-register.js', v='20260518d') }}" defer></script>
 </head>
 <body>
 <div id="cursor"></div>
@@ -256,7 +256,7 @@
 <script src="{{ url_for('static', filename='NavigadorPaginas.js') }}"></script>
 <script src="{{ url_for('static', filename='SaludoContextual.js') }}"></script>
 <script src="{{ url_for('static', filename='EasterEggManager.js') }}"></script>
-<script src="{{ url_for('static', filename='js/control-musica.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/control-musica.js', v='20260518d') }}" defer></script>
 
 <!-- Easter Egg: escribir "frank" -->
 <div id="eeFrankOverlay">
@@ -298,6 +298,6 @@
 </script>
 
 <!-- ── Capa inmersiva (Fase 1 + Fase 2). NO toca lógica existente. ── -->
-<script src="{{ url_for('static', filename='js/immersive/boot.js', v='20260518b') }}" defer></script>
+<script src="{{ url_for('static', filename='js/immersive/boot.js', v='20260518d') }}" defer></script>
 </body>
 </html>

@@ -55,26 +55,45 @@
     s.id = 'whispers-style';
     s.textContent = `
       .whisper {
-        position: fixed; right: 28px; bottom: 26px;
-        z-index: 9986; pointer-events: none;
-        max-width: 320px; padding: 14px 18px 12px;
-        background: linear-gradient(135deg,
-          rgba(20,12,42,.85) 0%, rgba(10,5,30,.92) 100%);
-        border: 1px solid rgba(255,180,220,.18);
+        position: fixed;
+        right: 16px;
+        left: auto;
+        bottom: calc(126px + env(safe-area-inset-bottom));
+        z-index: 10020;
+        pointer-events: none;
+        max-width: min(420px, calc(100vw - 28px));
+        padding: 14px 18px 12px;
+        background: linear-gradient(
+          135deg,
+          rgba(19, 11, 39, 0.96) 0%,
+          rgba(8, 4, 24, 0.98) 100%
+        );
+        border: 1px solid rgba(255, 180, 220, 0.28);
         border-radius: 14px;
         backdrop-filter: blur(10px);
         font-family: 'Cormorant Garamond', serif;
         font-style: italic;
-        color: rgba(255,235,255,.92);
-        font-size: .92rem;
-        line-height: 1.45;
-        letter-spacing: .3px;
-        box-shadow: 0 14px 36px rgba(0,0,0,.5),
-                    0 0 32px rgba(255,180,220,.12);
+        color: rgba(255, 241, 252, 0.98);
+        font-size: .98rem;
+        line-height: 1.5;
+        letter-spacing: 0;
+        text-wrap: balance;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.58),
+                    0 0 36px rgba(255, 180, 220, 0.14);
         opacity: 0;
         transform: translateY(18px) scale(.96);
         animation: whisperIn .7s cubic-bezier(.22,1,.36,1) forwards,
                    whisperOut .9s ease 6s forwards;
+      }
+      @media (max-width: 900px) {
+        .whisper {
+          left: 12px;
+          right: 12px;
+          max-width: none;
+          bottom: calc(142px + env(safe-area-inset-bottom));
+          font-size: .94rem;
+          line-height: 1.55;
+        }
       }
       .whisper .w-icon {
         display: inline-block; margin-right: 8px;
@@ -100,7 +119,7 @@
 
       /* Estrella fugaz que precede el whisper */
       .whisper-shooter {
-        position: fixed; pointer-events: none; z-index: 9987;
+        position: fixed; pointer-events: none; z-index: 10021;
         font-size: 1.6rem;
         text-shadow: 0 0 20px rgba(255,235,180,.95),
                      0 0 60px rgba(255,180,220,.55);
@@ -115,6 +134,30 @@
       }
     `;
     document.head.appendChild(s);
+  }
+
+  function acomodarWhisper(w) {
+    const widget = document.getElementById('controlMusica');
+    if (!widget) return;
+
+    const rect = widget.getBoundingClientRect();
+    if (!rect || !rect.width || !rect.height) return;
+
+    const distDesdeAbajo = Math.max(0, Math.ceil(window.innerHeight - rect.top));
+    const bottomSeguro = Math.max(126, distDesdeAbajo + 14);
+    w.style.bottom = `calc(${bottomSeguro}px + env(safe-area-inset-bottom))`;
+
+    if (window.innerWidth <= 900) return;
+    const centro = window.innerWidth / 2;
+    if (rect.left >= centro) {
+      w.style.right = '16px';
+      w.style.left = 'auto';
+      return;
+    }
+    if (rect.right <= centro) {
+      w.style.left = '16px';
+      w.style.right = 'auto';
+    }
   }
 
   /* ── Mostrar un susurro ─────────────────────────────────── */
@@ -142,6 +185,7 @@
       const { txt, icon } = HINTS[key];
       w.innerHTML = `<span class="w-icon">${icon}</span>${txt}`;
       document.body.appendChild(w);
+      acomodarWhisper(w);
       setTimeout(() => w.remove(), 7200);
       // SFX delicado
       if (window.__immersiveAudio) window.__immersiveAudio.sfx('hover');

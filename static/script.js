@@ -1340,16 +1340,18 @@ document.addEventListener('DOMContentLoaded', () => {
 async function mostrarVisitas() {
   try {
     const d = await (await fetch('/api/visitas')).json();
-    const b = document.createElement('div');
+    const existente = document.getElementById('badgeVisitas');
+    const b = existente || document.createElement('div');
+    b.id = 'badgeVisitas';
     Object.assign(b.style, {
-      position:'fixed', bottom:'16px', right:'16px',
+      position:'fixed', top:'calc(10px + env(safe-area-inset-top))', left:'16px',
       background:'rgba(255,255,255,.06)', border:'1px solid rgba(255,255,255,.1)',
       borderRadius:'50px', padding:'6px 14px', fontSize:'.75rem', color:'#94a3b8',
-      zIndex:'500', cursor:'default', backdropFilter:'blur(8px)',
+      zIndex:'350', cursor:'default', backdropFilter:'blur(8px)', maxWidth:'min(82vw, 320px)',
     });
     b.innerHTML = `🌙 ${d.total} visitas`;
     b.title = `Hoy: ${d.hoy}`;
-    document.body.appendChild(b);
+    if (!existente) document.body.appendChild(b);
   } catch(_) {}
 }
 
