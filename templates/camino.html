@@ -156,20 +156,122 @@
     }
 
     /* ── Corazones que forman la línea Lima → Medellín ───────── */
+    /* Por defecto invisibles: aparecen sólo cuando se hace clic al
+       botón "Trazar nuestro camino". Cada corazón recibe su delay
+       individual desde JS para que el trazado fluya de Lima a Medellín. */
     .corazon-camino {
       position: relative;
-      transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%) scale(0.2);
+      opacity: 0;
       pointer-events: none;
-      font-size: 1.35rem;
+      font-size: 1.4rem;
       line-height: 1;
       filter: drop-shadow(0 0 8px rgba(255, 107, 129, 0.85))
               drop-shadow(0 0 16px rgba(255, 107, 129, 0.35));
-      animation: latido-camino 1.6s ease-in-out infinite;
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  opacity 0.45s ease;
       will-change: transform, opacity;
     }
+    .corazon-camino.aparece {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+      animation: latido-camino 1.6s ease-in-out infinite;
+      animation-delay: 0.5s; /* arranca el latido tras el bounce */
+    }
     @keyframes latido-camino {
-      0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.7; }
+      0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.78; }
       50%      { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+    }
+
+    /* ── Botón "Trazar nuestro camino" ─────────────────────── */
+    .btn-trazar {
+      position: relative;
+      width: 100%;
+      padding: 12px 18px;
+      margin-top: 4px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 600;
+      font-size: 0.98rem;
+      color: #0a0512;
+      background: linear-gradient(135deg, #ff6b81 0%, #ff97a8 50%, #f5c842 100%);
+      background-size: 200% 100%;
+      background-position: 0% 0%;
+      box-shadow:
+        0 8px 22px rgba(255, 107, 129, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+      transition: transform 0.25s ease,
+                  box-shadow 0.25s ease,
+                  background-position 0.4s ease,
+                  opacity 0.4s ease;
+      overflow: hidden;
+      letter-spacing: 0.3px;
+    }
+    .btn-trazar::before {
+      content: "";
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at var(--mx, 50%) 50%,
+        rgba(255, 255, 255, 0.35) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .btn-trazar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(255, 107, 129, 0.6),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      background-position: 100% 0%;
+    }
+    .btn-trazar:hover::before { opacity: 1; }
+    .btn-trazar:active { transform: translateY(0); }
+    .btn-trazar.trazando {
+      pointer-events: none;
+      background: linear-gradient(135deg, #ff6b81, #ff97a8);
+      animation: trazar-pulse 1.4s ease-in-out infinite;
+    }
+    .btn-trazar.trazado {
+      pointer-events: none;
+      background: linear-gradient(135deg, rgba(255, 107, 129, 0.4), rgba(245, 200, 66, 0.35));
+      color: rgba(255, 255, 255, 0.85);
+      box-shadow: none;
+      cursor: default;
+    }
+    @keyframes trazar-pulse {
+      0%, 100% { box-shadow: 0 8px 22px rgba(255, 107, 129, 0.45); }
+      50%      { box-shadow: 0 8px 32px rgba(255, 107, 129, 0.85); }
+    }
+
+    /* Toast romántico al terminar el trazado */
+    .toast-camino {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      background: linear-gradient(135deg, rgba(255, 107, 129, 0.95), rgba(245, 200, 66, 0.85));
+      color: #1a0512;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.4rem;
+      padding: 18px 32px;
+      border-radius: 18px;
+      box-shadow: 0 20px 60px rgba(255, 107, 129, 0.5);
+      pointer-events: none;
+      opacity: 0;
+      z-index: 50;
+      letter-spacing: 1px;
+      text-align: center;
+      max-width: 92vw;
+    }
+    .toast-camino.visible {
+      animation: toast-aparece 3.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    @keyframes toast-aparece {
+      0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+      18%  { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+      28%  { transform: translate(-50%, -50%) scale(1); }
+      82%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
     }
 
     /* ── Botón volver: top-left, lejos del reproductor de música ───
@@ -288,7 +390,17 @@
     Una distancia que no fue distancia — porque tú ya la habías cruzado
     primero en mi corazón.
   </p>
+
+  <button type="button" class="btn-trazar" id="btnTrazar"
+          aria-label="Dibujar la línea de corazones entre Lima y Medellín">
+    ✨ Trazar nuestro camino
+  </button>
+
   <div class="fotos-strip" id="fotosStrip"></div>
+</div>
+
+<div class="toast-camino" id="toastCamino" role="status" aria-live="polite">
+  💗 Te encontré, aunque el mapa nos dibujara lejos 💗
 </div>
 
 <div class="lightbox" id="lightbox" role="dialog" aria-label="Foto ampliada">
@@ -337,7 +449,8 @@ function slerpGeo(p1, p2, t) {
 }
 
 /* 16 corazones entre Lima y Medellín (excluye los extremos
-   porque allí ya viven los pins de las ciudades). */
+   porque allí ya viven los pins de las ciudades). El `orden` se usa
+   para escalonar la aparición de Lima→Medellín cuando se hace clic. */
 const N_CORAZONES = 16;
 const CORAZONES = [];
 const EMOJIS_CORAZON = ['💗', '💖', '💕', '🤍'];
@@ -348,7 +461,7 @@ for (let i = 1; i < N_CORAZONES; i++) {
     lat: punto.lat,
     lng: punto.lng,
     tipo: 'corazon',
-    delay: i * 0.09,
+    orden: i,
     emoji: EMOJIS_CORAZON[i % EMOJIS_CORAZON.length],
   });
 }
@@ -414,7 +527,7 @@ const globe = Globe()
     if (d.tipo === 'corazon') {
       const el = document.createElement('div');
       el.className = 'corazon-camino';
-      el.style.animationDelay = `${d.delay}s`;
+      el.dataset.orden = String(d.orden);
       el.textContent = d.emoji;
       return el;
     }
@@ -423,6 +536,57 @@ const globe = Globe()
     el.innerHTML = `<div class="nombre">${d.label}</div><div class="punto"></div>`;
     return el;
   });
+
+/* ── Trazado del camino: se dispara con el botón ───────────── */
+const btnTrazar = document.getElementById('btnTrazar');
+const toastEl   = document.getElementById('toastCamino');
+const STEP_MS   = 130;   // delay entre cada corazón
+const BOUNCE_MS = 520;   // duración del bounce de aparición
+let trazadoIniciado = false;
+
+function trazarCamino() {
+  if (trazadoIniciado) return;
+  trazadoIniciado = true;
+
+  btnTrazar.classList.add('trazando');
+  btnTrazar.textContent = '✦ Trazando…';
+
+  // Cogemos los corazones del DOM (los crea globe.gl), los ordenamos
+  // por data-orden y les agregamos .aparece en cascada.
+  const corazonesDom = Array.from(document.querySelectorAll('.corazon-camino'))
+    .sort((a, b) => Number(a.dataset.orden) - Number(b.dataset.orden));
+
+  corazonesDom.forEach((el, idx) => {
+    setTimeout(() => el.classList.add('aparece'), idx * STEP_MS);
+  });
+
+  const totalMs = corazonesDom.length * STEP_MS + BOUNCE_MS;
+  setTimeout(() => {
+    btnTrazar.classList.remove('trazando');
+    btnTrazar.classList.add('trazado');
+    btnTrazar.textContent = '✦ Camino trazado ✦';
+    if (toastEl) {
+      toastEl.classList.add('visible');
+      setTimeout(() => toastEl.classList.remove('visible'), 3600);
+    }
+  }, totalMs);
+}
+
+if (btnTrazar) {
+  /* Pequeño hover-tracking para el glow radial del botón */
+  btnTrazar.addEventListener('mousemove', (e) => {
+    const rect = btnTrazar.getBoundingClientRect();
+    btnTrazar.style.setProperty('--mx', `${e.clientX - rect.left}px`);
+  });
+  btnTrazar.addEventListener('click', trazarCamino);
+}
+
+/* Si el usuario prefiere reduced motion, mostramos el trazado completo
+   al toque sin escalonado largo. Y si no toca el botón, no aparece. */
+if (reducedMotion) {
+  // No autoplay: respetamos el patrón del botón también en RM.
+  // Sólo cambiamos los timings.
+}
 
 /* Cámara: punto medio (~ entre Lima y Medellín) */
 globe.pointOfView({ lat: -3, lng: -76, altitude: 2.2 }, 0);
