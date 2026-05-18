@@ -5,7 +5,10 @@ Gestiona la apertura del regalo y las páginas principales.
 """
 from __future__ import annotations
 from datetime import datetime
-from flask import render_template
+from pathlib import Path
+import re
+
+from flask import current_app, make_response, render_template
 from jinja2 import TemplateNotFound
 from controllers.api_contenido import ContenidoModule
 from services.security_service import require_admin_session
@@ -22,6 +25,13 @@ class RegaloBase(ContenidoModule):
     remitente      = "Frank"
     edad           = 23
     _mensajes_list = []
+    _FALLBACK_RECUERDOS = [
+        "/static/DEFAULT_RECUERDOS/foto1.png",
+        "/static/DEFAULT_RECUERDOS/foto2.png",
+        "/static/DEFAULT_RECUERDOS/foto3.png",
+        "/static/DEFAULT_RECUERDOS/foto4.png",
+        "/static/DEFAULT_RECUERDOS/foto5.png",
+    ]
 
     def __init__(self):
         super().__init__()
@@ -46,6 +56,7 @@ class RegaloBase(ContenidoModule):
         self.bp.route("/series"          )(self.series)
         self.bp.route("/universo"        )(self.universo)
         self.bp.route("/api/abrir_regalo")(self.abrir_regalo)
+        self.bp.route("/api/recuerdos_media")(self.recuerdos_media)
 
     def empaquetar(self) -> dict:
         dias = (datetime.now() - self.FECHA_NACIMIENTO).days
@@ -70,6 +81,12 @@ class RegaloBase(ContenidoModule):
         self.log.error("No se encontro ninguna plantilla valida: %s", nombres)
         return self._error("Plantilla no encontrada", 500)
 
+    def _render_template_nocache(self, *nombres: str):
+        response = make_response(self._render_template_compat(*nombres))
+        response.headers["Cache-Control"] = "no-store, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        return response
+
     def index(self):
         return self._render_template_compat("index.html")
 
@@ -77,19 +94,55 @@ class RegaloBase(ContenidoModule):
         return self._render_template_compat("admin.html")
 
     def preview(self):
-        return self._render_template_compat("preview.html")
+        return self._render_template_nocache("preview.html")
 
     def carta(self):
         return self._render_template_compat("carta.html")
 
     def series(self):
-        return self._render_template_compat("series.html")
+        return self._render_template_nocache("series.html")
 
     def universo(self):
-        return self._render_template_compat("universo.html")
+        return self._render_template_nocache("universo.html")
 
     def abrir_regalo(self):
         return self._ok(self.empaquetar())
+
+    @staticmethod
+    def _orden_recuerdo(path: Path) -> tuple[int, str]:
+        match = re.search(r"(\d+)", path.stem)
+        if match:
+            return int(match.group(1)), path.name.lower()
+        return 10_000, path.name.lower()
+
+    def _listar_recuerdos_media(self) -> list[str]:
+        static_root = Path(current_app.static_folder or "static")
+        recuerdos_root = static_root / "DEFAULT_RECUERDOS"
+        extensiones = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
+
+        if not recuerdos_root.exists() or not recuerdos_root.is_dir():
+            return list(self._FALLBACK_RECUERDOS)
+
+        archivos = [
+            path
+            for path in recuerdos_root.iterdir()
+            if path.is_file() and path.suffix.lower() in extensiones
+        ]
+        archivos.sort(key=self._orden_recuerdo)
+
+        urls = [f"/static/DEFAULT_RECUERDOS/{path.name}" for path in archivos]
+        if not urls:
+            return list(self._FALLBACK_RECUERDOS)
+        return urls
+
+    def recuerdos_media(self):
+        recuerdos = self._listar_recuerdos_media()
+        return self._ok(
+            {
+                "recuerdos": recuerdos,
+                "total": len(recuerdos),
+            }
+        )
 
 
 class RegaloLuyuromo(RegaloBase):

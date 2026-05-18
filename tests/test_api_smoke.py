@@ -54,6 +54,13 @@ class APISmokeTests(unittest.TestCase):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
 
+    def test_preview_family_pages_no_store(self):
+        for path in ["/preview", "/series", "/universo"]:
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.headers.get("Cache-Control"), "no-store, max-age=0")
+
     def test_admin_requires_login(self):
         response = self.client.get("/admin", follow_redirects=False)
         self.assertIn(response.status_code, (302, 303))
@@ -222,11 +229,22 @@ class APISmokeTests(unittest.TestCase):
             "/api/constelaciones",
             "/api/cartas",
             "/api/preview_estado",
+            "/api/recuerdos_media",
         ]:
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
                 self.assertIn("application/json", response.content_type)
+
+    def test_recuerdos_media_payload_shape(self):
+        response = self.client.get("/api/recuerdos_media")
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertIn("recuerdos", data)
+        self.assertIn("total", data)
+        self.assertIsInstance(data["recuerdos"], list)
+        self.assertGreaterEqual(len(data["recuerdos"]), 1)
+        self.assertTrue(all(str(item).startswith("/static/") for item in data["recuerdos"]))
 
     def test_verificar_nombre_valido(self):
         # AuthModule is side-effect free; no Telegram mock required.

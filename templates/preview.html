@@ -7,8 +7,8 @@
   <style>
     :root {
       --bg: #070b1a;
-      --panel: rgba(255,255,255,.06);
-      --border: rgba(255,255,255,.14);
+      --panel: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.14);
       --text: #e8ecff;
       --muted: #a9b4d0;
       --accent: #ff6b81;
@@ -19,9 +19,10 @@
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      background: radial-gradient(circle at 20% 10%, rgba(138,43,226,.16), transparent 40%),
-                  radial-gradient(circle at 80% 20%, rgba(255,107,129,.14), transparent 45%),
-                  var(--bg);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(138, 43, 226, 0.16), transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(255, 107, 129, 0.14), transparent 45%),
+        var(--bg);
       color: var(--text);
       font-family: Inter, Segoe UI, system-ui, sans-serif;
       min-height: 100vh;
@@ -47,14 +48,34 @@
       font-size: 1rem;
       color: var(--accent2);
     }
-    label { display: block; margin-bottom: 8px; font-size: .92rem; color: var(--muted); }
-    input, select {
+    .inline-fields {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      margin-bottom: 4px;
+    }
+    label { display: block; margin-bottom: 8px; font-size: 0.92rem; color: var(--muted); }
+    input,
+    select {
       width: 100%;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.18);
       color: var(--text);
       border-radius: 9px;
       padding: 10px;
+    }
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .check input {
+      width: auto;
+      margin: 0;
+      padding: 0;
     }
     .btns {
       display: grid;
@@ -62,7 +83,8 @@
       grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       margin-top: 10px;
     }
-    button, a.btn {
+    button,
+    a.btn {
       border: 0;
       border-radius: 9px;
       padding: 10px 12px;
@@ -75,35 +97,35 @@
     }
     .secondary {
       color: var(--text);
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
     pre {
       margin: 0;
       white-space: pre-wrap;
       word-break: break-word;
-      background: rgba(0,0,0,.25);
+      background: rgba(0, 0, 0, 0.25);
       border-radius: 8px;
-      border: 1px solid rgba(255,255,255,.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       padding: 10px;
-      font-size: .86rem;
+      font-size: 0.86rem;
     }
     .tag {
       display: inline-block;
       padding: 4px 8px;
       border-radius: 999px;
-      font-size: .78rem;
+      font-size: 0.78rem;
       font-weight: 700;
-      letter-spacing: .02em;
+      letter-spacing: 0.02em;
     }
-    .tag.ok { background: rgba(21,209,154,.18); color: var(--ok); }
-    .tag.warn { background: rgba(255,107,129,.17); color: var(--warn); }
+    .tag.ok { background: rgba(21, 209, 154, 0.18); color: var(--ok); }
+    .tag.warn { background: rgba(255, 107, 129, 0.17); color: var(--warn); }
     .tips {
       margin-top: 14px;
-      border-top: 1px solid rgba(255,255,255,.12);
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
       padding-top: 10px;
       color: var(--muted);
-      font-size: .86rem;
+      font-size: 0.86rem;
       line-height: 1.4;
     }
     .tips strong { color: var(--text); }
@@ -112,12 +134,34 @@
 <body>
   <div class="wrap">
     <h1>Preview Lab</h1>
-    <p class="muted">Panel de pruebas para ver la web en estado bloqueado/abierto y testear fechas sin tocar codigo cada vez.</p>
+    <p class="muted">Panel de pruebas para validar cambios, estados y rutas sin tocar codigo cada vez.</p>
 
     <div class="grid">
       <section class="panel">
-        <h2>1) Estado de simulacion</h2>
-        <label for="modo">Modo</label>
+        <h2>1) Simulacion y destino</h2>
+        <div class="inline-fields">
+          <div>
+            <label for="destino">Vista a abrir</label>
+            <select id="destino">
+              <option value="/">Home principal (/)</option>
+              <option value="/series">Series (/series)</option>
+              <option value="/universo">Universo (/universo)</option>
+              <option value="/carta">Carta (/carta)</option>
+              <option value="/aurora">Aurora (/aurora)</option>
+              <option value="/timeline">Timeline (/timeline)</option>
+            </select>
+          </div>
+          <div>
+            <label for="seriesTheme">Tema de series</label>
+            <select id="seriesTheme">
+              <option value="net">NET</option>
+              <option value="galaxy">Galaxy</option>
+              <option value="chocolate">Chocolate</option>
+            </select>
+          </div>
+        </div>
+
+        <label for="modo">Modo de estado (Home)</label>
         <select id="modo">
           <option value="real">Real (sin simulacion)</option>
           <option value="locked">Forzar bloqueado</option>
@@ -128,19 +172,21 @@
 
         <label for="fecha">Fecha apertura custom</label>
         <input id="fecha" type="datetime-local">
+        <label class="check"><input id="cacheBust" type="checkbox">Agregar cache-buster (v=timestamp)</label>
 
         <div class="btns">
           <button id="btnAplicar">Abrir preview</button>
-          <button id="btnNueva" class="secondary">Abrir en pestana nueva</button>
+          <button id="btnNueva" class="secondary" type="button">Abrir en pestana nueva</button>
+          <button id="btnResetCache" class="secondary" type="button">Limpiar cache SW</button>
         </div>
         <div class="tips">
-          <div><strong>Recomendado:</strong> usa <em>Bypass cliente</em> para revisar UI al instante.</div>
-          <div>Para simular fecha real (open/locked/custom), activa <code>PREVIEW_MODE_ENABLED=1</code>.</div>
+          <div><strong>Recomendado:</strong> usa <em>Bypass cliente</em> para revisar la UI del Home al instante.</div>
+          <div>Para simular fecha real (open/locked/custom) en backend, activa <code>PREVIEW_MODE_ENABLED=1</code>.</div>
         </div>
       </section>
 
       <section class="panel">
-        <h2>2) Estado efectivo actual</h2>
+        <h2>2) Estado efectivo backend</h2>
         <p id="estadoLinea" class="muted">Cargando...</p>
         <pre id="estadoJson">{}</pre>
       </section>
@@ -159,43 +205,57 @@
 
   <script>
     const modeEl = document.getElementById('modo');
+    const destinoEl = document.getElementById('destino');
+    const seriesThemeEl = document.getElementById('seriesTheme');
     const dateEl = document.getElementById('fecha');
+    const cacheBustEl = document.getElementById('cacheBust');
     const urlEl = document.getElementById('urlPreview');
     const jsonEl = document.getElementById('estadoJson');
     const lineEl = document.getElementById('estadoLinea');
     const btnCopiar = document.getElementById('btnCopiar');
+    const btnResetCache = document.getElementById('btnResetCache');
 
     let previewBackendEnabled = false;
 
-    function modeRequiereBackend(mode) {
-      return ['open', 'locked', 'custom'].includes(mode);
+    function destinoEsHome() {
+      return destinoEl.value === '/';
     }
 
-    function extractQuery(url) {
-      return url.includes('?') ? url.slice(url.indexOf('?')) : '';
+    function modeRequiereBackend(mode) {
+      return destinoEsHome() && ['open', 'locked', 'custom'].includes(mode);
     }
 
     function buildPreviewUrl(opts = {}) {
       const includeClientFallback = opts.includeClientFallback !== false;
       const mode = modeEl.value;
+      const destino = destinoEl.value || '/';
       const q = new URLSearchParams();
 
-      if (mode === 'bypass') {
-        q.set('preview', '1');
-      } else if (mode === 'open') {
-        q.set('preview_state', 'open');
-      } else if (mode === 'locked') {
-        q.set('preview_state', 'locked');
-      } else if (mode === 'custom' && dateEl.value) {
-        q.set('preview_open_at', dateEl.value);
+      if (destino === '/series') {
+        q.set('series_theme', seriesThemeEl.value || 'net');
       }
 
-      if (includeClientFallback && modeRequiereBackend(mode) && !previewBackendEnabled) {
-        q.set('preview_client', '1');
+      if (destinoEsHome()) {
+        if (mode === 'bypass') {
+          q.set('preview', '1');
+        } else if (mode === 'open') {
+          q.set('preview_state', 'open');
+        } else if (mode === 'locked') {
+          q.set('preview_state', 'locked');
+        } else if (mode === 'custom' && dateEl.value) {
+          q.set('preview_open_at', dateEl.value);
+        }
+        if (includeClientFallback && modeRequiereBackend(mode) && !previewBackendEnabled) {
+          q.set('preview_client', '1');
+        }
+      }
+
+      if (cacheBustEl.checked) {
+        q.set('v', Date.now().toString(36));
       }
 
       const query = q.toString();
-      return query ? `/?${query}` : '/';
+      return query ? `${destino}?${query}` : destino;
     }
 
     function refreshUrlBox() {
@@ -209,12 +269,22 @@
     }
 
     async function loadEstado() {
-      const probeQuery = extractQuery(buildPreviewUrl({ includeClientFallback: false }));
+      const mode = modeEl.value;
+      const probeParams = new URLSearchParams();
+      if (mode === 'open') probeParams.set('preview_state', 'open');
+      if (mode === 'locked') probeParams.set('preview_state', 'locked');
+      if (mode === 'custom' && dateEl.value) probeParams.set('preview_open_at', dateEl.value);
+      const probeQuery = probeParams.toString() ? `?${probeParams.toString()}` : '';
+
       const backendData = await fetchPreviewState(probeQuery);
       previewBackendEnabled = !!backendData.preview_mode_enabled;
       refreshUrlBox();
 
-      const effectiveQuery = extractQuery(buildPreviewUrl({ includeClientFallback: true }));
+      const effectiveParams = new URLSearchParams(probeParams);
+      if (modeRequiereBackend(mode) && !previewBackendEnabled) {
+        effectiveParams.set('preview_client', '1');
+      }
+      const effectiveQuery = effectiveParams.toString() ? `?${effectiveParams.toString()}` : '';
       let effectiveData = backendData;
       if (effectiveQuery !== probeQuery) {
         effectiveData = await fetchPreviewState(effectiveQuery);
@@ -226,12 +296,19 @@
       const syncTag = effectiveData.preview_client_fallback_active
         ? '<span class="tag warn">Fallback cliente activo</span>'
         : '<span class="tag ok">Sin fallback cliente</span>';
+      const destinoTag = destinoEsHome()
+        ? '<span class="tag ok">Destino Home</span>'
+        : `<span class="tag warn">Destino ${destinoEl.value} (solo estado informativo)</span>`;
+      const capa = effectiveData.capa_efectiva || 'backend';
+      const fechaApertura = effectiveData.fecha_apertura_efectiva || backendData.fecha_apertura_efectiva || '-';
+      const bloqueado = (typeof effectiveData.bloqueado === 'boolean') ? String(effectiveData.bloqueado) : '-';
 
       lineEl.innerHTML =
-        `${backendTag} · ${syncTag} · capa efectiva: <strong>${effectiveData.capa_efectiva}</strong>` +
-        ` · apertura: <strong>${effectiveData.fecha_apertura_efectiva}</strong>` +
-        ` · bloqueado: <strong>${effectiveData.bloqueado}</strong>` +
+        `${backendTag} · ${syncTag} · ${destinoTag} · capa efectiva: <strong>${capa}</strong>` +
+        ` · apertura: <strong>${fechaApertura}</strong>` +
+        ` · bloqueado: <strong>${bloqueado}</strong>` +
         (backendData.preview_mode_enabled ? '' : ' · para simular con backend, activa PREVIEW_MODE_ENABLED=1');
+
       jsonEl.textContent = JSON.stringify(effectiveData, null, 2);
     }
 
@@ -248,10 +325,30 @@
       }
     }
 
+    async function resetServiceWorkerCache() {
+      try {
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map((r) => r.unregister()));
+        }
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map((k) => caches.delete(k)));
+        }
+        alert('Cache de Service Worker limpiada. Ya puedes abrir preview con la version mas reciente.');
+      } catch (_) {
+        alert('No se pudo limpiar cache automaticamente en este navegador.');
+      }
+    }
+
     modeEl.addEventListener('change', () => { refreshUrlBox(); loadEstado().catch(console.error); });
+    destinoEl.addEventListener('change', () => { refreshUrlBox(); loadEstado().catch(console.error); });
+    seriesThemeEl.addEventListener('change', refreshUrlBox);
+    cacheBustEl.addEventListener('change', refreshUrlBox);
     dateEl.addEventListener('input', () => { refreshUrlBox(); loadEstado().catch(console.error); });
     document.getElementById('btnAplicar').addEventListener('click', () => openPreview(false));
     document.getElementById('btnNueva').addEventListener('click', () => openPreview(true));
+    btnResetCache.addEventListener('click', () => { resetServiceWorkerCache().catch(console.error); });
     btnCopiar.addEventListener('click', async () => {
       try {
         const absolute = `${window.location.origin}${buildPreviewUrl({ includeClientFallback: true })}`;

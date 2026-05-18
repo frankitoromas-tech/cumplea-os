@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/series-mode.css', v='20260518a') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/series-mode.css', v='20260518f') }}">
 </head>
 <body data-music="series" data-music-src="{{ url_for('static', filename='audio/cancion.mp3') }}">
   <canvas id="seriesNebula" aria-hidden="true"></canvas>
@@ -16,19 +16,24 @@
   <main class="series-app">
     <header class="series-topbar">
       <a class="brand" href="/">LUNA ORIGINALS</a>
+      <nav class="mode-switch" aria-label="Modos de plantilla">
+        <a class="mode-pill" data-theme-link="net" href="/series?series_theme=net">NET</a>
+        <a class="mode-pill" data-theme-link="galaxy" href="/series?series_theme=galaxy">Galaxy</a>
+        <a class="mode-pill" data-theme-link="chocolate" href="/series?series_theme=chocolate">Chocolate</a>
+      </nav>
       <a class="back" href="/">Volver al regalo</a>
     </header>
 
     <section class="series-hero">
-      <img class="hero-cover" src="/static/DEFAULT_RECUERDOS/foto5.png" alt="Portada de nuestra serie">
+      <img id="heroCover" class="hero-cover" src="/static/DEFAULT_RECUERDOS/foto5.png" alt="Portada de nuestra serie">
       <div class="hero-copy">
-        <p class="eyebrow">Edicion especial</p>
-        <h1>Nuestra historia, temporada infinita</h1>
-        <p class="summary">Una version mas cinematica del viaje contigo: capitulos, recuerdos orbitando y un final desbloqueable que cambia cada dia.</p>
+        <p class="eyebrow" id="heroEyebrow">Edicion especial</p>
+        <h1 id="heroTitle">Nuestra historia, temporada infinita</h1>
+        <p class="summary" id="heroSummary">Una version mas cinematica del viaje contigo: capitulos, recuerdos orbitando y un final desbloqueable que cambia cada dia.</p>
         <div class="meta-row">
-          <span class="chip">Romance</span>
-          <span class="chip">5 episodios</span>
-          <span class="chip">Calificacion: 100% Luna</span>
+          <span class="chip" id="chipGenre">Romance</span>
+          <span class="chip" id="chipEpisodes">5 episodios</span>
+          <span class="chip" id="chipMode">Modo NET</span>
         </div>
         <div class="hero-actions">
           <button id="btnPlayStory" class="cta">Ver desde el capitulo 1</button>
@@ -50,13 +55,15 @@
             <strong>Luna</strong>
             <span>Siempre en el centro</span>
           </div>
-          <img src="/static/DEFAULT_RECUERDOS/foto1.png" alt="Recuerdo 1" class="orbit-photo p1">
-          <img src="/static/DEFAULT_RECUERDOS/foto2.png" alt="Recuerdo 2" class="orbit-photo p2">
-          <img src="/static/DEFAULT_RECUERDOS/foto3.png" alt="Recuerdo 3" class="orbit-photo p3">
-          <img src="/static/DEFAULT_RECUERDOS/foto4.png" alt="Recuerdo 4" class="orbit-photo p4">
-          <img src="/static/DEFAULT_RECUERDOS/foto5.png" alt="Recuerdo 5" class="orbit-photo p5">
+          <div id="orbitPhotosLayer" class="orbit-photos"></div>
         </div>
         <p id="dynamicEnding" class="ending"></p>
+
+        <section id="chocoBox" class="choco-box" aria-labelledby="chocoTitle" hidden>
+          <h3 id="chocoTitle">Caja de Chocolate</h3>
+          <p class="choco-sub">Abre cada chocolate para revelar un recuerdo y una frase secreta.</p>
+          <div id="chocoGrid" class="choco-grid"></div>
+        </section>
       </section>
     </section>
   </main>
@@ -71,7 +78,7 @@
     </article>
   </dialog>
 
-  <script src="{{ url_for('static', filename='js/series-mode.js', v='20260518a') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/series-mode.js', v='20260518f') }}" defer></script>
   <script src="{{ url_for('static', filename='js/control-musica.js', v='20260518d') }}" defer></script>
 </body>
 </html>

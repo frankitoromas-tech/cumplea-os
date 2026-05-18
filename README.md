@@ -62,7 +62,8 @@ App: <http://127.0.0.1:5000>
 ### Features destacadas
 
 - **Cartas Selladas**: desde `/admin` puedes crear mensajes con fecha de apertura específica. Luna solo los ve cuando llega su momento. Persistencia atómica, cifrada en reposo si `APP_ENCRYPTION_KEY` está configurado.
-- **Modo Serie (`/series`)**: vista cinematica inspirada en plantillas de "serie romántica", con episodios interactivos, galeria en orbita y final dinamico.
+- **Modo Serie (`/series`)**: vista cinematica con 3 temas (`net`, `galaxy`, `chocolate`) via `?series_theme=...`, episodios dinamicos y galeria orbital.
+- **Galeria escalable**: `GET /api/recuerdos_media` lista automaticamente todas las imagenes de `static/DEFAULT_RECUERDOS`, sin hardcodear `foto1..foto5`.
 - **Regalo del día**: `GET /api/regalo_diario` devuelve cada día un payload único (frase + verso + dato personal + paleta + emoji), determinista por fecha — el mismo día siempre produce el mismo regalo, distintos días garantizan variación.
 - **PWA**: La app es instalable en móvil (Android/iOS) gracias al manifest y al service worker que cachea el app-shell para uso offline.
 - **Contador de visitas real**: cada visita a `/` se persiste atómicamente (`ServicioBase.actualizar(callback)`).
@@ -83,7 +84,7 @@ Las APIs admin (`/api/salud`, `/api/test_telegram`) aceptan la cookie, un header
 
 Panel de pruebas:
 
-- `GET /preview`
+- `GET /preview` (ahora permite elegir destino: `/`, `/series`, `/universo`, etc. y tema de `series`)
 - `GET /admin` (incluye acceso rapido a Preview Lab)
 
 ## Pruebas
@@ -140,12 +141,13 @@ Con `PREVIEW_MODE_ENABLED=1`, puedes simular estados sin tocar codigo:
 - `/?preview_state=locked`
 - `/?preview_open_at=2026-08-30T00:00:00`
 - `/?preview=1` (bypass visual cliente, para revisar UI rapido)
+- `/series?series_theme=net|galaxy|chocolate`
 
 El endpoint `GET /api/preview_estado` muestra la fecha base, la efectiva y el estado calculado.
 
 Si ves el countdown cuando esperabas modo abierto:
 
-- Entra por `GET /preview` y elige `Bypass cliente (?preview=1)` para testear UI sin backend.
+- Entra por `GET /preview`, elige destino y modo, y usa `Bypass cliente (?preview=1)` para testear UI sin backend.
 - Para `open/locked/custom`, confirma `PREVIEW_MODE_ENABLED=1` en tu `.env` y reinicia la app.
 - Verifica estado real en `GET /api/preview_estado`.
 
