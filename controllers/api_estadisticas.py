@@ -13,10 +13,10 @@ import time
 from api import APIModule
 
 
-# ── TTL cache: 60s. Evita recalcular en cada petición ────────────
-# Vercel cobra por tiempo de cómputo: este caché reduce la carga del
-# endpoint estadisticas_amor a una llamada real por minuto.
-def _ttl_cache(seconds: int = 60):
+# ── TTL cache acotado ───────────────────────────────────────────
+# Evita recalcular en cada peticion. El tamano se acota para que la
+# memoria no crezca indefinidamente bajo trafico adversarial.
+def _ttl_cache(seconds: int = 60, max_entries: int = 64):
     def decorator(fn):
         cache: dict[tuple, tuple[object, float]] = {}
         def wrapper(*args, **kwargs):
@@ -27,8 +27,14 @@ def _ttl_cache(seconds: int = 60):
                 return hit[0]
             value = fn(*args, **kwargs)
             cache[key] = (value, now)
+            if len(cache) > max_entries:
+                # Drop the oldest entry by insertion order.
+                oldest_key = next(iter(cache))
+                if oldest_key != key:
+                    cache.pop(oldest_key, None)
             return value
         wrapper._cache = cache  # acceso para tests / debug
+        wrapper._ttl_reset = lambda: cache.clear()
         return wrapper
     return decorator
 

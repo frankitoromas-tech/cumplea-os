@@ -1,20 +1,26 @@
 """
 controllers/api_mensajes.py
 MensajesModule - Telegram notifications and secret mailbox endpoints.
+
+Name verification was moved to controllers/api_auth.py to keep the auth
+surface free of side effects (no spammable Telegram calls per attempt).
 """
 from __future__ import annotations
 
 import logging
 import os
+import time
 from datetime import datetime
 from html import escape
 from pathlib import Path
+from threading import Lock
 
 import requests as http_requests
 from flask import request
 
 from api import APIModule
 from services.buzon_service import ServicioBuzon
+from services.security_service import require_admin_token
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +28,28 @@ logger = logging.getLogger(__name__)
 class TelegramMixin:
     """Reusable helpers to send Telegram messages safely."""
 
-    _tg_token = os.getenv("TELEGRAM_TOKEN", "")
-    _tg_chat_id = os.getenv("TELEGRAM_CHAT_ID", "")
-    _tg_url = f"https://api.telegram.org/bot{_tg_token}"
+    _TG_HEALTH_TTL = 30.0  # seconds
+
+    def __init__(self) -> None:
+        self._tg_health_state: tuple[bool, float] = (False, 0.0)
+        self._tg_health_lock = Lock()
+
+    # Resolve lazily so tests / runtime env changes are observed.
+    @property
+    def _tg_token(self) -> str:
+        return os.getenv("TELEGRAM_TOKEN", "")
+
+    @property
+    def _tg_chat_id(self) -> str:
+        return os.getenv("TELEGRAM_CHAT_ID", "")
+
+    @property
+    def _tg_url(self) -> str:
+        return f"https://api.telegram.org/bot{self._tg_token}"
 
     def _telegram(self, texto: str, silencioso: bool = False) -> dict:
-        if not self._tg_token or "PEGA" in self._tg_token:
+        token = self._tg_token
+        if not token or "PEGA" in token:
             return {"ok": False, "error": "Token no configurado"}
         if not self._tg_chat_id:
             return {"ok": False, "error": "Chat ID no configurado"}
@@ -51,14 +73,26 @@ class TelegramMixin:
         except http_requests.exceptions.ConnectionError:
             return {"ok": False, "error": "sin conexion"}
         except Exception as exc:
-            return {"ok": False, "error": str(exc)}
+            logger.exception("Telegram call failed: %s", exc)
+            return {"ok": False, "error": "internal"}
 
     def _tg_ok(self) -> bool:
+        """Cached liveness probe: avoids burning quota on every /api/salud."""
+        now = time.monotonic()
+        with self._tg_health_lock:
+            ok, last = self._tg_health_state
+            if (now - last) < self._TG_HEALTH_TTL and last > 0:
+                return ok
+
         try:
             response = http_requests.get(f"{self._tg_url}/getMe", timeout=6)
-            return bool(response.json().get("ok", False))
+            ok = bool(response.json().get("ok", False))
         except Exception:
-            return False
+            ok = False
+
+        with self._tg_health_lock:
+            self._tg_health_state = (ok, now)
+        return ok
 
 
 class MensajesModule(TelegramMixin, APIModule):
@@ -66,23 +100,24 @@ class MensajesModule(TelegramMixin, APIModule):
     _MAX_MENSAJE_CHARS = 500
 
     def __init__(self):
+        TelegramMixin.__init__(self)
         self._buzon = ServicioBuzon()
         self._legacy_plaintext = os.getenv("LEGACY_PLAINTEXT_MESSAGE_LOG", "0") == "1"
         self._legacy_path = Path(__file__).resolve().parent.parent / "buzon_secreto.txt"
-        super().__init__()
+        APIModule.__init__(self)
 
     def _registrar_rutas(self):
         routes = [
-            ("responder", self.responder, ["POST"]),
-            ("salud", self.salud, ["GET"]),
-            ("test_telegram", self.test_telegram, ["POST"]),
-            ("constelacion_completada", self.constelacion_completada, ["POST"]),
-            ("notificar", self.notificar_evento, ["POST"]),
-            ("verificar_nombre", self.verificar_nombre, ["POST"]),
+            ("responder", self.responder, ["POST"], False),
+            ("salud", self.salud, ["GET"], True),
+            ("test_telegram", self.test_telegram, ["POST"], True),
+            ("constelacion_completada", self.constelacion_completada, ["POST"], False),
+            ("notificar", self.notificar_evento, ["POST"], False),
         ]
-        for path, handler, methods in routes:
-            self.bp.route(f"/{path}", methods=methods, endpoint=f"{path}_alt")(handler)
-            self.bp.route(f"/api/{path}", methods=methods, endpoint=path)(handler)
+        for path, handler, methods, admin_only in routes:
+            view = require_admin_token(handler) if admin_only else handler
+            self.bp.route(f"/{path}", methods=methods, endpoint=f"{path}_alt")(view)
+            self.bp.route(f"/api/{path}", methods=methods, endpoint=path)(view)
 
     def _guardar_local(self, mensaje: str):
         limpio = " ".join(mensaje.splitlines()).strip()
@@ -174,41 +209,5 @@ class MensajesModule(TelegramMixin, APIModule):
         self._telegram(texto, silencioso=True)
         return self._ok({"status": "ok", "evento": evento})
 
-    def verificar_nombre(self):
-        import unicodedata
-
-        datos = request.get_json(silent=True) or {}
-        raw = (datos.get("nombre") or "").strip()
-
-        normalizado = unicodedata.normalize("NFD", str(raw))
-        normalizado = "".join(
-            ch for ch in normalizado if unicodedata.category(ch) != "Mn"
-        )
-        nombre = normalizado.replace(" ", "").lower()
-
-        aliases = {"luna", "luyuromo", "luyu"}
-        if nombre in aliases:
-            self._telegram(
-                f"<b>Acceso concedido</b>: alias {escape(nombre)}",
-                silencioso=True,
-            )
-            return self._ok(
-                {
-                    "valido": True,
-                    "nombre_canonico": "luyuromo",
-                    "alias_usado": nombre,
-                    "mensaje": "Bienvenida, mi Luna.",
-                }
-            )
-
-        if not nombre:
-            mensaje = "Susurrame tu nombre, mi luna."
-        elif len(nombre) < 3:
-            mensaje = "Necesito mas letras para reconocerte."
-        else:
-            mensaje = "Ese nombre no abre la puerta."
-        return self._ok({"valido": False, "mensaje": mensaje})
-
 
 mensajes_module = MensajesModule()
-

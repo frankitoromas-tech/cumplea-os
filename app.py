@@ -10,9 +10,11 @@ from collections import defaultdict, deque
 from pathlib import Path
 from threading import Lock
 
-from flask import Flask, jsonify, request
+from flask import Flask, g, jsonify, request
 from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
+
+from services.security_service import attach_request_id
 
 try:
     from dotenv import load_dotenv
@@ -20,6 +22,22 @@ try:
     load_dotenv()
 except ImportError:
     pass
+
+
+class _RequestIdLogFilter(logging.Filter):
+    """Attach Flask's per-request ID to log records when available."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        request_id = "-"
+        try:
+            from flask import has_request_context
+
+            if has_request_context():
+                request_id = getattr(g, "request_id", "-") or "-"
+        except Exception:
+            pass
+        record.request_id = request_id
+        return True
 
 
 def _configure_logging() -> None:
@@ -35,9 +53,13 @@ def _configure_logging() -> None:
         # Non-fatal in read-only filesystems or restricted runtimes.
         pass
 
+    log_filter = _RequestIdLogFilter()
+    for handler in handlers:
+        handler.addFilter(log_filter)
+
     logging.basicConfig(
         level=log_level,
-        format="%(asctime)s [%(levelname)s] %(name)s :: %(message)s",
+        format="%(asctime)s [%(levelname)s] %(name)s req=%(request_id)s :: %(message)s",
         handlers=handlers,
         force=True,
     )
@@ -56,12 +78,16 @@ def _configure_cors(app: Flask) -> None:
 class _InMemoryRateLimiter:
     """
     Basic per-key sliding-window limiter.
-    Suitable for single-process deployments.
+
+    Suitable for single-process deployments. Under multi-worker Gunicorn the
+    effective per-IP limit scales with the worker count; document accordingly
+    or front the app with an upstream limiter (nginx/CDN) for hard caps.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, max_keys: int = 50_000) -> None:
         self._events: dict[str, deque[float]] = defaultdict(deque)
         self._lock = Lock()
+        self._max_keys = max_keys
 
     def allow(self, key: str, max_requests: int, window_seconds: int) -> tuple[bool, int]:
         now = time.time()
@@ -78,6 +104,11 @@ class _InMemoryRateLimiter:
                 return False, retry_after
 
             queue.append(now)
+
+            if len(self._events) > self._max_keys:
+                # Drop the oldest empty buckets to bound memory.
+                for stale_key in [k for k, v in self._events.items() if not v][:1024]:
+                    self._events.pop(stale_key, None)
             return True, retry_after
 
 
@@ -96,13 +127,16 @@ _API_LIMITS: dict[str, tuple[int, int]] = {
 
 
 def _default_csp_policy() -> str:
+    # `unsafe-inline` is kept for scripts/styles because templates still embed
+    # both. Moving to a nonce-based policy is tracked as future work; the
+    # mitigation today is HTML escaping at every dynamic insertion point.
     return (
         "default-src 'self'; "
         "base-uri 'self'; "
         "object-src 'none'; "
         "frame-ancestors 'none'; "
         "form-action 'self'; "
-        "script-src 'self' 'unsafe-inline'; "
+        "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "img-src 'self' data: https:; "
         "font-src 'self' data: https://fonts.gstatic.com; "
@@ -120,8 +154,10 @@ def create_app() -> Flask:
     app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_CONTENT_LENGTH_BYTES", str(256 * 1024)))
     _configure_cors(app)
     limiter = _InMemoryRateLimiter()
+    app.extensions["rate_limiter"] = limiter
 
     # Blueprints
+    from controllers.api_auth import auth_module
     from controllers.api_capsula import capsula_bp
     from controllers.api_constelaciones import creador_bp
     from controllers.api_contenido import contenido_module
@@ -130,6 +166,7 @@ def create_app() -> Flask:
     from controllers.api_mensajes import mensajes_module
     from controllers.api_regalo import regalo_module
 
+    app.register_blueprint(auth_module.bp)
     app.register_blueprint(mensajes_module.bp)
     app.register_blueprint(estadisticas_module.bp)
     app.register_blueprint(regalo_module.bp)
@@ -137,6 +174,10 @@ def create_app() -> Flask:
     app.register_blueprint(efectos_module.bp)
     app.register_blueprint(creador_bp)
     app.register_blueprint(capsula_bp)
+
+    @app.before_request
+    def _attach_id():
+        attach_request_id()
 
     @app.before_request
     def _apply_rate_limits():
@@ -172,6 +213,10 @@ def create_app() -> Flask:
         response.headers.setdefault("Cross-Origin-Opener-Policy", "same-origin")
         response.headers.setdefault("Cross-Origin-Resource-Policy", "same-origin")
 
+        request_id = getattr(g, "request_id", None)
+        if request_id:
+            response.headers.setdefault("X-Request-ID", request_id)
+
         if request.is_secure:
             response.headers.setdefault(
                 "Strict-Transport-Security",
@@ -187,9 +232,30 @@ def create_app() -> Flask:
 
         return response
 
+    @app.errorhandler(413)
+    def _too_large(_):
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "mensaje": "Carga util demasiado grande.",
+                }
+            ),
+            413,
+        )
+
     @app.get("/healthz")
     def healthz():
-        return jsonify({"status": "ok", "encryption_enabled": bool(os.getenv("APP_ENCRYPTION_KEY"))}), 200
+        return (
+            jsonify(
+                {
+                    "status": "ok",
+                    "encryption_enabled": bool(os.getenv("APP_ENCRYPTION_KEY")),
+                    "admin_protected": bool(os.getenv("ADMIN_TOKEN")),
+                }
+            ),
+            200,
+        )
 
     @app.get("/api/healthz")
     def healthz_api():

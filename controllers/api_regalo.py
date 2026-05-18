@@ -8,6 +8,7 @@ from datetime import datetime
 from flask import render_template
 from jinja2 import TemplateNotFound
 from controllers.api_contenido import ContenidoModule
+from services.security_service import require_admin_session
 
 
 class RegaloBase(ContenidoModule):
@@ -39,7 +40,7 @@ class RegaloBase(ContenidoModule):
         # ya está registrado en app.py como blueprint separado. Llamarlo aquí
         # generaba rutas duplicadas (/api/frase_del_dia, /api/poema, etc.).
         self.bp.route("/"                )(self.index)
-        self.bp.route("/admin"           )(self.admin)
+        self.bp.route("/admin"           )(require_admin_session(self.admin))
         self.bp.route("/carta"           )(self.carta)
         self.bp.route("/universo"        )(self.universo)
         self.bp.route("/api/abrir_regalo")(self.abrir_regalo)

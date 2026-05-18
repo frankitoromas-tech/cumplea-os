@@ -1,14 +1,15 @@
 """
 creador_constelaciones.py - Blueprint del Creador de Constelaciones.
 
-Mejora profesional:
-- Evita perder datos historicos repartidos entre `data/` y `controllers/data/`.
-- Valida y normaliza payload para evitar coordenadas invalidas.
-- Mantiene el guardado Vercel-safe (read-only filesystem).
+- Lee el archivo primario via ServicioConstelacion (respeta el cifrado).
+- Mantiene compatibilidad de lectura con el archivo legacy plaintext
+  en `controllers/data/`.
+- Valida y normaliza el payload para evitar coordenadas invalidas.
 """
 from __future__ import annotations
 
 import json
+import logging
 import math
 from pathlib import Path
 
@@ -16,22 +17,31 @@ from flask import Blueprint, jsonify, request
 
 from services.constelacion_service import ServicioConstelacion
 
+logger = logging.getLogger(__name__)
 creador_bp = Blueprint("creador", __name__)
 _SERVICIO = ServicioConstelacion()
-_PRIMARY_FILE = _SERVICIO.ruta
 _LEGACY_FILE = Path(__file__).resolve().parent / "data" / "constelaciones_creadas.json"
 _MAX_ESTRELLAS = 200
 _MAX_NOMBRE_LEN = 80
 
 
-def _leer_lista_segura(path: Path) -> list:
+def _leer_legacy() -> list:
+    """
+    Read the legacy plaintext file. Returns [] if missing or unparseable.
+    Errors are logged so operators notice corruption instead of silently
+    losing historical entries.
+    """
     try:
-        if path.exists():
-            raw = json.loads(path.read_text(encoding="utf-8"))
-            if isinstance(raw, list):
-                return raw
-    except Exception:
-        pass
+        if not _LEGACY_FILE.exists():
+            return []
+        raw = json.loads(_LEGACY_FILE.read_text(encoding="utf-8"))
+        if isinstance(raw, list):
+            return raw
+        logger.warning("Legacy file %s is not a list (%s).", _LEGACY_FILE, type(raw).__name__)
+    except json.JSONDecodeError:
+        logger.exception("Legacy file %s is corrupt JSON.", _LEGACY_FILE)
+    except OSError:
+        logger.exception("Cannot read legacy file %s.", _LEGACY_FILE)
     return []
 
 
@@ -52,6 +62,8 @@ def _normalizar_estrellas(valor: object) -> list[dict]:
             continue
         x, y = punto.get("x"), punto.get("y")
         if not isinstance(x, (int, float)) or not isinstance(y, (int, float)):
+            continue
+        if isinstance(x, bool) or isinstance(y, bool):
             continue
         x_num = float(x)
         y_num = float(y)
@@ -78,14 +90,13 @@ def _normalizar_constelacion(raw: object) -> dict | None:
 
 def _cargar_historico() -> list[dict]:
     """
-    Conserva compatibilidad con datos antiguos:
-    - `data/constelaciones_creadas.json` (ruta actual)
-    - `controllers/data/constelaciones_creadas.json` (ruta legacy)
+    Merge data from the primary (possibly encrypted) store and the legacy
+    plaintext file, deduplicating identical entries.
     """
     historico: list[dict] = []
     seen: set[str] = set()
 
-    for registro in _leer_lista_segura(_PRIMARY_FILE) + _leer_lista_segura(_LEGACY_FILE):
+    for registro in _SERVICIO.leer_datos() + _leer_legacy():
         normalizado = _normalizar_constelacion(registro)
         if not normalizado:
             continue
@@ -113,11 +124,21 @@ def guardar():
     historico = _cargar_historico()
     historico.append(nueva_constelacion)
     guardado = _SERVICIO.guardar_datos(historico)
+    if not guardado:
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "mensaje": "No se pudo persistir la constelacion. Revisa los logs del servidor.",
+                }
+            ),
+            500,
+        )
 
     return jsonify(
         {
             "status": "ok",
-            "guardado": guardado,
+            "guardado": True,
             "total": len(historico),
             "mensaje": (
                 f"La constelacion '{nueva_constelacion['nombre']}' "

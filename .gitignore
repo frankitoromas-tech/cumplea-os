@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyd
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -18,6 +19,10 @@ buzon_secreto.txt
 data/*.json
 controllers/data/*.json
 
+# Lock + temp files written by services/base_service.py
+.*.lock
+.*.tmp
+
 # Local sensitive config
 .env
 .env.*
@@ -31,3 +36,6 @@ Thumbs.db
 
 # Railway local link metadata
 .railway/
+
+# Vercel local link metadata (kept ignored even though vercel.json is gone)
+.vercel/
