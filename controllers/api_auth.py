@@ -29,6 +29,8 @@ from services.security_service import (
     _provided_admin_token,  # type: ignore[attr-defined]
     clear_admin_cookie,
     make_admin_login_response,
+    mint_csrf_token,
+    verify_csrf_token,
 )
 
 logger = logging.getLogger(__name__)
@@ -71,6 +73,7 @@ _LOGIN_TEMPLATE = """<!doctype html>
 <body>
   <form class="card" method="post" action="/admin/login">
     <h1>Panel admin</h1>
+    <input type="hidden" name="csrf" value="{csrf}">
     <label for="t">Admin token</label>
     <input id="t" name="token" type="password" autocomplete="off" autofocus required>
     <button type="submit">Entrar</button>
@@ -128,10 +131,12 @@ class AuthModule(APIModule):
 
     # ── Admin login flow ────────────────────────────────────
     def _render_login(self, error: str = "") -> tuple[str, int]:
-        error_html = (
-            f'<div class="err">{escape(error)}</div>' if error else ""
-        )
-        return _LOGIN_TEMPLATE.format(error=error_html), 200
+        error_html = f'<div class="err">{escape(error)}</div>' if error else ""
+        try:
+            csrf = mint_csrf_token()
+        except RuntimeError:
+            csrf = ""
+        return _LOGIN_TEMPLATE.format(error=error_html, csrf=escape(csrf)), 200
 
     def admin_login_form(self):
         if not _expected_admin_token():
@@ -153,6 +158,14 @@ class AuthModule(APIModule):
                 "<p>Configura <code>ADMIN_TOKEN</code> en el entorno.</p>",
                 503,
             )
+        csrf = (request.form.get("csrf") or "").strip()
+        if not verify_csrf_token(csrf):
+            logger.warning("Admin login CSRF failed from %s", request.remote_addr or "unknown")
+            body, _ = self._render_login("Sesion expirada. Recarga e intenta de nuevo.")
+            response = make_response(body, 403)
+            response.headers["Content-Type"] = "text/html; charset=utf-8"
+            return response
+
         provided = (request.form.get("token") or _provided_admin_token() or "").strip()
         if not _check_token(provided, expected):
             logger.warning(

@@ -522,6 +522,7 @@ function mostrarFiesta(datos, opciones = {}) {
   sorpresa.classList.add('mostrar');
 
   activarVelas();
+  document.dispatchEvent(new CustomEvent('pastel:reinit'));
   const listaMsj = $('listaMensajes');
   listaMsj.innerHTML = '';
 

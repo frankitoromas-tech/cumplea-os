@@ -152,6 +152,10 @@
   position: relative;
   width: 14px;
   height: 64px;
+  padding: 24px 15px 0;
+  margin: -24px -15px 0;
+  touch-action: manipulation;
+  cursor: pointer;
   border-radius: 4px;
   background: linear-gradient(
     180deg,

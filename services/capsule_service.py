@@ -33,6 +33,10 @@ class ServicioCapsula(ServicioBase):
 
     def guardar_mensaje_futuro(self, contenido: str, fecha_apertura: str) -> bool:
         nuevo = MensajeCapsula(contenido, fecha_apertura)
-        datos = self.leer_datos()
-        datos.append(nuevo.to_dict())
-        return self.guardar_datos(datos)
+
+        def append(current):
+            datos = list(current) if isinstance(current, list) else []
+            datos.append(nuevo.to_dict())
+            return datos
+
+        return self.actualizar(append, default=[]) is not None

@@ -29,6 +29,8 @@ ADMIN_COOKIE_MAX_AGE = 60 * 60 * 8  # 8 hours
 _ADMIN_HEADER = "X-Admin-Token"
 _ADMIN_QUERY = "admin_token"
 _SIGNER_SALT = "cumpleaos-admin-v1"
+_CSRF_SALT = "cumpleaos-csrf-v1"
+_CSRF_MAX_AGE = 60 * 30  # 30 minutes
 
 
 def _expected_admin_token() -> str:
@@ -50,6 +52,25 @@ def _signer() -> URLSafeTimedSerializer | None:
     if not expected:
         return None
     return URLSafeTimedSerializer(secret_key=expected, salt=_SIGNER_SALT)
+
+
+def mint_csrf_token() -> str:
+    """Short-lived token for POST /admin/login (double-submit)."""
+    signer = _signer()
+    if signer is None:
+        raise RuntimeError("ADMIN_TOKEN no configurado.")
+    return signer.dumps({"csrf": True})
+
+
+def verify_csrf_token(value: str) -> bool:
+    signer = _signer()
+    if signer is None or not value:
+        return False
+    try:
+        payload = signer.loads(value, max_age=_CSRF_MAX_AGE)
+    except (BadSignature, SignatureExpired):
+        return False
+    return bool(payload.get("csrf"))
 
 
 def mint_admin_cookie() -> str:
@@ -104,6 +125,23 @@ def require_admin_token(view: Callable):
         cookie = request.cookies.get(ADMIN_COOKIE, "")
         if verify_admin_cookie(cookie):
             return view(*args, **kwargs)
+
+        if (os.getenv("ADMIN_TOKEN_QUERY_ALLOWED") or "0").strip() != "1":
+            if request.args.get(_ADMIN_QUERY):
+                logger.warning(
+                    "Admin token via query string rejected on %s from %s.",
+                    request.path,
+                    request.remote_addr or "unknown",
+                )
+                return (
+                    jsonify(
+                        {
+                            "status": "error",
+                            "mensaje": "Usa el header X-Admin-Token o la cookie de sesion.",
+                        }
+                    ),
+                    403,
+                )
 
         provided = _provided_admin_token()
         if not provided:

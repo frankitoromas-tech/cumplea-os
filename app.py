@@ -15,6 +15,7 @@ from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from services import metrics_service
+from services.request_guards import validate_write_origin
 from services.security_service import attach_request_id, require_admin_token
 from services.visitas_service import ServicioVisitas
 
@@ -125,6 +126,7 @@ _API_LIMITS: dict[str, tuple[int, int]] = {
     "/api/test_telegram": (5, 60),
     "/test_telegram": (5, 60),
     "/api/guardar_constelacion": (12, 60),
+    "/admin/login": (10, 60),
 }
 
 
@@ -204,6 +206,22 @@ def create_app() -> Flask:
         attach_request_id()
 
     @app.before_request
+    def _enforce_write_origin():
+        ok, _kind = validate_write_origin()
+        if ok:
+            return None
+        metrics_service.bump("security.origin_blocked")
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "mensaje": "Origen no permitido para esta operacion.",
+                }
+            ),
+            403,
+        )
+
+    @app.before_request
     def _apply_rate_limits():
         if request.method not in {"POST", "PUT", "PATCH", "DELETE"}:
             return None
@@ -249,9 +267,15 @@ def create_app() -> Flask:
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         response.headers.setdefault("X-Frame-Options", "DENY")
         response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
-        response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+        # microphone=(self): pastel.js / cake-3d soplan velas con getUserMedia.
+        response.headers.setdefault(
+            "Permissions-Policy",
+            "camera=(), microphone=(self), geolocation=()",
+        )
         response.headers.setdefault("Cross-Origin-Opener-Policy", "same-origin")
         response.headers.setdefault("Cross-Origin-Resource-Policy", "same-origin")
+        response.headers.setdefault("X-Permitted-Cross-Domain-Policies", "none")
+        response.headers.setdefault("X-DNS-Prefetch-Control", "off")
 
         request_id = getattr(g, "request_id", None)
         if request_id:

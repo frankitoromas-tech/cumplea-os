@@ -16,6 +16,7 @@ from pathlib import Path
 from flask import Blueprint, jsonify, request
 
 from services.constelacion_service import ServicioConstelacion
+from services.request_guards import honeypot_triggered, require_json_body
 
 logger = logging.getLogger(__name__)
 creador_bp = Blueprint("creador", __name__)
@@ -88,15 +89,15 @@ def _normalizar_constelacion(raw: object) -> dict | None:
         return None
 
 
-def _cargar_historico() -> list[dict]:
+def _merge_historico(primary: object) -> list[dict]:
     """
-    Merge data from the primary (possibly encrypted) store and the legacy
-    plaintext file, deduplicating identical entries.
+    Merge primary store + legacy plaintext file, deduplicating identical entries.
     """
     historico: list[dict] = []
     seen: set[str] = set()
+    fuente = list(primary) if isinstance(primary, list) else []
 
-    for registro in _SERVICIO.leer_datos() + _leer_legacy():
+    for registro in fuente + _leer_legacy():
         normalizado = _normalizar_constelacion(registro)
         if not normalizado:
             continue
@@ -109,9 +110,17 @@ def _cargar_historico() -> list[dict]:
     return historico
 
 
+def _cargar_historico() -> list[dict]:
+    return _merge_historico(_SERVICIO.leer_datos())
+
+
 @creador_bp.route("/api/guardar_constelacion", methods=["POST"])
+@require_json_body
 def guardar():
     datos = request.get_json(silent=True) or {}
+    if honeypot_triggered(datos):
+        logger.info("Honeypot on guardar_constelacion from %s", request.remote_addr)
+        return jsonify({"status": "ok", "guardado": True}), 200
 
     try:
         nueva_constelacion = {
@@ -121,10 +130,13 @@ def guardar():
     except ValueError as exc:
         return jsonify({"status": "error", "mensaje": str(exc)}), 400
 
-    historico = _cargar_historico()
-    historico.append(nueva_constelacion)
-    guardado = _SERVICIO.guardar_datos(historico)
-    if not guardado:
+    def append(current: object) -> list[dict]:
+        historico = _merge_historico(current)
+        historico.append(nueva_constelacion)
+        return historico
+
+    historico = _SERVICIO.actualizar(append, default=[])
+    if historico is None:
         return (
             jsonify(
                 {
