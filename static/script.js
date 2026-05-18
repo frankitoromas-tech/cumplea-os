@@ -665,55 +665,11 @@ function setAuthPassed() {
   try { sessionStorage.setItem('luna:authPassed', '1'); } catch (_) {}
 }
 
-function normalizarFlag(raw) {
-  const v = (raw || '').toString().trim().toLowerCase();
-  return v === '1' || v === 'true' || v === 'on' || v === 'yes';
-}
-
-function parsePreviewDate(raw) {
-  if (!raw) return null;
-  const s = String(raw).trim();
-  if (!s) return null;
-  const parsed = new Date(s);
-  if (Number.isNaN(parsed.getTime())) return null;
-  return parsed;
-}
-
 function resolverPreview() {
-  const params = new URLSearchParams(window.location.search);
-  const previewBypass = normalizarFlag(params.get('preview'));
-  const previewClient = normalizarFlag(params.get('preview_client'));
-  const estadoRaw = (params.get('preview_state') || '').toString().trim().toLowerCase();
-  const customDate = parsePreviewDate(params.get('preview_open_at'));
-
-  let estadoCliente = null;
-  let segundosCliente = 0;
-  if (previewClient) {
-    if (estadoRaw === 'open' || estadoRaw === 'abierto') {
-      estadoCliente = 'open';
-    } else if (estadoRaw === 'locked' || estadoRaw === 'bloqueado') {
-      estadoCliente = 'locked';
-      segundosCliente = 7 * 24 * 3600;
-    } else if (customDate) {
-      const diff = Math.ceil((customDate.getTime() - Date.now()) / 1000);
-      if (diff > 0) {
-        estadoCliente = 'locked';
-        segundosCliente = diff;
-      } else {
-        estadoCliente = 'open';
-      }
-    } else {
-      estadoCliente = 'open';
-    }
+  if (window.__previewSync?.resolverPreview) {
+    return window.__previewSync.resolverPreview();
   }
-
-  return {
-    previewBypass,
-    previewClient,
-    estadoCliente,
-    segundosCliente,
-    skipAuth: previewBypass || previewClient,
-  };
+  return { previewBypass: false, previewClient: false, skipAuth: false };
 }
 
 function mostrarEstadoAbiertoPreview() {
@@ -854,6 +810,7 @@ function lanzarFlujo() {
 function cruzarEstado() {
   const previewCtx = resolverPreview();
   if (previewCtx.previewBypass) {
+    window.__previewSync?.showPreviewBanner?.();
     mostrarEstadoAbiertoPreview();
     console.info('[flujo] preview=1 activo, se omite /api/estado');
     return;
@@ -869,14 +826,9 @@ function cruzarEstado() {
     return;
   }
 
-  const pageParams = new URLSearchParams(window.location.search);
-  const passthrough = new URLSearchParams();
-  ['preview_state', 'preview_open_at'].forEach((k) => {
-    const v = pageParams.get(k);
-    if (v) passthrough.set(k, v);
-  });
-  const estadoUrl = passthrough.toString()
-    ? `/api/estado?${passthrough.toString()}`
+  // Backend: mismos query params que Preview Lab (/api/estado sincronizado)
+  const estadoUrl = window.__previewSync?.buildApiUrl
+    ? window.__previewSync.buildApiUrl('/api/estado')
     : '/api/estado';
 
   console.info('[flujo] cruzarEstado() — fetching', estadoUrl);
