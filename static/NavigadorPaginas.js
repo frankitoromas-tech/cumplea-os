@@ -9,6 +9,7 @@ class NavigadorPaginas {
   constructor() {
     this.paginas = [
       { href:'/carta',     emoji:'💌', label:'Carta',    tooltip:'Una carta escrita para ti' },
+      { href:'/series',    emoji:'🎬', label:'Serie',    tooltip:'Version cinematica de nuestra historia' },
       { href:'/universo',  emoji:'🌌', label:'Universo', tooltip:'Nuestro sistema solar' },
       { href:'/aurora',    emoji:'🌠', label:'Aurora',   tooltip:'La aurora boreal interactiva' },
       { href:'/timeline',  emoji:'📖', label:'Historia', tooltip:'Nuestra línea del tiempo' },
@@ -24,6 +25,7 @@ class NavigadorPaginas {
       position:fixed; bottom:24px; left:50%;
       transform:translateX(-50%) translateY(100px);
       z-index:500; display:flex; gap:10px;
+      max-width:min(96vw, 840px); overflow-x:auto; scrollbar-width:none;
       background:rgba(4,7,26,.85);
       border:1px solid rgba(255,255,255,.1);
       border-radius:50px; padding:8px 14px;

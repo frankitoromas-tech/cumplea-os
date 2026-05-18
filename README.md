@@ -62,6 +62,7 @@ App: <http://127.0.0.1:5000>
 ### Features destacadas
 
 - **Cartas Selladas**: desde `/admin` puedes crear mensajes con fecha de apertura específica. Luna solo los ve cuando llega su momento. Persistencia atómica, cifrada en reposo si `APP_ENCRYPTION_KEY` está configurado.
+- **Modo Serie (`/series`)**: vista cinematica inspirada en plantillas de "serie romántica", con episodios interactivos, galeria en orbita y final dinamico.
 - **Regalo del día**: `GET /api/regalo_diario` devuelve cada día un payload único (frase + verso + dato personal + paleta + emoji), determinista por fecha — el mismo día siempre produce el mismo regalo, distintos días garantizan variación.
 - **PWA**: La app es instalable en móvil (Android/iOS) gracias al manifest y al service worker que cachea el app-shell para uso offline.
 - **Contador de visitas real**: cada visita a `/` se persiste atómicamente (`ServicioBase.actualizar(callback)`).

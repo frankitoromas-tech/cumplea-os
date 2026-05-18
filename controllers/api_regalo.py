@@ -43,6 +43,7 @@ class RegaloBase(ContenidoModule):
         self.bp.route("/admin"           )(require_admin_session(self.admin))
         self.bp.route("/preview"         )(self.preview)
         self.bp.route("/carta"           )(self.carta)
+        self.bp.route("/series"          )(self.series)
         self.bp.route("/universo"        )(self.universo)
         self.bp.route("/api/abrir_regalo")(self.abrir_regalo)
 
@@ -80,6 +81,9 @@ class RegaloBase(ContenidoModule):
 
     def carta(self):
         return self._render_template_compat("carta.html")
+
+    def series(self):
+        return self._render_template_compat("series.html")
 
     def universo(self):
         return self._render_template_compat("universo.html")

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Luna Originals - Nuestra Serie</title>
+  <meta name="theme-color" content="#070b1a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/series-mode.css', v='20260518a') }}">
+</head>
+<body data-music="series" data-music-src="{{ url_for('static', filename='audio/cancion.mp3') }}">
+  <canvas id="seriesNebula" aria-hidden="true"></canvas>
+
+  <main class="series-app">
+    <header class="series-topbar">
+      <a class="brand" href="/">LUNA ORIGINALS</a>
+      <a class="back" href="/">Volver al regalo</a>
+    </header>
+
+    <section class="series-hero">
+      <img class="hero-cover" src="/static/DEFAULT_RECUERDOS/foto5.png" alt="Portada de nuestra serie">
+      <div class="hero-copy">
+        <p class="eyebrow">Edicion especial</p>
+        <h1>Nuestra historia, temporada infinita</h1>
+        <p class="summary">Una version mas cinematica del viaje contigo: capitulos, recuerdos orbitando y un final desbloqueable que cambia cada dia.</p>
+        <div class="meta-row">
+          <span class="chip">Romance</span>
+          <span class="chip">5 episodios</span>
+          <span class="chip">Calificacion: 100% Luna</span>
+        </div>
+        <div class="hero-actions">
+          <button id="btnPlayStory" class="cta">Ver desde el capitulo 1</button>
+          <button id="btnShareSeries" class="cta ghost">Compartir enlace</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="series-layout">
+      <section class="episodes-block" aria-labelledby="episodesTitle">
+        <h2 id="episodesTitle">Episodios</h2>
+        <div id="episodesGrid" class="episodes-grid"></div>
+      </section>
+
+      <section class="orbit-block" aria-labelledby="orbitTitle">
+        <h2 id="orbitTitle">Galeria en orbita</h2>
+        <div class="orbit-stage" id="orbitStage">
+          <div class="orbit-core">
+            <strong>Luna</strong>
+            <span>Siempre en el centro</span>
+          </div>
+          <img src="/static/DEFAULT_RECUERDOS/foto1.png" alt="Recuerdo 1" class="orbit-photo p1">
+          <img src="/static/DEFAULT_RECUERDOS/foto2.png" alt="Recuerdo 2" class="orbit-photo p2">
+          <img src="/static/DEFAULT_RECUERDOS/foto3.png" alt="Recuerdo 3" class="orbit-photo p3">
+          <img src="/static/DEFAULT_RECUERDOS/foto4.png" alt="Recuerdo 4" class="orbit-photo p4">
+          <img src="/static/DEFAULT_RECUERDOS/foto5.png" alt="Recuerdo 5" class="orbit-photo p5">
+        </div>
+        <p id="dynamicEnding" class="ending"></p>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="episodeModal" class="episode-modal">
+    <article class="modal-card">
+      <button id="btnCloseEpisode" class="close" aria-label="Cerrar detalle">x</button>
+      <img id="modalImage" src="" alt="">
+      <p id="modalTag" class="tag"></p>
+      <h3 id="modalTitle"></h3>
+      <p id="modalText"></p>
+    </article>
+  </dialog>
+
+  <script src="{{ url_for('static', filename='js/series-mode.js', v='20260518a') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/control-musica.js', v='20260518d') }}" defer></script>
+</body>
+</html>
