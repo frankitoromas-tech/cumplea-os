@@ -111,7 +111,9 @@ body {
 .net-cine-wrap {
   width: min(980px, calc(100vw - 22px));
   border: 1px solid rgba(255, 255, 255, 0.14);
-  background: linear-gradient(140deg, rgba(6, 8, 20, 0.94), rgba(11, 8, 24, 0.92));
+  background:
+    radial-gradient(140% 120% at 16% 0%, rgba(206, 24, 54, 0.32), transparent 52%),
+    linear-gradient(138deg, rgba(4, 5, 13, 0.96), rgba(9, 9, 20, 0.94));
   border-radius: 22px;
   padding: clamp(18px, 3vw, 30px);
   box-shadow: 0 26px 76px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.09);
@@ -147,9 +149,48 @@ body {
   z-index: 1;
 }
 
+.net-headbar {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 2vw, 18px);
+  margin-bottom: 15px;
+  color: rgba(248, 248, 253, 0.82);
+  font-size: 0.76rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.net-logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(165deg, #f01449, #b8042b);
+  box-shadow: 0 10px 25px rgba(240, 20, 73, 0.34);
+  color: #fff;
+  font-family: var(--fuente-titulo);
+  font-size: 1.08rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.net-headbar-right {
+  margin-left: auto;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 5px 10px;
+  text-transform: none;
+  letter-spacing: 0.03em;
+  font-size: 0.74rem;
+  color: #ffe4ef;
+  background: rgba(255, 255, 255, 0.06);
+}
+
 .net-tag {
   font-family: var(--fuente-titulo);
-  color: #ff6f82;
+  color: #ff5d83;
   letter-spacing: 1.8px;
   text-transform: uppercase;
   font-size: 0.76rem;
@@ -332,7 +373,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.17);
   border-radius: 999px;
   padding: 9px 16px;
-  background: linear-gradient(120deg, #cb2747, #ff5f70);
+  background: linear-gradient(120deg, #e50914, #ff4868);
   color: #fff;
   font-family: var(--fuente-titulo);
   cursor: pointer;
@@ -341,11 +382,12 @@ body {
 
 .net-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 26px rgba(231, 65, 96, 0.44);
+  box-shadow: 0 10px 26px rgba(229, 9, 20, 0.45);
 }
 
 .net-btn-ghost {
   background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 .bloqueo-eyebrow {
@@ -1052,6 +1094,9 @@ body {
   .net-poster-shell { min-height: 170px; max-height: 220px; }
   .net-poster-shell img { min-height: 170px; max-height: 220px; }
   .net-feature-copy { padding: 12px; }
+  .net-headbar { gap: 10px; font-size: 0.69rem; }
+  .net-headbar > span:not(.net-logo):not(.net-headbar-right) { display: none; }
+  .net-headbar-right { margin-left: 0; margin-right: auto; }
   .net-eta { width: 100%; justify-content: space-between; }
   .net-eta span { flex: 1; min-width: 0; }
   .net-actions { width: 100%; }

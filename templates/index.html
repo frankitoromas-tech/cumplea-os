@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styless.css', v='20260518d') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styless.css', v='20260519b') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/immersive.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/pastel.css', v='20260518c') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-polish.css', v='20260518c') }}">
@@ -24,6 +24,7 @@
 
 <audio id="musicaFondo"  src="{{ url_for('static', filename='audio/cancion.mp3') }}"      loop></audio>
 <audio id="musicaLuna"   src="{{ url_for('static', filename='audio/cancion_luna.mp3') }}" loop></audio>
+<audio id="musicaBloqueoNet" src="{{ url_for('static', filename='audio/velas-y-espera.mp3') }}" loop preload="auto"></audio>
 
 <div id="pantallaBloqueo" class="pantalla-bloqueo oculto">
 
@@ -92,8 +93,15 @@
     </section>
 
     <section class="bloqueo-slide bloqueo-slide-net" id="slideCineNet" data-slide-index="1">
-      <div class="net-cine-wrap" id="netCineWrap">
+      <div class="net-cine-wrap" id="netCineWrap" data-release-iso="2026-08-30T00:00:00-05:00">
         <div class="net-cine-backdrop" aria-hidden="true"></div>
+        <div class="net-headbar" aria-hidden="true">
+          <span class="net-logo">N</span>
+          <span>Inicio</span>
+          <span>Películas</span>
+          <span>Mi lista</span>
+          <span class="net-headbar-right">Lunaflix</span>
+        </div>
         <p class="net-tag">Luna Originals · estreno privado</p>
         <h2 class="net-title">Acompáñame a ver esta película</h2>
         <p class="net-sub">Plan oficial: play, manta y nosotros comentando cada escena.</p>
@@ -114,13 +122,12 @@
               <span class="net-pill">Romance</span>
               <span class="net-pill">Drama suave</span>
               <span class="net-pill">Larga distancia</span>
-              <span class="net-pill">Estreno: 30/08/2026</span>
             </div>
           </div>
         </article>
 
         <div class="net-estreno" aria-label="Cuenta regresiva al estreno">
-          <p class="net-estreno-label">Cuenta regresiva al estreno</p>
+          <p class="net-estreno-label">Cuenta regresiva al estreno · 30/08/2026</p>
           <div class="net-eta" id="netEstrenoCuenta" aria-live="polite">
             <span><strong id="netEstrenoDias">--</strong>d</span>
             <span><strong id="netEstrenoHoras">--</strong>h</span>
@@ -300,7 +307,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 <script src="{{ url_for('static', filename='js/preview-sync.js', v='20260519a') }}"></script>
-<script src="{{ url_for('static', filename='script.js', v='20260519a') }}"></script>
+<script src="{{ url_for('static', filename='script.js', v='20260519b') }}"></script>
 <script src="{{ url_for('static', filename='js/pastel.js', v='20260518c') }}" defer></script>
 <script src="{{ url_for('static', filename='capsula.js') }}"></script>
 <script src="{{ url_for('static', filename='creador.js') }}"></script>

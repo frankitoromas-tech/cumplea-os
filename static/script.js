@@ -606,12 +606,27 @@ let canvasBloqueo = null;
 let juegoConstelacion = null;
 let bloqueoWheelLockUntil = 0;
 let bloqueoSlideActiva = 0;
+const ESTRENO_NET_FIJO_ISO = '2026-08-30T00:00:00-05:00';
 
 function pad2(n) {
   return String(Math.max(0, Math.floor(n))).padStart(2, '0');
 }
 
-function actualizarIndicadoresEstrenoNet(dias, horas, minutos, segundos, totalSegundos) {
+function calcularCuentaEstrenoNet() {
+  const netWrap = $('netCineWrap');
+  const releaseIso = netWrap?.dataset?.releaseIso || ESTRENO_NET_FIJO_ISO;
+  const releaseMs = new Date(releaseIso).getTime();
+  const diffMs = Math.max(0, releaseMs - Date.now());
+  const totalSegundos = Math.floor(diffMs / 1000);
+  const dias = Math.floor(totalSegundos / 86400);
+  const horas = Math.floor((totalSegundos % 86400) / 3600);
+  const minutos = Math.floor((totalSegundos % 3600) / 60);
+  const segundos = totalSegundos % 60;
+  return { dias, horas, minutos, segundos, totalSegundos };
+}
+
+function actualizarIndicadoresEstrenoNet() {
+  const { dias, horas, minutos, segundos, totalSegundos } = calcularCuentaEstrenoNet();
   const set = (id, val) => {
     const el = $(id);
     if (el) el.textContent = val;
@@ -644,6 +659,36 @@ function actualizarIndicadoresEstrenoNet(dias, horas, minutos, segundos, totalSe
   estado.textContent = 'Es hoy: solo falta darle play.';
 }
 
+function syncMusicaBloqueoNet(forzarPlay = false) {
+  const audio = $('musicaBloqueoNet');
+  const pantallaBloqueo = $('pantallaBloqueo');
+  if (!audio || !pantallaBloqueo) return;
+
+  const bloqueoVisible = !pantallaBloqueo.classList.contains('oculto');
+  if (!bloqueoVisible) {
+    audio.pause();
+    return;
+  }
+
+  const debeSonar = forzarPlay || bloqueoVisible;
+  if (!debeSonar) {
+    audio.pause();
+    return;
+  }
+
+  audio.volume = bloqueoSlideActiva === 1 ? 0.62 : 0.46;
+  audio.play().catch(() => {});
+}
+
+function detenerMusicaBloqueoNet({ reset = false } = {}) {
+  const audio = $('musicaBloqueoNet');
+  if (!audio) return;
+  audio.pause();
+  if (reset) {
+    try { audio.currentTime = 0; } catch (_) {}
+  }
+}
+
 function obtenerSlidesBloqueo(track) {
   if (!track) return [];
   return Array.from(track.querySelectorAll('.bloqueo-slide'));
@@ -673,6 +718,7 @@ function initBloqueoScrollExperiencia() {
   const syncNetActive = () => {
     if (!netWrap) return;
     netWrap.classList.toggle('is-active', bloqueoSlideActiva === 1);
+    syncMusicaBloqueoNet();
   };
 
   const actualizarSlideActiva = () => {
@@ -698,6 +744,7 @@ function initBloqueoScrollExperiencia() {
 
   track.addEventListener('scroll', actualizarSlideActiva, { passive: true });
   actualizarSlideActiva();
+  track.addEventListener('pointerdown', () => syncMusicaBloqueoNet(true), { passive: true });
 
   track.addEventListener('wheel', (event) => {
     if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
@@ -769,6 +816,7 @@ function initBloqueoScrollExperiencia() {
 
   if (netPlayMini) {
     netPlayMini.addEventListener('click', () => {
+      detenerMusicaBloqueoNet();
       showToast('🎬 Lista de reproducción emocional: activada');
       window.location.href = '/series?series_theme=net';
     });
@@ -800,7 +848,8 @@ function iniciarBloqueo(segundosTotales) {
     const m = Math.floor((secs % 3600) / 60);
     const s = secs % 60;
     flip.update(d, h, m, s);
-    actualizarIndicadoresEstrenoNet(d, h, m, s, secs);
+    actualizarIndicadoresEstrenoNet();
+    syncMusicaBloqueoNet();
     // Próximo tick alineado al siguiente segundo del reloj real
     setTimeout(tick, 1000 - (Date.now() % 1000));
   }
@@ -870,6 +919,7 @@ function mostrarEstadoAbiertoPreview() {
   const bloq = $('pantallaBloqueo');
   const auth = $('pantallaAuth');
   const main = $('contenedorPrincipal');
+  detenerMusicaBloqueoNet();
 
   if (bloq) {
     bloq.classList.add('oculto');
@@ -910,6 +960,7 @@ function mostrarEstadoBloqueadoPreview(segundos) {
   }
   try {
     iniciarBloqueo(Math.max(1, Math.floor(segundos || 1)));
+    syncMusicaBloqueoNet();
   } catch (_) {}
 }
 
@@ -934,6 +985,7 @@ function lanzarFlujo() {
   // Mostrar auth siempre primero
   $('contenedorPrincipal').style.display = 'none';
   $('pantallaBloqueo')?.classList.add('oculto');
+  detenerMusicaBloqueoNet();
   $('pantallaAuth').classList.remove('oculto');
 
   const btn = $('btnVerificarAuth');
@@ -1057,12 +1109,14 @@ function cruzarEstado() {
         }
         try {
           iniciarBloqueo(data.segundos_faltantes);
+          syncMusicaBloqueoNet();
           console.info('[flujo] iniciarBloqueo(', data.segundos_faltantes, ') OK');
         } catch (err) {
           console.error('[flujo] iniciarBloqueo lanzó error:', err);
         }
       } else {
         // ¡Día del cumple! Mostrar regalo
+        detenerMusicaBloqueoNet();
         $('contenedorPrincipal').style.display = '';
         crearFondoEstrellas();
 
@@ -1333,6 +1387,9 @@ $('btnCerrarLuna')?.addEventListener('click', () => {
       if(mF.volume >= 0.5) clearInterval(iv);
     }, 200);
   }
+  if (estadoPrevioEasterEgg.bloqueo) {
+    syncMusicaBloqueoNet(true);
+  }
 });
 
 function activarEasterEggLuna() {
@@ -1359,6 +1416,7 @@ function activarEasterEggLuna() {
   if (bloqueo) bloqueo.classList.add('oculto');
   if (auth) auth.classList.add('oculto');
   if (principal) principal.style.display = 'none';
+  detenerMusicaBloqueoNet();
 
   // Fade-out música fondo
   const mF = $('musicaFondo');
