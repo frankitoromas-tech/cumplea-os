@@ -251,7 +251,8 @@
 <script src="{{ url_for('static', filename='capsula.js') }}"></script>
 <script src="{{ url_for('static', filename='creador.js') }}"></script>
 <!-- Módulos JS independientes (herencia de clases) -->
-<script src="{{ url_for('static', filename='JuegoCorazones.js') }}"></script>
+<!-- JuegoCorazones se cargó antes en la home; ahora vive en /aurora para no
+     tapar la nav inferior y los regalos flotantes. -->
 <script src="{{ url_for('static', filename='NavigadorPaginas.js') }}"></script>
 <script src="{{ url_for('static', filename='SaludoContextual.js') }}"></script>
 <script src="{{ url_for('static', filename='EasterEggManager.js') }}"></script>

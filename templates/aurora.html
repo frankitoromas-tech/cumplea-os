@@ -85,6 +85,45 @@
       font-style:italic; font-size:.8rem; color:rgba(255,255,255,.3);
       z-index:10; pointer-events:none; letter-spacing:2px;
     }
+
+    /* ─── Juego: botón flotante + modal ─── */
+    .btn-juego {
+      position:fixed; top:18px; right:18px; z-index:30;
+      background:linear-gradient(135deg,rgba(255,107,129,.85),rgba(245,200,66,.7));
+      border:1px solid rgba(255,255,255,.25);
+      color:#0a0512; font-family:'Playfair Display',serif;
+      font-size:.95rem; font-weight:600; cursor:pointer;
+      padding:10px 18px; border-radius:50px;
+      box-shadow:0 8px 24px rgba(255,107,129,.35);
+      transition:transform .25s ease, box-shadow .25s ease;
+      pointer-events:all;
+    }
+    .btn-juego:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(255,107,129,.5); }
+    .btn-juego:active { transform:translateY(0); }
+    @media (max-width: 560px) {
+      .btn-juego { top:12px; right:12px; font-size:.85rem; padding:9px 14px; }
+    }
+
+    .modal-juego {
+      position:fixed; inset:0; z-index:200;
+      display:flex; align-items:center; justify-content:center;
+      background:rgba(2,4,14,.78);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      opacity:0; pointer-events:none;
+      transition:opacity .35s ease;
+      padding:20px;
+    }
+    .modal-juego.abierto { opacity:1; pointer-events:all; }
+    .modal-juego .modal-cerrar {
+      position:absolute; top:18px; right:18px;
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
+      color:#fff; width:42px; height:42px; border-radius:50%;
+      font-size:1.2rem; cursor:pointer; line-height:1;
+      transition:all .2s;
+    }
+    .modal-juego .modal-cerrar:hover { background:rgba(255,107,129,.3); border-color:rgba(255,107,129,.5); }
+    .modal-juego #aurora-game-host { width:100%; max-width:460px; }
   </style>
 </head>
 <body data-music="aurora" data-music-src="{{ url_for('static', filename='audio/aurora.mp3') }}">
@@ -104,6 +143,15 @@
 </div>
 
 <a href="/" class="btn-volver">← Volver</a>
+
+<button id="btnAbrirJuego" class="btn-juego" type="button" aria-label="Abrir el juego de atrapar corazones">
+  🎮 Atrapar corazones
+</button>
+
+<div id="modalJuego" class="modal-juego" role="dialog" aria-labelledby="tituloJuego" aria-hidden="true">
+  <button class="modal-cerrar" type="button" aria-label="Cerrar el juego">✕</button>
+  <div id="aurora-game-host"></div>
+</div>
 
 <script>
 'use strict';
@@ -287,6 +335,43 @@ fetch('/api/notificar', {
   method:'POST', headers:{'Content-Type':'application/json'},
   body: JSON.stringify({evento:'aurora'})
 }).catch(() => {});
+</script>
+
+<!-- Juego de atrapar corazones: se carga aquí pero solo se monta al abrir el modal -->
+<script src="{{ url_for('static', filename='JuegoCorazones.js') }}"></script>
+<script>
+(function () {
+  'use strict';
+  const btn   = document.getElementById('btnAbrirJuego');
+  const modal = document.getElementById('modalJuego');
+  const host  = document.getElementById('aurora-game-host');
+  const cerrar = modal.querySelector('.modal-cerrar');
+  let control = null;
+
+  function abrir() {
+    modal.classList.add('abierto');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.cursor = 'auto';
+    if (!control) control = window.montarJuegoCorazones(host);
+  }
+
+  function cerrarModal() {
+    modal.classList.remove('abierto');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.cursor = '';
+    if (control) { control.pausar(); }
+  }
+
+  btn.addEventListener('click', abrir);
+  cerrar.addEventListener('click', cerrarModal);
+  modal.addEventListener('click', (event) => {
+    // Click fuera del juego cierra
+    if (event.target === modal) cerrarModal();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && modal.classList.contains('abierto')) cerrarModal();
+  });
+})();
 </script>
 
 <!-- ── Capa inmersiva (audio + tilt). NO toca el canvas de aurora. ── -->

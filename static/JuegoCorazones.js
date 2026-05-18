@@ -270,113 +270,106 @@ class JuegoCorazones extends BaseJuego {
 
 
 /* ──────────────────────────────────────────────────────────────
-   INICIALIZACIÓN DEL JUEGO en la página
-   Espera a que #contenidoSorpresa sea visible
+   MONTAJE A DEMANDA
+   El juego ya no se auto-monta en index.html (tapaba la nav-bar
+   inferior y los regalos flotantes). Ahora vive en aurora.html y
+   se llama explícitamente con `window.montarJuegoCorazones(host)`.
    ────────────────────────────────────────────────────────────── */
-(function montarJuegoCorazones() {
-  // Creamos el contenedor del juego dinámicamente
-  function crearInterfazJuego(padre) {
-    const wrapper = document.createElement('div');
-    wrapper.id    = 'wrapperJuegoCorazones';
-    wrapper.style.cssText = `
-      margin:40px auto; max-width:420px; text-align:center;
-      background:rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.1);
-      border-radius:20px; padding:20px;
-      backdrop-filter:blur(12px);
-    `;
-    wrapper.innerHTML = `
-      <h3 style="font-family:'Playfair Display',serif;color:#ff6b81;font-size:1.2rem;margin-bottom:6px;">
-        🎮 Atrapa los Corazones
-      </h3>
-      <p style="font-size:.85rem;color:#94a3b8;font-style:italic;margin-bottom:12px;">
-        Toca los corazones antes de que caigan. ¡3 fallos y termina!
-      </p>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:0 10px;">
-        <span style="font-family:'Playfair Display',serif;color:#f5c842;font-size:1.1rem;">
-          Puntos: <strong id="puntosJuego">0</strong>
-        </span>
-        <span id="comboDisplay" style="font-size:.8rem;color:rgba(255,255,255,.5);"></span>
-      </div>
-      <canvas id="canvasCorazones" width="380" height="320"
-        style="display:block;margin:0 auto;border-radius:12px;
-               background:rgba(4,7,26,.8);max-width:100%;cursor:crosshair;
-               touch-action:none;"></canvas>
-      <button id="btnReiniciarJuego" style="
-        display:none;margin-top:12px;
-        background:linear-gradient(135deg,#ff4757,#ff6b81);
-        color:white;border:none;padding:10px 24px;border-radius:50px;
-        font-family:'Playfair Display',serif;font-size:.95rem;cursor:pointer;">
-        Jugar de nuevo ✨
-      </button>
-    `;
-    padre.appendChild(wrapper);
-    return wrapper;
+
+function _crearInterfazJuego(host) {
+  if (host.querySelector('#wrapperJuegoCorazones')) {
+    return host.querySelector('#wrapperJuegoCorazones');
   }
+  const wrapper = document.createElement('div');
+  wrapper.id    = 'wrapperJuegoCorazones';
+  wrapper.style.cssText = `
+    margin:0 auto; max-width:420px; text-align:center;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:20px; padding:20px;
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+  `;
+  wrapper.innerHTML = `
+    <h3 style="font-family:'Playfair Display',serif;color:#ff6b81;font-size:1.2rem;margin-bottom:6px;">
+      🎮 Atrapa los Corazones
+    </h3>
+    <p style="font-size:.85rem;color:#94a3b8;font-style:italic;margin-bottom:12px;">
+      Toca los corazones antes de que caigan. ¡3 fallos y termina!
+    </p>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:0 10px;">
+      <span style="font-family:'Playfair Display',serif;color:#f5c842;font-size:1.1rem;">
+        Puntos: <strong class="puntosJuego">0</strong>
+      </span>
+      <span class="comboDisplay" style="font-size:.8rem;color:rgba(255,255,255,.5);"></span>
+    </div>
+    <canvas id="canvasCorazones" width="380" height="320"
+      style="display:block;margin:0 auto;border-radius:12px;
+             background:rgba(4,7,26,.8);max-width:100%;cursor:crosshair;
+             touch-action:none;"></canvas>
+    <button class="btnReiniciarJuego" type="button" style="
+      display:none;margin-top:12px;
+      background:linear-gradient(135deg,#ff4757,#ff6b81);
+      color:white;border:none;padding:10px 24px;border-radius:50px;
+      font-family:'Playfair Display',serif;font-size:.95rem;cursor:pointer;">
+      Jugar de nuevo ✨
+    </button>
+  `;
+  host.appendChild(wrapper);
+  return wrapper;
+}
 
-  function iniciarJuego() {
-    const wrapper   = document.getElementById('wrapperJuegoCorazones');
-    const puntosEl  = document.getElementById('puntosJuego');
-    const comboEl   = document.getElementById('comboDisplay');
-    const btnRei    = document.getElementById('btnReiniciarJuego');
+function _iniciarPartida(wrapper) {
+  const puntosEl = wrapper.querySelector('.puntosJuego');
+  const comboEl  = wrapper.querySelector('.comboDisplay');
+  const btnRei   = wrapper.querySelector('.btnReiniciarJuego');
 
-    let juego = new JuegoCorazones(
-      'canvasCorazones',
-      (pts, combo, ganados) => {   // onPuntos
-        puntosEl.textContent = pts;
-        if (combo >= 3) {
-          comboEl.textContent = `🔥 ¡Combo x${combo}!`;
-          comboEl.style.color = '#f5c842';
-        }
-        if (typeof showToast === 'function') {
-          if (combo === 5)  showToast('💕 ¡Combo x5! +' + ganados + ' pts', 2000);
-          if (combo === 10) showToast('🌟 ¡COMBO x10! Increíble', 2500);
-        }
-      },
-      (puntajeF) => {              // onFin
-        btnRei.style.display = 'inline-block';
-        // Notificar si puntuación es buena
-        if (puntajeF >= 200) {
-          fetch('/api/responder', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({mensaje: `🎮 ¡Luyuromo hizo ${puntajeF} puntos en el juego de corazones! 🏆`})
-          }).catch(() => {});
-        }
-      }
-    );
-
-    juego.cargarConfig().then(() => juego.iniciar());
-
-    btnRei.addEventListener('click', () => {
-      btnRei.style.display = 'none';
-      puntosEl.textContent = '0';
-      comboEl.textContent  = '';
-      juego.destruir();
-      juego = new JuegoCorazones(
-        'canvasCorazones',
-        (pts, combo, ganados) => {
-          puntosEl.textContent = pts;
-          if (combo >= 3) { comboEl.textContent = `🔥 ¡Combo x${combo}!`; comboEl.style.color = '#f5c842'; }
-        },
-        (puntajeF) => { btnRei.style.display = 'inline-block'; }
-      );
-      juego.cargarConfig().then(() => juego.iniciar());
-    });
-  }
-
-  // Esperar a que #collageMemorias se muestre (después de la animación principal)
-  const obs = new MutationObserver(() => {
-    const collage = document.getElementById('collageMemorias');
-    if (collage && !collage.classList.contains('oculto')) {
-      if (!document.getElementById('wrapperJuegoCorazones')) {
-        const sorpresa = document.getElementById('contenidoSorpresa');
-        if (sorpresa) {
-          crearInterfazJuego(sorpresa);
-          iniciarJuego();
-        }
-      }
-      obs.disconnect();
+  const onPuntos = (pts, combo, ganados) => {
+    puntosEl.textContent = pts;
+    if (combo >= 3) {
+      comboEl.textContent = `🔥 ¡Combo x${combo}!`;
+      comboEl.style.color = '#f5c842';
     }
+    if (typeof showToast === 'function') {
+      if (combo === 5)  showToast('💕 ¡Combo x5! +' + ganados + ' pts', 2000);
+      if (combo === 10) showToast('🌟 ¡COMBO x10! Increíble', 2500);
+    }
+  };
+  const onFin = (puntajeF) => {
+    btnRei.style.display = 'inline-block';
+    if (puntajeF >= 200) {
+      fetch('/api/responder', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({mensaje: `🎮 ¡Luyuromo hizo ${puntajeF} puntos en el juego de corazones! 🏆`})
+      }).catch(() => {});
+    }
+  };
+
+  let juego = new JuegoCorazones('canvasCorazones', onPuntos, onFin);
+  juego.cargarConfig().then(() => juego.iniciar());
+
+  btnRei.addEventListener('click', () => {
+    btnRei.style.display = 'none';
+    puntosEl.textContent = '0';
+    comboEl.textContent  = '';
+    juego.destruir();
+    juego = new JuegoCorazones('canvasCorazones', onPuntos, onFin);
+    juego.cargarConfig().then(() => juego.iniciar());
   });
-  obs.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class'] });
-})();
+
+  return {
+    pausar:   () => juego.pausar(),
+    destruir: () => juego.destruir(),
+  };
+}
+
+/**
+ * Monta el juego dentro de un contenedor (id o elemento) y devuelve
+ * un control `{ pausar, destruir }` para pararlo cuando se cierre el modal.
+ */
+window.montarJuegoCorazones = function montarJuegoCorazones(host) {
+  const el = typeof host === 'string' ? document.getElementById(host) : host;
+  if (!el) return null;
+  const wrapper = _crearInterfazJuego(el);
+  return _iniciarPartida(wrapper);
+};
