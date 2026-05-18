@@ -6,6 +6,22 @@
 'use strict';
 
 /* ──────────────────────────────────────────────────────────────
+   GUARD GLOBAL: la pantalla de bloqueo bloquea TODO contenido, incluidos
+   los easter eggs por teclado. Hasta que verificar_nombre apruebe, el
+   estado vive en sessionStorage como 'luna:authPassed' = '1'.
+   ────────────────────────────────────────────────────────────── */
+function _easterEggsHabilitados() {
+  try {
+    if (window.__authPassed === true) return true;
+    return sessionStorage.getItem('luna:authPassed') === '1';
+  } catch (_) {
+    // sessionStorage puede fallar en modo privado / sandbox.
+    return window.__authPassed === true;
+  }
+}
+
+
+/* ──────────────────────────────────────────────────────────────
    CLASE BASE: EasterEggBase
    ────────────────────────────────────────────────────────────── */
 class EasterEggBase {
@@ -18,6 +34,8 @@ class EasterEggBase {
   }
 
   puedeActivar() {
+    // Bloqueo duro mientras Luna no haya pasado el auth.
+    if (!_easterEggsHabilitados()) return false;
     return !this.activo && (Date.now() - this._lastActivacion > this.cooldown);
   }
 

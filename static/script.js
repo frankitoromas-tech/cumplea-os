@@ -660,6 +660,25 @@ function iniciarBloqueo(segundosTotales) {
 function isAuthPassed() {
   return sessionStorage.getItem('luna:authPassed') === '1' || window.__authPassed === true;
 }
+
+// Exponer para EasterEggManager.js y otros scripts (que se cargan después).
+window.isAuthPassed = isAuthPassed;
+
+/**
+ * Bloquea cualquier interacción con el contenido protegido mientras la
+ * pantalla de bloqueo o la pantalla de auth siguen visibles. Es defensa
+ * en profundidad por encima de `isAuthPassed()`: aunque alguien limpie
+ * `sessionStorage`, si las pantallas siguen mostrándose, también bloqueamos.
+ */
+function contenidoBloqueado() {
+  if (!isAuthPassed()) return true;
+  const bloqueo = document.getElementById('pantallaBloqueo');
+  const auth    = document.getElementById('pantallaAuth');
+  if (bloqueo && !bloqueo.classList.contains('oculto')) return true;
+  if (auth    && !auth.classList.contains('oculto'))    return true;
+  return false;
+}
+window.contenidoBloqueado = contenidoBloqueado;
 function setAuthPassed() {
   window.__authPassed = true;
   try { sessionStorage.setItem('luna:authPassed', '1'); } catch (_) {}
@@ -993,6 +1012,14 @@ let entradaTeclado = '';
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
+  // SECURITY: el contenido protegido no debe responder a easter eggs
+  // mientras la pantalla de bloqueo o la pantalla de auth siguen activas.
+  // Sin esta guardia, escribir "luna" durante el bloqueo abría #escenaLuna.
+  if (contenidoBloqueado()) {
+    entradaTeclado = '';
+    return;
+  }
+
   const key = e.key.toLowerCase();
 
   // BUG FIX: solo detecta "luna" aquí. "frank", "amor" y "estrella" los
@@ -1000,8 +1027,12 @@ document.addEventListener('keydown', e => {
   if (key.length === 1 && key >= 'a' && key <= 'z') {
     entradaTeclado = (entradaTeclado + key).slice(-4);
     if (entradaTeclado === 'luna') {
-      activarEasterEggLuna();
       entradaTeclado = '';
+      // SEC: la pantalla de bloqueo bloquea TODO el contenido, incluido
+      // este easter egg. Sin auth, ni siquiera permitimos disparar el modo
+      // luna para no exponer animaciones / música a un visitante anónimo.
+      if (!isAuthPassed()) return;
+      activarEasterEggLuna();
     }
   }
 });
@@ -1130,6 +1161,9 @@ $('btnCerrarLuna')?.addEventListener('click', () => {
 });
 
 function activarEasterEggLuna() {
+  // SEC: defensa en profundidad — incluso si alguien invoca esta función
+  // desde la consola estando bloqueado, la pantalla de auth debe ganar.
+  if (!isAuthPassed()) return;
   if (easterEggActivo) return;
   easterEggActivo = true;
 

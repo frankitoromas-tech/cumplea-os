@@ -561,9 +561,42 @@ body {
   position: absolute; bottom: -45vh; right: -22vw;
   width: min(100vh,600px); height: min(100vh,600px);
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #1e40af, #1e3a8a 45%, #020617 85%);
-  box-shadow: 0 0 80px rgba(59,130,246,.4), inset 40px 40px 80px rgba(255,255,255,.06);
+  /* Stack de capas (de arriba abajo): nubes → continentes → highlight → océano. */
+  background:
+    /* Nubes etéreas */
+    radial-gradient(ellipse 30% 5% at 50% 24%, rgba(255,255,255,0.22) 0%, transparent 70%),
+    radial-gradient(ellipse 22% 4% at 30% 58%, rgba(255,255,255,0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 18% 4% at 70% 38%, rgba(255,255,255,0.16) 0%, transparent 70%),
+    radial-gradient(ellipse 25% 4% at 55% 72%, rgba(255,255,255,0.18) 0%, transparent 70%),
+    /* Continentes: manchas verde/oliva con bordes suaves */
+    radial-gradient(ellipse 22% 14% at 28% 32%, #3e7a52 0%, #285740 65%, transparent 78%),
+    radial-gradient(ellipse 18% 26% at 62% 48%, #4b7c3f 0%, #285a30 65%, transparent 75%),
+    radial-gradient(ellipse 14% 10% at 75% 22%, #5a8050 0%, #2f5934 70%, transparent 80%),
+    radial-gradient(ellipse 30% 18% at 35% 72%, #3d7a55 0%, #275438 60%, transparent 72%),
+    radial-gradient(ellipse 12% 8% at 80% 75%, #4a7c52 0%, transparent 75%),
+    radial-gradient(ellipse 10% 6% at 18% 50%, #386540 0%, transparent 78%),
+    radial-gradient(ellipse 16% 9% at 88% 55%, #2a5d36 0%, transparent 75%),
+    /* Highlight de la cara iluminada */
+    radial-gradient(circle at 28% 28%, rgba(180,230,255,0.42) 0%, transparent 32%),
+    /* Océano base con terminator hacia la sombra */
+    radial-gradient(circle at 30% 30%, #3a8dd9 0%, #2167b8 30%, #154a92 55%, #0a2d5e 80%, #020617 100%);
+  box-shadow:
+    0 0 100px rgba(100,200,255,0.40),
+    0 0 220px rgba(40,120,220,0.18),
+    inset -30px -30px 90px rgba(0,0,0,0.65),
+    inset 20px 20px 50px rgba(180,230,255,0.06);
   opacity: 0; z-index: 1;
+  /* Halo atmosférico */
+  filter: drop-shadow(0 0 60px rgba(100,180,255,0.25));
+}
+
+/* Capa de atmósfera difusa por encima */
+.planeta-tierra::after {
+  content: "";
+  position: absolute; inset: -4%;
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 49%, rgba(120,190,255,0.18) 50%, rgba(80,150,230,0.06) 56%, transparent 64%);
+  pointer-events: none;
 }
 
 #contenedorLuna {
