@@ -12,6 +12,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='styless.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/immersive.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pastel.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-polish.css') }}">
   <script src="{{ url_for('static', filename='js/pwa-register.js') }}" defer></script>
 </head>
 <body>
@@ -120,14 +122,53 @@
 
   <div id="contenidoSorpresa" class="oculto" data-music="fiesta">
 
-    <div class="contenedor-pastel">
-      <div class="velas">
-        <div class="llama"></div>
-        <div class="llama"></div>
-        <div class="llama"></div>
+    <div class="pastel-escena" id="pastelEscena">
+      <div class="pastel-3d">
+        <div class="velas-3d">
+          <div class="vela" data-i="0">
+            <div class="mecha"></div>
+            <div class="llama"></div>
+            <div class="resplandor"></div>
+          </div>
+          <div class="vela" data-i="1">
+            <div class="mecha"></div>
+            <div class="llama"></div>
+            <div class="resplandor"></div>
+          </div>
+          <div class="vela" data-i="2">
+            <div class="mecha"></div>
+            <div class="llama"></div>
+            <div class="resplandor"></div>
+          </div>
+        </div>
+
+        <div class="pastel-piso top">
+          <div class="glaseado"></div>
+          <div class="sprinkles">
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="pastel-piso medio">
+          <div class="glaseado"></div>
+        </div>
+        <div class="pastel-piso bajo">
+          <div class="glaseado"></div>
+        </div>
       </div>
-      <div class="pastel-animado">🎂</div>
-      <p id="instruccionPastel" class="instruccion-pastel">Sopla las velas (pasa el dedo o el mouse)</p>
+      <div class="pastel-plato"></div>
+    </div>
+
+    <div class="pastel-controles">
+      <p id="instruccionPastel" class="instruccion-pastel">
+        Sopla las velas — tocálas, o usa el micrófono para soplar de verdad.
+      </p>
+      <button type="button" class="btn-soplar" aria-label="Activar micrófono para soplar las velas">
+        🎙️ Soplar con micrófono
+      </button>
+      <div class="medidor-soplido" aria-hidden="true">
+        <div class="barra"></div>
+      </div>
     </div>
 
     <h1 id="tituloMensaje" class="titulo-mensaje"></h1>
@@ -206,6 +247,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 <script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pastel.js') }}" defer></script>
 <script src="{{ url_for('static', filename='capsula.js') }}"></script>
 <script src="{{ url_for('static', filename='creador.js') }}"></script>
 <!-- Módulos JS independientes (herencia de clases) -->

@@ -1,0 +1,423 @@
+/* ─────────────────────────────────────────────────────────────
+ * pastel.css — Pastel 3D realista + velas + humo.
+ *
+ * Estructura esperada:
+ *   .pastel-escena
+ *     .pastel-3d
+ *       .pastel-piso (3 elementos: bajo, medio, top)
+ *         .glaseado, .sprinkles
+ *       .vela (3 elementos)
+ *         .cuerpo, .mecha, .llama, .resplandor
+ *       .humo (oculto, aparece al apagar)
+ *     .pastel-plato
+ * ───────────────────────────────────────────────────────────── */
+
+.pastel-escena {
+  --color-bizcocho: #f8c8c8;
+  --color-bizcocho-2: #f4a4a4;
+  --color-glaseado: #fff6f0;
+  --color-glaseado-bajo: #ffd6e0;
+  --color-plato: #d8d8e8;
+  --color-vela-1: #ff6b81;
+  --color-vela-2: #b8e0d2;
+  --color-vela-3: #ffd6a5;
+
+  position: relative;
+  width: 260px;
+  height: 280px;
+  margin: 20px auto 8px;
+  perspective: 900px;
+}
+
+.pastel-3d {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  transform-style: preserve-3d;
+  animation: pastel-flotando 4s ease-in-out infinite;
+  filter: drop-shadow(0 30px 30px rgba(0, 0, 0, 0.35));
+}
+
+@keyframes pastel-flotando {
+  0%, 100% { transform: translateY(0) rotate(-1.2deg); }
+  50%      { transform: translateY(-8px) rotate(1.2deg); }
+}
+
+/* ── Pisos del pastel ─────────────────────────────────────── */
+.pastel-piso {
+  position: relative;
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--color-bizcocho) 0%, var(--color-bizcocho-2) 100%);
+  box-shadow:
+    inset 0 -8px 0 rgba(0, 0, 0, 0.08),
+    inset 0 8px 16px rgba(255, 255, 255, 0.35);
+}
+
+.pastel-piso.bajo  { width: 220px; height: 56px; border-radius: 18px; }
+.pastel-piso.medio { width: 170px; height: 48px; margin-bottom: -6px; }
+.pastel-piso.top   { width: 130px; height: 42px; margin-bottom: -6px; border-radius: 12px 12px 10px 10px; }
+
+/* Líneas verticales decorativas que simulan textura del bizcocho */
+.pastel-piso::after {
+  content: "";
+  position: absolute;
+  inset: 8px 4px 12px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 8px,
+    rgba(255, 255, 255, 0.06) 8px 9px
+  );
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* ── Glaseado superior con drips ──────────────────────────── */
+.glaseado {
+  position: absolute;
+  top: -10px;
+  left: -6px;
+  right: -6px;
+  height: 26px;
+  background: var(--color-glaseado);
+  border-radius: 14px 14px 4px 4px;
+  box-shadow: inset 0 -6px 0 rgba(255, 220, 220, 0.4);
+}
+
+/* Los gotitas del glaseado: usamos un radial-gradient repetido */
+.glaseado::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 -18px 0;
+  height: 24px;
+  background:
+    radial-gradient(circle at 10% 0, var(--color-glaseado) 8px, transparent 9px),
+    radial-gradient(circle at 25% 0, var(--color-glaseado) 12px, transparent 13px),
+    radial-gradient(circle at 42% 0, var(--color-glaseado) 6px, transparent 7px),
+    radial-gradient(circle at 58% 0, var(--color-glaseado) 14px, transparent 15px),
+    radial-gradient(circle at 75% 0, var(--color-glaseado) 9px, transparent 10px),
+    radial-gradient(circle at 90% 0, var(--color-glaseado) 11px, transparent 12px);
+}
+
+.pastel-piso.bajo .glaseado { background: var(--color-glaseado-bajo); }
+.pastel-piso.bajo .glaseado::before {
+  background:
+    radial-gradient(circle at 10% 0, var(--color-glaseado-bajo) 6px, transparent 7px),
+    radial-gradient(circle at 30% 0, var(--color-glaseado-bajo) 10px, transparent 11px),
+    radial-gradient(circle at 50% 0, var(--color-glaseado-bajo) 8px, transparent 9px),
+    radial-gradient(circle at 70% 0, var(--color-glaseado-bajo) 12px, transparent 13px),
+    radial-gradient(circle at 90% 0, var(--color-glaseado-bajo) 7px, transparent 8px);
+}
+
+/* ── Sprinkles ────────────────────────────────────────────── */
+.sprinkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.sprinkles span {
+  position: absolute;
+  width: 8px;
+  height: 3px;
+  border-radius: 2px;
+  transform-origin: center;
+}
+
+.sprinkles span:nth-child(1) { top: 14px; left: 12%; background: #ff6b81; transform: rotate(20deg); }
+.sprinkles span:nth-child(2) { top: 18px; left: 28%; background: #f5c842; transform: rotate(-30deg); }
+.sprinkles span:nth-child(3) { top: 12px; left: 45%; background: #0afab0; transform: rotate(60deg); }
+.sprinkles span:nth-child(4) { top: 16px; left: 62%; background: #a0c4ff; transform: rotate(-15deg); }
+.sprinkles span:nth-child(5) { top: 20px; left: 78%; background: #ff6b81; transform: rotate(45deg); }
+.sprinkles span:nth-child(6) { top: 28px; left: 22%; background: #f5c842; transform: rotate(-50deg); }
+.sprinkles span:nth-child(7) { top: 28px; left: 70%; background: #0afab0; transform: rotate(10deg); }
+.sprinkles span:nth-child(8) { top: 32px; left: 50%; background: #ff6b81; transform: rotate(-25deg); }
+
+/* ── Velas: contenedor encima del pastel ──────────────────── */
+.velas-3d {
+  position: absolute;
+  top: -78px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 22px;
+  justify-content: center;
+  z-index: 4;
+}
+
+.vela {
+  position: relative;
+  width: 14px;
+  height: 64px;
+  border-radius: 4px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.35) 0%,
+    var(--vela-color, var(--color-vela-1)) 30%,
+    var(--vela-color-2, var(--color-vela-2)) 70%,
+    rgba(0, 0, 0, 0.18) 100%
+  );
+  background-size: 100% 18px, 100% 100%;
+  box-shadow:
+    inset -3px 0 4px rgba(0, 0, 0, 0.25),
+    inset 3px 0 3px rgba(255, 255, 255, 0.25);
+  transition: transform 0.6s ease;
+}
+
+/* Líneas horizontales de cera */
+.vela::before {
+  content: "";
+  position: absolute;
+  inset: 6px 1px 2px 1px;
+  background: repeating-linear-gradient(
+    180deg,
+    transparent 0 7px,
+    rgba(0, 0, 0, 0.08) 7px 8px
+  );
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.vela:nth-child(1) { --vela-color: #ff6b81; --vela-color-2: #c0405d; }
+.vela:nth-child(2) { --vela-color: #b8e0d2; --vela-color-2: #6fb8a0; }
+.vela:nth-child(3) { --vela-color: #ffd6a5; --vela-color-2: #c89a64; }
+
+/* Mecha */
+.mecha {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 6px;
+  background: #2a1a0a;
+  border-radius: 1px;
+}
+
+/* Llama: forma de gota con doble capa */
+.llama {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  width: 14px;
+  height: 22px;
+  transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  pointer-events: none;
+  animation: parpadeo-llama 0.18s ease-in-out infinite alternate;
+}
+
+.llama::before,
+.llama::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50% 50% 20% 20% / 70% 70% 40% 40%;
+}
+
+.llama::before {
+  background: radial-gradient(
+    ellipse at 50% 70%,
+    #fff3a0 0%,
+    #ffb347 35%,
+    #ff5722 70%,
+    rgba(255, 0, 0, 0) 100%
+  );
+  filter: blur(0.4px);
+}
+
+.llama::after {
+  inset: 4px 3px 2px 3px;
+  background: radial-gradient(
+    ellipse at 50% 80%,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 240, 180, 0.9) 50%,
+    rgba(255, 200, 100, 0) 100%
+  );
+}
+
+/* Resplandor difuso alrededor de la llama */
+.resplandor {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(255, 180, 80, 0.55) 0%, rgba(255, 100, 50, 0) 65%);
+  pointer-events: none;
+  filter: blur(2px);
+  animation: glow-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes parpadeo-llama {
+  0%   { transform: translateX(-50%) scale(1) skewX(0deg); opacity: 0.95; }
+  100% { transform: translateX(-50%) scale(1.08, 1.15) skewX(-3deg); opacity: 1; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+  50%      { opacity: 0.95; transform: translateX(-50%) scale(1.12); }
+}
+
+/* ── Estado: vela apagada ─────────────────────────────────── */
+.vela.apagada .llama,
+.vela.apagada .resplandor {
+  opacity: 0;
+  transform: translateX(-50%) scale(0.2);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.vela.apagada .mecha {
+  background: #3a3a3a;
+  box-shadow: 0 0 6px rgba(255, 100, 0, 0.6);
+}
+
+/* ── Humo (se inyecta por JS al apagar) ───────────────────── */
+.humo {
+  position: absolute;
+  top: -32px;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 70%);
+  transform: translateX(-50%);
+  pointer-events: none;
+  opacity: 0;
+  animation: humo-sube 2s ease-out forwards;
+}
+
+@keyframes humo-sube {
+  0%   { opacity: 0;   transform: translate(-50%, 0)   scale(0.6); }
+  20%  { opacity: 0.7; }
+  100% { opacity: 0;   transform: translate(-50%, -80px) scale(2);  }
+}
+
+/* ── Plato ────────────────────────────────────────────────── */
+.pastel-plato {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  width: 260px;
+  height: 18px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(255, 255, 255, 0.6) 0%, transparent 70%),
+    radial-gradient(ellipse at 50% 60%, var(--color-plato) 0%, #b8b8c8 80%);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.pastel-plato::after {
+  content: "";
+  position: absolute;
+  inset: 6px 0 -10px 0;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.4) 0%, transparent 70%);
+  filter: blur(4px);
+  z-index: -1;
+}
+
+/* ── Instrucción y botón de micrófono ─────────────────────── */
+.pastel-controles {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.instruccion-pastel {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: var(--dorado);
+  font-size: 1rem;
+  text-align: center;
+  margin: 0;
+  transition: opacity 0.5s, color 0.5s;
+}
+
+.instruccion-pastel.cumplido {
+  color: var(--rosa);
+  font-weight: 600;
+}
+
+.btn-soplar {
+  background: linear-gradient(135deg, rgba(255, 107, 129, 0.18), rgba(245, 200, 66, 0.12));
+  border: 1px solid rgba(255, 107, 129, 0.45);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.btn-soplar:hover {
+  background: linear-gradient(135deg, rgba(255, 107, 129, 0.35), rgba(245, 200, 66, 0.25));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(255, 107, 129, 0.35);
+}
+
+.btn-soplar.escuchando {
+  border-color: var(--verde, #0afab0);
+  animation: latido-mic 1.4s ease-in-out infinite;
+}
+
+@keyframes latido-mic {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(10, 250, 176, 0.6); }
+  50%      { box-shadow: 0 0 0 14px rgba(10, 250, 176, 0); }
+}
+
+.medidor-soplido {
+  width: 160px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  display: none;
+}
+
+.medidor-soplido.activo { display: block; }
+
+.medidor-soplido .barra {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #0afab0, #f5c842, #ff6b81);
+  border-radius: 3px;
+  transition: width 0.05s linear;
+}
+
+/* ── Responsive: pastel más compacto en móvil ─────────────── */
+@media (max-width: 560px) {
+  .pastel-escena { width: 220px; height: 240px; }
+  .pastel-piso.bajo  { width: 188px; height: 50px; }
+  .pastel-piso.medio { width: 144px; height: 42px; }
+  .pastel-piso.top   { width: 110px; height: 36px; }
+  .pastel-plato      { width: 220px; height: 16px; }
+  .velas-3d          { top: -72px; gap: 18px; }
+  .vela              { width: 12px; height: 56px; }
+  .llama             { width: 12px; height: 20px; top: -20px; }
+  .resplandor        { width: 42px; height: 42px; top: -24px; }
+  .btn-soplar        { font-size: 0.9rem; padding: 9px 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pastel-3d,
+  .llama,
+  .resplandor,
+  .humo { animation: none; }
+  .pastel-3d { transform: none; }
+}

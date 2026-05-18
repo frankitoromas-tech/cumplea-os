@@ -138,6 +138,10 @@ sequenceDiagram
 | [controllers/api_efectos.py](controllers/api_efectos.py) | Páginas aurora/timeline + config juego |
 | [controllers/api_regalo.py](controllers/api_regalo.py) | Vistas HTML principales + `/admin` (gated) |
 | [templates/admin.html](templates/admin.html) | Panel admin — CSP `script-src 'self'`, JS externo |
+| [templates/carta.html](templates/carta.html) | Carta de 7 páginas con slider + indicador dinámico |
+| [static/css/pastel.css](static/css/pastel.css) | Pastel 3D CSS realista (3 pisos + glaseado + sprinkles + plato + velas + humo) |
+| [static/js/pastel.js](static/js/pastel.js) | Soplado por micrófono (Web Audio FFT) + fallback click/touch/hover |
+| [static/css/mobile-polish.css](static/css/mobile-polish.css) | Safe-area, touch targets ≥44px, anti-zoom iOS, reduced-motion |
 | [static/js/admin.js](static/js/admin.js) | Lógica del panel admin (sin inline) |
 | [tests/](tests/) | `unittest` — 62 tests: smoke, crypto, base_service concurrente, admin auth, visitas, Telegram retry, cartas selladas, regalo diario, PWA |
 
@@ -182,3 +186,5 @@ python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().d
 10. **Cartas selladas** se persisten via `ServicioCartas`. La lista pública nunca devuelve cartas con `fecha_apertura` futura — esa garantía es el corazón del feature; no añadir un atajo de admin que la vulnere.
 11. **Regalo diario** (`/api/regalo_diario`) es determinista por fecha (seed = `date.today().toordinal()`). Si cambias el algoritmo, considera que Luna puede haber visto el resultado de hoy ya — pruébalo manualmente.
 12. **PWA**: `/sw.js` debe servirse desde la raíz con `Service-Worker-Allowed: /`. Si lo mueves a `/static/`, su scope queda restringido y deja de funcionar offline.
+13. **Pastel 3D** vive en `.pastel-escena` con la estructura `velas-3d > vela (×3) > {mecha, llama, resplandor}`. La lógica de apagado dispara `document.dispatchEvent(new CustomEvent('pastel:deseo-cumplido'))` — usar ese hook (no DOM polling) para reaccionar.
+14. **Detección de soplido** analiza FFT en banda 40–300 Hz vs 300–2000 Hz para distinguir un soplo real de voz/música. Requiere HTTPS o localhost (browser policy) y permiso de micrófono explícito.

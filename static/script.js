@@ -448,22 +448,13 @@ function lanzarConfeti() {
 }
 
 function activarVelas() {
-  let apagadas = 0;
-  const llamas  = document.querySelectorAll('.llama');
-  function apagar() {
-    if (this.classList.contains('apagada')) return;
-    this.classList.add('apagada');
-    apagadas++;
-    if (apagadas === llamas.length) {
-      $('instruccionPastel').innerText = '¡Deseo Concedido! ✨';
-      lanzarConfeti();
-      showToast('🎂 ¡Deseo concedido! Que se cumpla...');
-    }
-  }
-  llamas.forEach(l => {
-    l.addEventListener('mouseenter',  apagar);
-    l.addEventListener('touchstart',  apagar, { passive: true });
-  });
+  // Pastel 3D nuevo: la lógica de apagado (click/touch/mic) vive en
+  // static/js/pastel.js y dispara `pastel:deseo-cumplido` cuando todas
+  // las velas se apagaron. Aquí solo reaccionamos con confeti + toast.
+  document.addEventListener('pastel:deseo-cumplido', () => {
+    lanzarConfeti();
+    showToast('🎂 ¡Deseo concedido! Que se cumpla...');
+  }, { once: true });
 }
 
 function crearGlobos() {

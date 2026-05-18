@@ -1,0 +1,195 @@
+/* ─────────────────────────────────────────────────────────────
+ * mobile-polish.css — Adaptaciones móvil y safe-area.
+ *
+ * Se carga DESPUÉS de styless.css y de los otros css temáticos
+ * para poder sobrescribirlos con confianza.
+ * ───────────────────────────────────────────────────────────── */
+
+/* ── Safe area para iPhone con notch / barra inferior ─────── */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+@supports (padding: max(0px)) {
+  body {
+    padding-top:    max(env(safe-area-inset-top), 0px);
+    padding-left:   max(env(safe-area-inset-left), 0px);
+    padding-right:  max(env(safe-area-inset-right), 0px);
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+}
+
+/* ── Touch targets: WCAG sugiere mínimo 44x44 px ──────────── */
+@media (pointer: coarse) {
+  button,
+  .caja-regalo,
+  .nav-flecha,
+  .btn-volver,
+  .btn-soplar,
+  .indicador-pag .punto,
+  .vela {
+    min-height: 44px;
+  }
+
+  /* Velas: si están en mobile, expandir el área tactil sin alterar el visual */
+  .vela {
+    position: relative;
+  }
+  .vela::after {
+    content: "";
+    position: absolute;
+    inset: -16px -10px;
+    pointer-events: auto;
+  }
+
+  /* Indicador de la carta: que sea más fácil de tocar */
+  .indicador-pag .punto {
+    width: 14px;
+    height: 14px;
+    margin: 0 4px;
+  }
+}
+
+/* ── Anti-zoom en formularios de iOS ──────────────────────── */
+@media (max-width: 600px) {
+  input[type="text"],
+  input[type="datetime-local"],
+  input[type="password"],
+  textarea {
+    font-size: 16px; /* iOS no hace zoom si >= 16px */
+  }
+}
+
+/* ── Mejoras de scroll en mobile (carta y admin) ──────────── */
+@media (max-width: 760px) {
+  .carta-libro {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Indicador de página fijo: respeta safe-area inferior */
+  .indicador-pag {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+  .swipe-hint {
+    bottom: calc(55px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ── Stickers / detalles de hover desactivados en mobile ──── */
+@media (hover: none) {
+  .caja-regalo:hover,
+  .btn-soplar:hover,
+  .btn-volver:hover,
+  .nav-flecha:hover {
+    transform: none;
+    box-shadow: none;
+  }
+  /* Pero mantenemos los estados :active para feedback al tocar */
+}
+
+/* ── Reduced motion global ────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Pero los reveals deben ser visibles aunque no animen */
+  .carta-pagina .parrafo,
+  .fecha,
+  .capitulo,
+  .saludo,
+  .titulo-pag,
+  .firma-bloque,
+  .pd {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ── Pastel: feedback visual al tocar una vela ────────────── */
+.vela:active .llama {
+  transform: translateX(-50%) scale(0.95);
+}
+
+/* ── Mejora del intro/regalo en mobile ────────────────────── */
+@media (max-width: 480px) {
+  .intro-texto {
+    font-size: 0.95rem;
+    padding: 0 16px;
+  }
+  .caja-regalo {
+    padding: 18px 24px;
+    font-size: 1rem;
+  }
+  .icono-regalo {
+    font-size: 2.4rem;
+  }
+  .galeria-polaroid {
+    gap: 12px !important;
+  }
+  .marco-foto img {
+    height: 110px !important;
+  }
+}
+
+/* ── Mejor contraste para texto secundario en pantallas chicas ── */
+@media (max-width: 480px) {
+  .sub,
+  .hint,
+  .meta {
+    color: #c8d0e0;
+  }
+}
+
+/* ── Admin panel mobile ───────────────────────────────────── */
+@media (max-width: 600px) {
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .admin-header h1 { font-size: 1.5rem; }
+  .grid { grid-template-columns: 1fr; }
+  .card-wide { grid-column: 1 / -1; }
+  .form-stack input,
+  .form-stack textarea { font-size: 16px; }
+  .cartas-list li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .cartas-list button { width: 100%; }
+}
+
+/* ── Toast más visible en mobile ──────────────────────────── */
+@media (max-width: 480px) {
+  #toast {
+    bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+    width: calc(100% - 32px) !important;
+    max-width: 360px;
+    left: 50% !important;
+    transform: translateX(-50%);
+  }
+}
+
+/* ── Tap highlight (Android/iOS) ──────────────────────────── */
+* {
+  -webkit-tap-highlight-color: rgba(255, 107, 129, 0.18);
+}
+
+/* ── Selección de texto: visible y on-brand ───────────────── */
+::selection {
+  background: rgba(255, 107, 129, 0.45);
+  color: #fff;
+}
+::-moz-selection {
+  background: rgba(255, 107, 129, 0.45);
+  color: #fff;
+}
