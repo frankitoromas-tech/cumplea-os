@@ -6,11 +6,10 @@ devolvía datetime y hoy era date. Ambos son ahora date.
 """
 from __future__ import annotations
 from datetime import datetime, date
-from pathlib import Path
-import json
 import time
 
 from api import APIModule
+from services.visitas_service import ServicioVisitas
 
 
 # ── TTL cache acotado ───────────────────────────────────────────
@@ -41,7 +40,10 @@ def _ttl_cache(seconds: int = 60, max_entries: int = 64):
 
 class EstadisticasModule(APIModule):
     nombre = "estadisticas"
-    _DATA  = Path(__file__).parent.parent / "data"
+
+    def __init__(self):
+        self._visitas = ServicioVisitas()
+        super().__init__()
 
     def _registrar_rutas(self):
         # BUG FIX: el frontend hace fetch('/api/estado') pero las rutas estaban
@@ -57,16 +59,6 @@ class EstadisticasModule(APIModule):
         ]:
             self.bp.route(f"/{path}",     endpoint=f"{path}_alt")(handler)
             self.bp.route(f"/api/{path}", endpoint=path)(handler)
-
-    # ── helpers ──────────────────────────────────────────────
-    def _leer_visitas(self) -> dict:
-        try:
-            f = self._DATA / "visitas.json"
-            if f.exists():
-                return json.loads(f.read_text(encoding="utf-8"))
-        except Exception:
-            pass
-        return {"total": 0, "por_dia": {}}
 
     # ── rutas ────────────────────────────────────────────────
     def estado_regalo(self):
@@ -118,7 +110,7 @@ class EstadisticasModule(APIModule):
         })
 
     def visitas(self):
-        data = self._leer_visitas()
+        data = self._visitas.leer()
         hoy  = date.today().isoformat()
         return self._ok({
             "total":   data.get("total", 0),

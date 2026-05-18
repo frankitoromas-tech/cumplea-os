@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Panel Admin · Frank</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Cormorant+Garamond&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+<header class="admin-header">
+  <div>
+    <h1>Panel de Control</h1>
+    <p class="sub">Solo tú puedes ver esto, Frank.</p>
+  </div>
+  <button id="btnLogout" type="button" class="btn-logout">Cerrar sesión</button>
+</header>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>Estado del Servidor</h3>
+    <div id="estadoServidor"><div class="stat"><span>Cargando…</span></div></div>
+    <button data-action="cargarSalud" type="button">Actualizar</button>
+  </div>
+
+  <div class="card">
+    <h3>Telegram</h3>
+    <p class="hint">Envía un mensaje de prueba para verificar la conexión con tu bot.</p>
+    <div id="tgStatus"></div>
+    <button data-action="testTelegram" id="btnTg" type="button">Enviar mensaje de prueba</button>
+  </div>
+
+  <div class="card">
+    <h3>Métricas operacionales</h3>
+    <div id="metricas"><div class="stat"><span>Cargando…</span></div></div>
+    <button data-action="cargarMetricas" type="button">Actualizar</button>
+  </div>
+
+  <div class="card">
+    <h3>Visitas</h3>
+    <div id="statsVisitas"><div class="stat"><span>Cargando…</span></div></div>
+    <button data-action="cargarVisitas" type="button">Actualizar</button>
+  </div>
+
+  <div class="card">
+    <h3>Estadísticas de Amor</h3>
+    <div id="statsAmor"><div class="stat"><span>Cargando…</span></div></div>
+    <button data-action="cargarAmor" type="button">Actualizar</button>
+  </div>
+
+  <div class="card">
+    <h3>Frase del Día</h3>
+    <div id="fraseDia" class="frase-dia"></div>
+    <button data-action="cargarFrase" type="button">Cargar frase</button>
+  </div>
+
+  <div class="card">
+    <h3>Cápsula del Tiempo</h3>
+    <div id="estadoCapsula"><div class="stat"><span>Cargando…</span></div></div>
+    <button data-action="cargarCapsula" type="button">Consultar cápsula</button>
+  </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

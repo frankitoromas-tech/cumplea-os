@@ -14,7 +14,9 @@ from flask import Flask, g, jsonify, request
 from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from services.security_service import attach_request_id
+from services import metrics_service
+from services.security_service import attach_request_id, require_admin_token
+from services.visitas_service import ServicioVisitas
 
 try:
     from dotenv import load_dotenv
@@ -127,9 +129,8 @@ _API_LIMITS: dict[str, tuple[int, int]] = {
 
 
 def _default_csp_policy() -> str:
-    # `unsafe-inline` is kept for scripts/styles because templates still embed
-    # both. Moving to a nonce-based policy is tracked as future work; the
-    # mitigation today is HTML escaping at every dynamic insertion point.
+    # `unsafe-inline` is kept for scripts/styles because public templates still
+    # embed both. /admin uses a stricter policy applied below.
     return (
         "default-src 'self'; "
         "base-uri 'self'; "
@@ -145,6 +146,22 @@ def _default_csp_policy() -> str:
     )
 
 
+def _admin_csp_policy() -> str:
+    """Stricter policy for the admin surface: no inline scripts."""
+    return (
+        "default-src 'self'; "
+        "base-uri 'self'; "
+        "object-src 'none'; "
+        "frame-ancestors 'none'; "
+        "form-action 'self'; "
+        "script-src 'self'; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "img-src 'self' data: https:; "
+        "font-src 'self' data: https://fonts.gstatic.com; "
+        "connect-src 'self'"
+    )
+
+
 def create_app() -> Flask:
     _configure_logging()
 
@@ -155,6 +172,9 @@ def create_app() -> Flask:
     _configure_cors(app)
     limiter = _InMemoryRateLimiter()
     app.extensions["rate_limiter"] = limiter
+
+    visitas_service = ServicioVisitas()
+    app.extensions["visitas_service"] = visitas_service
 
     # Blueprints
     from controllers.api_auth import auth_module
@@ -186,7 +206,6 @@ def create_app() -> Flask:
         if request.path not in _API_LIMITS and not request.path.startswith("/api/"):
             return None
 
-        # Trust request.remote_addr after ProxyFix.
         client_ip = request.remote_addr or "unknown"
         max_requests, window_seconds = _API_LIMITS.get(request.path, _DEFAULT_API_WRITE_LIMIT)
         allowed, retry_after = limiter.allow(
@@ -197,12 +216,29 @@ def create_app() -> Flask:
         if allowed:
             return None
 
+        metrics_service.bump("rate_limit.denied")
         body = {
             "status": "error",
             "mensaje": "Demasiadas solicitudes. Intenta de nuevo en unos segundos.",
             "retry_after": retry_after,
         }
         return jsonify(body), 429, {"Retry-After": str(retry_after)}
+
+    @app.after_request
+    def _record_visit(response):
+        if request.method == "GET" and request.path == "/" and 200 <= response.status_code < 400:
+            try:
+                visitas_service.registrar()
+                metrics_service.bump("visits.home")
+            except Exception:
+                logging.getLogger(__name__).exception("visit counter failed")
+        return response
+
+    @app.after_request
+    def _bump_status_counter(response):
+        status_class = f"http.{response.status_code // 100}xx"
+        metrics_service.bump(status_class)
+        return response
 
     @app.after_request
     def _set_security_headers(response):
@@ -223,7 +259,10 @@ def create_app() -> Flask:
                 "max-age=31536000; includeSubDomains",
             )
 
-        csp = os.getenv("CSP_POLICY", _default_csp_policy()).strip()
+        if request.path.startswith("/admin"):
+            csp = os.getenv("ADMIN_CSP_POLICY", _admin_csp_policy()).strip()
+        else:
+            csp = os.getenv("CSP_POLICY", _default_csp_policy()).strip()
         if csp:
             response.headers.setdefault("Content-Security-Policy", csp)
 
@@ -260,6 +299,23 @@ def create_app() -> Flask:
     @app.get("/api/healthz")
     def healthz_api():
         return jsonify({"status": "ok"}), 200
+
+    @app.get("/api/healthz/details")
+    @require_admin_token
+    def healthz_details():
+        from controllers.api_mensajes import mensajes_module as _mensajes
+
+        snap = metrics_service.snapshot()
+        snap.update(
+            {
+                "encryption_enabled": bool(os.getenv("APP_ENCRYPTION_KEY")),
+                "admin_protected": bool(os.getenv("ADMIN_TOKEN")),
+                "telegram": "conectado" if _mensajes._tg_ok() else "sin conexion",
+                "visitas": visitas_service.leer(),
+                "rate_limit_active_keys": len(limiter._events),
+            }
+        )
+        return jsonify(snap), 200
 
     return app
 

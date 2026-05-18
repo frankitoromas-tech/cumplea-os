@@ -72,7 +72,7 @@ class RegaloBase(ContenidoModule):
         return self._render_template_compat("index.html")
 
     def admin(self):
-        return self._render_template_compat("admin.html", "ADMIN.HTML")
+        return self._render_template_compat("admin.html")
 
     def carta(self):
         return self._render_template_compat("carta.html")

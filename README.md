@@ -61,6 +61,7 @@ Healthchecks:
 
 - `GET /healthz` — incluye `encryption_enabled` y `admin_protected`.
 - `GET /api/healthz` — minimal.
+- `GET /api/healthz/details` *(admin)* — uptime, PID, contadores HTTP por clase de status, hits del contador de visitas, denegaciones de rate-limit, estado de Telegram.
 
 ## Acceso al panel admin
 
@@ -76,13 +77,16 @@ Las APIs admin (`/api/salud`, `/api/test_telegram`) aceptan la cookie, un header
 python -m unittest discover -s tests -v
 ```
 
-La suite cubre:
+La suite (49 tests) cubre:
 
-- Renderizado publico y healthchecks (`test_api_smoke.py`).
+- Renderizado publico, healthchecks, CSP estricta en `/admin` (`test_api_smoke.py`).
+- Contador de visitas: `GET /` incrementa el bucket del día.
+- `/api/healthz/details` requiere admin y reporta counters/uptime.
 - Rate limiting (`/api/test_telegram` topa a 5 req/min).
 - Roundtrip y rotacion de claves Fernet (`test_crypto_service.py`).
-- Persistencia: roundtrip plaintext y cifrado, JSON corrupto, fallo de filesystem, **escritura concurrente de 4 hilos sin corrupcion** (`test_base_service.py`).
+- Persistencia: roundtrip plaintext y cifrado, JSON corrupto, fallo de filesystem, **escritura concurrente de 4 hilos sin corrupcion**, `actualizar(callback)` atómico (`test_base_service.py`, `test_visitas_service.py`).
 - Admin: cookie firmada, rechazo de token erroneo, 503 si no configurado, tampering detectado (`test_admin_auth.py`).
+- Telegram: retry en 5xx, honra `Retry-After` en 429, no reintenta en 4xx que no sea 429, da por vencido tras 3 intentos (`test_telegram_retry.py`).
 
 ## Despliegue en Railway
 
@@ -115,3 +119,4 @@ Defensa en profundidad:
 - Lectura principal: `data/<recurso>.json` (cifrado si hay key).
 - Compatibilidad de lectura: `controllers/data/constelaciones_creadas.json` se sigue mergeando.
 - Las escrituras son atomicas: el archivo final solo se sobrescribe cuando el temporal ya esta en disco.
+- Para incrementos atomicos sobre el mismo archivo (p. ej. el contador de visitas) usa `ServicioBase.actualizar(callback)` — mantiene el lock por todo el ciclo read-modify-write.

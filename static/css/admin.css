@@ -1,0 +1,110 @@
+:root {
+  --rosa: #ff6b81;
+  --verde: #0afab0;
+  --dorado: #f5c842;
+  --fondo: #080c1e;
+  --glass: rgba(255, 255, 255, 0.05);
+  --borde: rgba(255, 255, 255, 0.1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--fondo);
+  color: #f0e8ff;
+  font-family: 'Cormorant Garamond', serif;
+  padding: 30px 20px;
+  min-height: 100vh;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+h1 { font-family: 'Playfair Display', serif; color: var(--rosa); font-size: 2rem; margin-bottom: 4px; }
+.sub { color: #94a3b8; font-style: italic; }
+
+.btn-logout {
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.btn-logout:hover { color: var(--rosa); border-color: var(--rosa); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: var(--glass);
+  border: 1px solid var(--borde);
+  border-radius: 14px;
+  padding: 22px;
+}
+
+.card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--rosa);
+  margin-bottom: 14px;
+}
+
+.hint { font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px; }
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 1rem;
+}
+
+.stat:last-child { border-bottom: none; }
+.valor { color: var(--dorado); font-weight: bold; }
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+}
+
+.ok  { background: rgba(10, 250, 176, 0.15); color: var(--verde); }
+.err { background: rgba(255, 71, 87, 0.15);  color: var(--rosa); }
+
+button {
+  background: linear-gradient(135deg, #ff4757, var(--rosa));
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  transition: all 0.3s;
+  width: 100%;
+  margin-top: 12px;
+}
+
+button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3); }
+button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.frase-dia {
+  font-style: italic;
+  color: var(--dorado);
+  margin-bottom: 10px;
+  min-height: 2em;
+}

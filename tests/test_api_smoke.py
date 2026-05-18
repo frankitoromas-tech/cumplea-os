@@ -4,16 +4,22 @@ End-to-end smoke tests for the public surface and the admin gating.
 from __future__ import annotations
 
 import os
+import tempfile
 import unittest
 from unittest.mock import patch
 
 
 _ADMIN_TOKEN = "test-admin-token-please-rotate"
+_DATA_DIR: tempfile.TemporaryDirectory | None = None
 
 
 def _import_app():
-    # Set admin token before importing the app so create_app() sees it.
+    # Set admin token + isolated data dir before importing the app so
+    # create_app() sees them. Visits write to disk, hence the temp dir.
+    global _DATA_DIR
+    _DATA_DIR = tempfile.TemporaryDirectory()
     os.environ["ADMIN_TOKEN"] = _ADMIN_TOKEN
+    os.environ["APP_DATA_DIR"] = _DATA_DIR.name
     from app import app
 
     return app
@@ -56,6 +62,35 @@ class APISmokeTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         follow = self.client.get("/admin", follow_redirects=False)
         self.assertIn(follow.status_code, (302, 303))
+
+    def test_admin_csp_is_stricter(self):
+        self._login_admin()
+        response = self.client.get("/admin")
+        self.assertEqual(response.status_code, 200)
+        csp = response.headers.get("Content-Security-Policy", "")
+        self.assertIn("script-src 'self'", csp)
+        self.assertNotIn("'unsafe-inline' https://cdnjs", csp)
+
+    def test_healthz_details_requires_admin(self):
+        response = self.client.get("/api/healthz/details")
+        self.assertEqual(response.status_code, 401)
+
+    def test_healthz_details_with_admin_returns_counters(self):
+        response = self.client.get(
+            "/api/healthz/details",
+            headers={"X-Admin-Token": _ADMIN_TOKEN},
+        )
+        self.assertEqual(response.status_code, 200)
+        body = response.get_json()
+        self.assertIn("uptime_seconds", body)
+        self.assertIn("counters", body)
+        self.assertIn("visitas", body)
+
+    def test_home_visit_is_counted(self):
+        before = self.app.extensions["visitas_service"].leer().get("total", 0)
+        self.client.get("/")
+        after = self.app.extensions["visitas_service"].leer().get("total", 0)
+        self.assertEqual(after, before + 1)
 
     def test_healthcheck_endpoints(self):
         for path in ["/healthz", "/api/healthz"]:

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import os
+import random
 import time
 from datetime import datetime
 from html import escape
@@ -29,6 +30,8 @@ class TelegramMixin:
     """Reusable helpers to send Telegram messages safely."""
 
     _TG_HEALTH_TTL = 30.0  # seconds
+    _TG_MAX_ATTEMPTS = 3
+    _TG_BACKOFF_BASE = 0.4  # seconds — first retry waits ~[0.4, 0.8) s
 
     def __init__(self) -> None:
         self._tg_health_state: tuple[bool, float] = (False, 0.0)
@@ -53,28 +56,66 @@ class TelegramMixin:
             return {"ok": False, "error": "Token no configurado"}
         if not self._tg_chat_id:
             return {"ok": False, "error": "Chat ID no configurado"}
-        try:
-            response = http_requests.post(
-                f"{self._tg_url}/sendMessage",
-                json={
-                    "chat_id": self._tg_chat_id,
-                    "text": texto,
-                    "parse_mode": "HTML",
-                    "disable_notification": silencioso,
-                },
-                timeout=8,
-            )
-            data = response.json()
-            if not data.get("ok"):
-                logger.warning("Telegram error: %s", data.get("description"))
-            return data
-        except http_requests.exceptions.Timeout:
-            return {"ok": False, "error": "timeout"}
-        except http_requests.exceptions.ConnectionError:
-            return {"ok": False, "error": "sin conexion"}
-        except Exception as exc:
-            logger.exception("Telegram call failed: %s", exc)
-            return {"ok": False, "error": "internal"}
+
+        payload = {
+            "chat_id": self._tg_chat_id,
+            "text": texto,
+            "parse_mode": "HTML",
+            "disable_notification": silencioso,
+        }
+        last_error = "unknown"
+        for attempt in range(1, self._TG_MAX_ATTEMPTS + 1):
+            try:
+                response = http_requests.post(
+                    f"{self._tg_url}/sendMessage",
+                    json=payload,
+                    timeout=8,
+                )
+                # Honor Telegram's Retry-After on rate-limit responses.
+                if response.status_code == 429:
+                    retry_after = int(response.headers.get("Retry-After", "1") or "1")
+                    last_error = f"rate_limited(429,retry={retry_after}s)"
+                    logger.warning("Telegram 429; attempt=%s retry_after=%s", attempt, retry_after)
+                    if attempt < self._TG_MAX_ATTEMPTS:
+                        time.sleep(min(retry_after, 5))
+                        continue
+                    return {"ok": False, "error": last_error}
+
+                # 5xx → transient; retry with backoff. Other non-2xx → bail.
+                if response.status_code >= 500:
+                    last_error = f"upstream_{response.status_code}"
+                    logger.warning(
+                        "Telegram %s on attempt %s", response.status_code, attempt
+                    )
+                elif response.status_code >= 400:
+                    try:
+                        data = response.json()
+                    except ValueError:
+                        data = {"ok": False, "description": f"http_{response.status_code}"}
+                    logger.warning("Telegram error: %s", data.get("description"))
+                    return data
+                else:
+                    data = response.json()
+                    if not data.get("ok"):
+                        logger.warning("Telegram error: %s", data.get("description"))
+                    return data
+
+            except http_requests.exceptions.Timeout:
+                last_error = "timeout"
+                logger.warning("Telegram timeout on attempt %s", attempt)
+            except http_requests.exceptions.ConnectionError:
+                last_error = "sin conexion"
+                logger.warning("Telegram connection error on attempt %s", attempt)
+            except Exception as exc:
+                logger.exception("Telegram call failed: %s", exc)
+                return {"ok": False, "error": "internal"}
+
+            if attempt < self._TG_MAX_ATTEMPTS:
+                # Exponential backoff with jitter, capped at 4s.
+                delay = min(self._TG_BACKOFF_BASE * (2 ** (attempt - 1)), 4.0)
+                time.sleep(delay + random.uniform(0, delay))
+
+        return {"ok": False, "error": last_error}
 
     def _tg_ok(self) -> bool:
         """Cached liveness probe: avoids burning quota on every /api/salud."""
