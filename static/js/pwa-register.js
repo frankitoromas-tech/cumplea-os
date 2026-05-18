@@ -8,6 +8,30 @@
     return;
   }
   window.addEventListener('load', function () {
+    const params = new URLSearchParams(location.search);
+    if (params.get('sw_reset') === '1') {
+      Promise.resolve()
+        .then(function () {
+          return navigator.serviceWorker.getRegistrations();
+        })
+        .then(function (regs) {
+          return Promise.all(regs.map(function (r) { return r.unregister(); }));
+        })
+        .then(function () {
+          if (!('caches' in window)) return;
+          return caches.keys().then(function (keys) {
+            return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+          });
+        })
+        .finally(function () {
+          params.delete('sw_reset');
+          var qs = params.toString();
+          var next = location.pathname + (qs ? ('?' + qs) : '') + location.hash;
+          location.replace(next);
+        });
+      return;
+    }
+
     const hadController = !!navigator.serviceWorker.controller;
     let reloading = false;
 
