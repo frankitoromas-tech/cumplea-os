@@ -41,7 +41,9 @@ class APISmokeTests(unittest.TestCase):
         self.assertIn(response.status_code, (302, 303))
 
     def test_public_pages_render(self):
-        for path in ["/", "/carta", "/universo", "/aurora", "/timeline"]:
+        # /admin redirects to /admin/login (covered by test_admin_requires_login)
+        # so it's not part of the public-render list.
+        for path in ["/", "/preview", "/carta", "/universo", "/aurora", "/timeline"]:
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
@@ -207,6 +209,7 @@ class APISmokeTests(unittest.TestCase):
             "/api/capsula",
             "/api/constelaciones",
             "/api/cartas",
+            "/api/preview_estado",
         ]:
             with self.subTest(path=path):
                 response = self.client.get(path)
@@ -265,6 +268,15 @@ class APISmokeTests(unittest.TestCase):
             blocked = self.client.post("/api/test_telegram")
         self.assertEqual(blocked.status_code, 429)
         self.assertEqual(blocked.get_json()["status"], "error")
+
+    def test_preview_estado_open_and_locked(self):
+        with patch.dict(os.environ, {"PREVIEW_MODE_ENABLED": "1"}):
+            r_open = self.client.get("/api/estado?preview_state=open")
+            r_locked = self.client.get("/api/estado?preview_state=locked")
+        self.assertEqual(r_open.status_code, 200)
+        self.assertEqual(r_locked.status_code, 200)
+        self.assertFalse(r_open.get_json()["bloqueado"])
+        self.assertTrue(r_locked.get_json()["bloqueado"])
 
 
 if __name__ == "__main__":

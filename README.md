@@ -44,6 +44,8 @@ Variables clave:
 | `ADMIN_TOKEN` | Sin este token configurado, `/admin` y `/api/test_telegram` devuelven 503. |
 | `APP_ENCRYPTION_KEY` | Una o varias claves Fernet separadas por coma (la primera cifra, cualquiera descifra — habilita rotacion). |
 | `APP_DATA_DIR` | Directorio base para persistencia JSON. |
+| `FECHA_APERTURA_ISO` | Override de la fecha de apertura sin editar codigo (formato `YYYY-MM-DDTHH:MM:SS`). |
+| `PREVIEW_MODE_ENABLED` | `=1` habilita `/preview` y los query params `?preview_state=open|locked` / `?preview_open_at=...`. |
 | `CORS_ALLOWED_ORIGINS` | Lista CSV de origenes o `*` (default permisivo). |
 | `MAX_CONTENT_LENGTH_BYTES` | Tamano maximo de request (default 256 KiB). |
 | `LEGACY_PLAINTEXT_MESSAGE_LOG` | Si `=1`, escribe ademas en `buzon_secreto.txt`. |
@@ -77,6 +79,11 @@ Healthchecks:
 3. `POST /admin/logout` para cerrar sesion.
 
 Las APIs admin (`/api/salud`, `/api/test_telegram`) aceptan la cookie, un header `X-Admin-Token`, o `Authorization: Bearer <token>` — util para CI o scripts.
+
+Panel de pruebas:
+
+- `GET /preview`
+- `GET /admin` (incluye acceso rapido a Preview Lab)
 
 ## Pruebas
 
@@ -123,6 +130,23 @@ Defensa en profundidad:
 - **Logs correlacionados**: cada peticion recibe un `X-Request-ID` (incoming o generado) propagado a los logs y a la respuesta.
 
 > Si en algun momento tu `TELEGRAM_TOKEN` aparecio en el repo (por ejemplo en `logs/app.log`), **rotalo en @BotFather inmediatamente** — un token filtrado debe considerarse comprometido.
+
+## Preview de fecha de apertura
+
+Con `PREVIEW_MODE_ENABLED=1`, puedes simular estados sin tocar codigo:
+
+- `/?preview_state=open`
+- `/?preview_state=locked`
+- `/?preview_open_at=2026-08-30T00:00:00`
+- `/?preview=1` (bypass visual cliente, para revisar UI rapido)
+
+El endpoint `GET /api/preview_estado` muestra la fecha base, la efectiva y el estado calculado.
+
+Si ves el countdown cuando esperabas modo abierto:
+
+- Entra por `GET /preview` y elige `Bypass cliente (?preview=1)` para testear UI sin backend.
+- Para `open/locked/custom`, confirma `PREVIEW_MODE_ENABLED=1` en tu `.env` y reinicia la app.
+- Verifica estado real en `GET /api/preview_estado`.
 
 ## Persistencia de datos
 

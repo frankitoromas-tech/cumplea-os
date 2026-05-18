@@ -664,8 +664,114 @@ function setAuthPassed() {
   try { sessionStorage.setItem('luna:authPassed', '1'); } catch (_) {}
 }
 
+function normalizarFlag(raw) {
+  const v = (raw || '').toString().trim().toLowerCase();
+  return v === '1' || v === 'true' || v === 'on' || v === 'yes';
+}
+
+function parsePreviewDate(raw) {
+  if (!raw) return null;
+  const s = String(raw).trim();
+  if (!s) return null;
+  const parsed = new Date(s);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed;
+}
+
+function resolverPreview() {
+  const params = new URLSearchParams(window.location.search);
+  const previewBypass = normalizarFlag(params.get('preview'));
+  const previewClient = normalizarFlag(params.get('preview_client'));
+  const estadoRaw = (params.get('preview_state') || '').toString().trim().toLowerCase();
+  const customDate = parsePreviewDate(params.get('preview_open_at'));
+
+  let estadoCliente = null;
+  let segundosCliente = 0;
+  if (previewClient) {
+    if (estadoRaw === 'open' || estadoRaw === 'abierto') {
+      estadoCliente = 'open';
+    } else if (estadoRaw === 'locked' || estadoRaw === 'bloqueado') {
+      estadoCliente = 'locked';
+      segundosCliente = 7 * 24 * 3600;
+    } else if (customDate) {
+      const diff = Math.ceil((customDate.getTime() - Date.now()) / 1000);
+      if (diff > 0) {
+        estadoCliente = 'locked';
+        segundosCliente = diff;
+      } else {
+        estadoCliente = 'open';
+      }
+    } else {
+      estadoCliente = 'open';
+    }
+  }
+
+  return {
+    previewBypass,
+    previewClient,
+    estadoCliente,
+    segundosCliente,
+    skipAuth: previewBypass || previewClient,
+  };
+}
+
+function mostrarEstadoAbiertoPreview() {
+  const bloq = $('pantallaBloqueo');
+  const auth = $('pantallaAuth');
+  const main = $('contenedorPrincipal');
+
+  if (bloq) {
+    bloq.classList.add('oculto');
+    bloq.style.setProperty('display', 'none', 'important');
+    bloq.style.setProperty('visibility', 'hidden', 'important');
+    bloq.style.setProperty('opacity', '0', 'important');
+  }
+  if (auth) {
+    auth.classList.add('oculto');
+    auth.style.setProperty('display', 'none', 'important');
+    auth.style.setProperty('visibility', 'hidden', 'important');
+    auth.style.setProperty('opacity', '0', 'important');
+  }
+  if (main) {
+    main.style.setProperty('display', 'block', 'important');
+    main.style.setProperty('visibility', 'visible', 'important');
+    main.style.setProperty('opacity', '1', 'important');
+    main.classList.remove('oculto');
+  }
+
+  crearFondoEstrellas();
+  if (sessionStorage.getItem('luna:regaloAbierto') === '1') {
+    entrarFiestaDirecto();
+  } else {
+    iniciarIntroCanvas();
+    iniciarAuraRegalo();
+    cargarFraseDia();
+    document.dispatchEvent(new CustomEvent('regalo:listo'));
+  }
+}
+
+function mostrarEstadoBloqueadoPreview(segundos) {
+  const bloq = $('pantallaBloqueo');
+  $('contenedorPrincipal').style.display = 'none';
+  if (bloq) {
+    bloq.classList.remove('oculto');
+    bloq.style.cssText += ';display:flex !important;opacity:1 !important;visibility:visible !important;';
+  }
+  try {
+    iniciarBloqueo(Math.max(1, Math.floor(segundos || 1)));
+  } catch (_) {}
+}
+
 function lanzarFlujo() {
   console.info('[flujo] lanzarFlujo() iniciado. authPassed=', isAuthPassed());
+  const previewCtx = resolverPreview();
+
+  // En preview (visual o cliente) forzamos entrada directa ANTES del auth.
+  if (previewCtx.skipAuth) {
+    console.info('[flujo] preview detectado en lanzarFlujo(), saltando auth.');
+    cruzarEstado();
+    return;
+  }
 
   // Si ya pasamos auth en esta sesión (sin F5), saltar directo al estado
   if (isAuthPassed()) {
@@ -684,6 +790,11 @@ function lanzarFlujo() {
     console.error('[flujo] btnVerificarAuth NO EXISTE en el DOM');
     return;
   }
+  if (btn.dataset.boundAuthFlow === '1') {
+    console.info('[flujo] listener auth ya estaba enlazado, se reutiliza.');
+    return;
+  }
+  btn.dataset.boundAuthFlow = '1';
   console.info('[flujo] enganchando listener al btnVerificarAuth');
 
   btn.addEventListener('click', async function () {
@@ -721,12 +832,16 @@ function lanzarFlujo() {
     }
   });
 
-  $('inputNombreAuth').addEventListener('keydown', function (event) {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      $('btnVerificarAuth').click();
-    }
-  });
+  const inputAuth = $('inputNombreAuth');
+  if (inputAuth && inputAuth.dataset.boundAuthEnter !== '1') {
+    inputAuth.dataset.boundAuthEnter = '1';
+    inputAuth.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        $('btnVerificarAuth').click();
+      }
+    });
+  }
 }
 
 /**
@@ -736,14 +851,49 @@ function lanzarFlujo() {
  * cierra una interfaz interna y vuelve (NO repedir contraseña).
  */
 function cruzarEstado() {
-  console.info('[flujo] cruzarEstado() — fetching /api/estado');
-  fetch('/api/estado')
+  const previewCtx = resolverPreview();
+  if (previewCtx.previewBypass) {
+    mostrarEstadoAbiertoPreview();
+    console.info('[flujo] preview=1 activo, se omite /api/estado');
+    return;
+  }
+  if (previewCtx.previewClient && previewCtx.estadoCliente) {
+    if (previewCtx.estadoCliente === 'locked') {
+      mostrarEstadoBloqueadoPreview(previewCtx.segundosCliente);
+      console.info('[flujo] preview_client activo (locked)');
+    } else {
+      mostrarEstadoAbiertoPreview();
+      console.info('[flujo] preview_client activo (open)');
+    }
+    return;
+  }
+
+  const pageParams = new URLSearchParams(window.location.search);
+  const passthrough = new URLSearchParams();
+  ['preview_state', 'preview_open_at'].forEach((k) => {
+    const v = pageParams.get(k);
+    if (v) passthrough.set(k, v);
+  });
+  const estadoUrl = passthrough.toString()
+    ? `/api/estado?${passthrough.toString()}`
+    : '/api/estado';
+
+  console.info('[flujo] cruzarEstado() — fetching', estadoUrl);
+  fetch(estadoUrl)
     .then(r => {
       console.info('[flujo] /api/estado status:', r.status);
       return r.json();
     })
     .then(data => {
       console.info('[flujo] /api/estado data:', data);
+      if (data && Object.prototype.hasOwnProperty.call(data, 'bloqueado')) {
+        if (data.bloqueado) {
+          mostrarEstadoBloqueadoPreview(data.segundos_faltantes);
+        } else {
+          mostrarEstadoAbiertoPreview();
+        }
+        return;
+      }
       if (data.bloqueado) {
         // Aún no es la fecha → countdown (la luna ya pasó la auth)
         // BUG FIX: forzar display:flex además de quitar .oculto, porque
@@ -784,16 +934,7 @@ function cruzarEstado() {
     })
     .catch(() => {
       // Sin backend, asumimos cumple
-      $('contenedorPrincipal').style.display = '';
-      crearFondoEstrellas();
-
-      if (sessionStorage.getItem('luna:regaloAbierto') === '1') {
-        entrarFiestaDirecto();
-      } else {
-        iniciarIntroCanvas();
-        iniciarAuraRegalo();
-        cargarFraseDia();
-      }
+      mostrarEstadoAbiertoPreview();
     });
 }
 

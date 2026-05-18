@@ -141,6 +141,22 @@
       }
     },
 
+    cargarPreview: async () => {
+      const d = await fetchJSON('/api/preview_estado');
+      const enabledBadge = d.preview_mode_enabled
+        ? '<span class="badge ok">ON</span>'
+        : '<span class="badge err">OFF</span>';
+      const bloqueado = d.bloqueado
+        ? `<span class="estado-lock">Bloqueado (faltan ${escapeText(d.segundos_faltantes)}s)</span>`
+        : '<span class="estado-ok">Abierto</span>';
+      $('previewEstado').innerHTML = `
+        <div class="stat"><span>PREVIEW_MODE_ENABLED</span>${enabledBadge}</div>
+        <div class="stat"><span>Fuente</span><span class="valor">${escapeText(d.fuente_apertura)}</span></div>
+        <div class="stat"><span>Apertura base</span><span class="valor" style="font-size:.8rem">${escapeText(d.fecha_apertura_base)}</span></div>
+        <div class="stat"><span>Apertura efectiva</span><span class="valor" style="font-size:.8rem">${escapeText(d.fecha_apertura_efectiva)}</span></div>
+        <div class="stat"><span>Estado actual</span>${bloqueado}</div>`;
+    },
+
     cargarRegaloDiario: async () => {
       const d = await fetchJSON('/api/regalo_diario');
       $('regaloDiario').innerHTML = `
@@ -215,6 +231,7 @@
     ACTIONS.cargarMetricas();
     ACTIONS.cargarCartas();
     ACTIONS.cargarRegaloDiario();
+    ACTIONS.cargarPreview();
   }
 
   if (document.readyState === 'loading') {

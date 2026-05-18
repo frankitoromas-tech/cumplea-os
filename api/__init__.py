@@ -9,6 +9,7 @@ models/__init__.py apuntan a este archivo y NO deben duplicarlo.
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import datetime, date
+import os
 from flask import Blueprint, jsonify
 import logging
 
@@ -49,6 +50,23 @@ class APIModule(BaseModule, ABC):
     FECHA_NACIMIENTO  = datetime(2003, 8, 30)
     FECHA_INICIO_AMOR = date(2025, 10, 1)
     FECHA_APERTURA    = datetime(2026, 8, 30, 0, 0, 0)
+
+    @classmethod
+    def _fecha_apertura_configurada(cls) -> datetime:
+        """
+        Permite override por entorno sin tocar código:
+        FECHA_APERTURA_ISO=YYYY-MM-DDTHH:MM:SS
+        """
+        raw = (os.getenv("FECHA_APERTURA_ISO") or "").strip()
+        if not raw:
+            return cls.FECHA_APERTURA
+        try:
+            parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+            if parsed.tzinfo is not None:
+                parsed = parsed.astimezone().replace(tzinfo=None)
+            return parsed
+        except ValueError:
+            return cls.FECHA_APERTURA
 
     def _edad(self) -> int:
         return (datetime.now() - self.FECHA_NACIMIENTO).days // 365

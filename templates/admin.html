@@ -83,6 +83,17 @@
     <button data-action="cargarRegaloDiario" type="button">Refrescar</button>
   </div>
 
+  <div class="card">
+    <h3>Preview Lab</h3>
+    <p class="hint">
+      Simula estado abierto/bloqueado y fechas custom sin tocar código.
+      Requiere <code>PREVIEW_MODE_ENABLED=1</code>.
+    </p>
+    <div id="previewEstado"><div class="stat"><span>Cargando…</span></div></div>
+    <a href="/preview" class="btn-logout" style="display:inline-block;text-decoration:none;text-align:center;margin-top:8px;">Abrir panel completo</a>
+    <button data-action="cargarPreview" type="button">Refrescar estado</button>
+  </div>
+
 </div>
 
 <script src="{{ url_for('static', filename='js/admin.js') }}"></script>

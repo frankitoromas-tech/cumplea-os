@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Preview Lab · Luna</title>
+  <style>
+    :root {
+      --bg: #070b1a;
+      --panel: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.14);
+      --text: #e8ecff;
+      --muted: #a9b4d0;
+      --accent: #ff6b81;
+      --accent2: #f5c842;
+      --ok: #15d19a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 20% 10%, rgba(138,43,226,.16), transparent 40%),
+                  radial-gradient(circle at 80% 20%, rgba(255,107,129,.14), transparent 45%),
+                  var(--bg);
+      color: var(--text);
+      font-family: Inter, Segoe UI, system-ui, sans-serif;
+      min-height: 100vh;
+      padding: 28px 16px;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    h1 { margin: 0 0 10px; font-size: 1.8rem; }
+    .muted { color: var(--muted); }
+    .grid {
+      margin-top: 18px;
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      color: var(--accent2);
+    }
+    label { display: block; margin-bottom: 8px; font-size: .92rem; color: var(--muted); }
+    input, select {
+      width: 100%;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.18);
+      color: var(--text);
+      border-radius: 9px;
+      padding: 10px;
+    }
+    .btns {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      margin-top: 10px;
+    }
+    button, a.btn {
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      color: #1a0f16;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+    }
+    .secondary {
+      color: var(--text);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.2);
+    }
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: rgba(0,0,0,.25);
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.1);
+      padding: 10px;
+      font-size: .86rem;
+    }
+    .tag {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+    .tag.ok { background: rgba(21,209,154,.18); color: var(--ok); }
+    .tag.warn { background: rgba(255,107,129,.17); color: #ff9aac; }
+    .tips {
+      margin-top: 14px;
+      border-top: 1px solid rgba(255,255,255,.12);
+      padding-top: 10px;
+      color: var(--muted);
+      font-size: .86rem;
+      line-height: 1.4;
+    }
+    .tips strong { color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Preview Lab</h1>
+    <p class="muted">Panel de pruebas para ver la web en estado bloqueado/abierto y testear fechas sin tocar código cada vez.</p>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>1) Estado de simulación</h2>
+        <label for="modo">Modo</label>
+        <select id="modo">
+          <option value="real">Real (sin simulación)</option>
+          <option value="locked">Forzar bloqueado</option>
+          <option value="open">Forzar abierto</option>
+          <option value="custom">Fecha custom</option>
+          <option value="bypass">Bypass cliente (?preview=1)</option>
+        </select>
+
+        <label for="fecha">Fecha apertura custom</label>
+        <input id="fecha" type="datetime-local">
+
+        <div class="btns">
+          <button id="btnAplicar">Abrir preview</button>
+          <button id="btnNueva" class="secondary">Abrir en pestaña nueva</button>
+        </div>
+        <div class="tips">
+          <div><strong>Recomendado:</strong> usa <em>Bypass cliente</em> para revisar UI al instante.</div>
+          <div>Para simular fecha real (open/locked/custom), activa <code>PREVIEW_MODE_ENABLED=1</code>.</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>2) Estado backend actual</h2>
+        <p id="estadoLinea" class="muted">Cargando...</p>
+        <pre id="estadoJson">{}</pre>
+      </section>
+
+      <section class="panel">
+        <h2>3) URL generada</h2>
+        <pre id="urlPreview"></pre>
+        <div class="btns">
+          <button id="btnCopiar" class="secondary" type="button">Copiar URL</button>
+          <a class="btn secondary" href="/" target="_blank" rel="noreferrer">Ir al Home real</a>
+          <a class="btn secondary" href="/admin" target="_blank" rel="noreferrer">Abrir Admin</a>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const modeEl = document.getElementById('modo');
+    const dateEl = document.getElementById('fecha');
+    const urlEl = document.getElementById('urlPreview');
+    const jsonEl = document.getElementById('estadoJson');
+    const lineEl = document.getElementById('estadoLinea');
+    const btnCopiar = document.getElementById('btnCopiar');
+
+    function modeRequiereBackend(mode) {
+      return ['open', 'locked', 'custom'].includes(mode);
+    }
+
+    function buildPreviewUrl(opts = {}) {
+      const forProbe = !!opts.forProbe;
+      const mode = modeEl.value;
+      const q = new URLSearchParams();
+      if (mode === 'bypass') {
+        q.set('preview', '1');
+      } else if (mode === 'open') {
+        q.set('preview_state', 'open');
+      } else if (mode === 'locked') {
+        q.set('preview_state', 'locked');
+      } else if (mode === 'custom' && dateEl.value) {
+        q.set('preview_open_at', dateEl.value);
+      }
+      if (!forProbe && modeRequiereBackend(mode) && !previewBackendEnabled) {
+        q.set('preview_client', '1');
+      }
+      const query = q.toString();
+      return query ? `/?${query}` : '/';
+    }
+
+    function refreshUrlBox() {
+      urlEl.textContent = buildPreviewUrl();
+    }
+
+    let previewBackendEnabled = false;
+
+    async function loadEstado() {
+      const src = buildPreviewUrl({ forProbe: true });
+      const query = src.includes('?') ? src.slice(src.indexOf('?')) : '';
+      const r = await fetch(`/api/preview_estado${query}`);
+      const d = await r.json();
+      previewBackendEnabled = !!d.preview_mode_enabled;
+
+      const tag = d.preview_mode_enabled
+        ? '<span class="tag ok">Preview backend habilitado</span>'
+        : '<span class="tag warn">Preview backend deshabilitado</span>';
+
+      lineEl.innerHTML =
+        `${tag} · apertura efectiva: <strong>${d.fecha_apertura_efectiva}</strong> · bloqueado: <strong>${d.bloqueado}</strong>` +
+        (d.preview_mode_enabled ? '' : ' · usa modo "Bypass cliente" o activa PREVIEW_MODE_ENABLED=1');
+      jsonEl.textContent = JSON.stringify(d, null, 2);
+    }
+
+    function openPreview(newTab = false) {
+      const mode = modeEl.value;
+      if (!previewBackendEnabled && modeRequiereBackend(mode)) {
+        alert('Preview backend deshabilitado. Se aplicará fallback cliente para test visual de fecha.');
+      }
+      const target = buildPreviewUrl();
+      if (newTab) {
+        window.open(target, '_blank', 'noopener,noreferrer');
+      } else {
+        window.location.href = target;
+      }
+    }
+
+    modeEl.addEventListener('change', () => { refreshUrlBox(); loadEstado().catch(console.error); });
+    dateEl.addEventListener('input', () => { refreshUrlBox(); loadEstado().catch(console.error); });
+    document.getElementById('btnAplicar').addEventListener('click', () => openPreview(false));
+    document.getElementById('btnNueva').addEventListener('click', () => openPreview(true));
+    btnCopiar.addEventListener('click', async () => {
+      try {
+        const absolute = `${window.location.origin}${buildPreviewUrl()}`;
+        await navigator.clipboard.writeText(absolute);
+        btnCopiar.textContent = 'Copiado';
+        setTimeout(() => { btnCopiar.textContent = 'Copiar URL'; }, 1400);
+      } catch (_) {
+        alert('No se pudo copiar automaticamente. URL: ' + buildPreviewUrl());
+      }
+    });
+
+    dateEl.value = new Date(Date.now() + 86400000).toISOString().slice(0, 16);
+    refreshUrlBox();
+    loadEstado().catch(console.error);
+  </script>
+</body>
+</html>
