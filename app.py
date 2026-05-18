@@ -16,15 +16,25 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from services import metrics_service
 from services.request_guards import validate_write_origin
-from services.security_service import attach_request_id, require_admin_token
+from services.security_service import (
+    admin_panel_enabled,
+    attach_request_id,
+    require_admin_token,
+)
 from services.visitas_service import ServicioVisitas
 
-try:
-    from dotenv import load_dotenv
+def _load_env_files() -> None:
+    """Load .env from the project root (works with gunicorn any cwd)."""
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        return
+    root = Path(__file__).resolve().parent
+    load_dotenv(root / ".env")
+    load_dotenv(root / ".env.local", override=True)
 
-    load_dotenv()
-except ImportError:
-    pass
+
+_load_env_files()
 
 
 class _RequestIdLogFilter(logging.Filter):
@@ -318,7 +328,7 @@ def create_app() -> Flask:
                 {
                     "status": "ok",
                     "encryption_enabled": bool(os.getenv("APP_ENCRYPTION_KEY")),
-                    "admin_protected": bool(os.getenv("ADMIN_TOKEN")),
+                    "admin_protected": admin_panel_enabled(),
                 }
             ),
             200,
@@ -337,7 +347,7 @@ def create_app() -> Flask:
         snap.update(
             {
                 "encryption_enabled": bool(os.getenv("APP_ENCRYPTION_KEY")),
-                "admin_protected": bool(os.getenv("ADMIN_TOKEN")),
+                "admin_protected": admin_panel_enabled(),
                 "telegram": "conectado" if _mensajes._tg_ok() else "sin conexion",
                 "visitas": visitas_service.leer(),
                 "rate_limit_active_keys": len(limiter._events),

@@ -17,6 +17,7 @@ import logging
 import os
 import secrets
 from functools import wraps
+from pathlib import Path
 from typing import Callable
 
 from flask import g, jsonify, make_response, request
@@ -33,8 +34,54 @@ _CSRF_SALT = "cumpleaos-csrf-v1"
 _CSRF_MAX_AGE = 60 * 30  # 30 minutes
 
 
+def _read_admin_token_file() -> str:
+    """
+    Optional file-based token for Railway volumes or local testing
+    without pasting secrets into the dashboard.
+
+    Checked paths (first hit wins):
+      - ADMIN_TOKEN_FILE env (explicit path)
+      - {APP_DATA_DIR}/admin_token
+    """
+    explicit = (os.getenv("ADMIN_TOKEN_FILE") or "").strip()
+    candidates: list[Path] = []
+    if explicit:
+        candidates.append(Path(explicit))
+    base = Path(os.getenv("APP_DATA_DIR", "."))
+    candidates.append(base / "admin_token")
+
+    for path in candidates:
+        try:
+            if not path.is_file():
+                continue
+            line = path.read_text(encoding="utf-8").strip().splitlines()[0].strip()
+            if line:
+                return line
+        except OSError:
+            logger.warning("Cannot read admin token file %s.", path)
+    return ""
+
+
 def _expected_admin_token() -> str:
-    return (os.getenv("ADMIN_TOKEN") or "").strip()
+    direct = (os.getenv("ADMIN_TOKEN") or "").strip()
+    if direct:
+        return direct
+
+    from_file = _read_admin_token_file()
+    if from_file:
+        return from_file
+
+    # Explicit testing mode (Railway/local): ENABLE_TEST_ADMIN=1 + TEST_ADMIN_TOKEN
+    if (os.getenv("ENABLE_TEST_ADMIN") or "").strip() == "1":
+        test = (os.getenv("TEST_ADMIN_TOKEN") or "").strip()
+        if test:
+            return test
+
+    return ""
+
+
+def admin_panel_enabled() -> bool:
+    return bool(_expected_admin_token())
 
 
 def _provided_admin_token() -> str:
@@ -172,10 +219,11 @@ def require_admin_session(view: Callable):
 
     @wraps(view)
     def wrapper(*args, **kwargs):
-        if not _expected_admin_token():
+        if not admin_panel_enabled():
             return (
                 "<h1>Admin desactivado</h1>"
-                "<p>Configura <code>ADMIN_TOKEN</code> en el entorno.</p>"
+                "<p>Configura <code>ADMIN_TOKEN</code>, <code>data/admin_token</code> "
+                "o <code>ENABLE_TEST_ADMIN=1</code> + <code>TEST_ADMIN_TOKEN</code>.</p>"
             ), 503
 
         cookie = request.cookies.get(ADMIN_COOKIE, "")

@@ -17,6 +17,7 @@ logs/
 *.log
 buzon_secreto.txt
 data/*.json
+data/admin_token
 controllers/data/*.json
 
 # Lock + temp files written by services/base_service.py

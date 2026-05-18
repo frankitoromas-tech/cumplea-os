@@ -27,6 +27,7 @@ from services.security_service import (
     _check_token,  # type: ignore[attr-defined]
     _expected_admin_token,  # type: ignore[attr-defined]
     _provided_admin_token,  # type: ignore[attr-defined]
+    admin_panel_enabled,
     clear_admin_cookie,
     make_admin_login_response,
     mint_csrf_token,
@@ -139,10 +140,11 @@ class AuthModule(APIModule):
         return _LOGIN_TEMPLATE.format(error=error_html, csrf=escape(csrf)), 200
 
     def admin_login_form(self):
-        if not _expected_admin_token():
+        if not admin_panel_enabled():
             return (
                 "<h1>Admin desactivado</h1>"
-                "<p>Configura <code>ADMIN_TOKEN</code> en el entorno.</p>",
+                "<p>Configura <code>ADMIN_TOKEN</code>, <code>data/admin_token</code> "
+                "o <code>ENABLE_TEST_ADMIN</code> + <code>TEST_ADMIN_TOKEN</code>.</p>",
                 503,
             )
         body, status = self._render_login()
@@ -155,7 +157,8 @@ class AuthModule(APIModule):
         if not expected:
             return (
                 "<h1>Admin desactivado</h1>"
-                "<p>Configura <code>ADMIN_TOKEN</code> en el entorno.</p>",
+                "<p>Configura <code>ADMIN_TOKEN</code>, <code>data/admin_token</code> "
+                "o modo test (<code>ENABLE_TEST_ADMIN</code>).</p>",
                 503,
             )
         csrf = (request.form.get("csrf") or "").strip()
