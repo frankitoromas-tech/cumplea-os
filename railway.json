@@ -19,7 +19,7 @@
     ]
   },
   "deploy": {
-    "startCommand": "gunicorn app:app -c gunicorn.conf.py --workers 1 --threads 4 --bind 0.0.0.0:${PORT:-8000}",
+    "startCommand": "gunicorn app:app -c gunicorn.conf.py",
     "healthcheckPath": "/healthz",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",
