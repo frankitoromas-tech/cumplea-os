@@ -29,64 +29,117 @@
 
   <canvas id="canvasBloqueo"></canvas>
 
-  <div class="bloqueo-contenido">
+  <div class="bloqueo-scroll-track" id="bloqueoScrollTrack" tabindex="0" aria-label="Cuenta regresiva y sección de estreno">
+    <section class="bloqueo-slide bloqueo-slide-principal" id="slideCuentaRegresiva" data-slide-index="0">
+      <div class="bloqueo-contenido">
 
-    <p class="bloqueo-eyebrow">✦ Una sorpresa te espera ✦</p>
-    <h1 class="bloqueo-titulo">
-      <span class="letra-reveal" style="--d:0">F</span><span class="letra-reveal" style="--d:1">a</span><span class="letra-reveal" style="--d:2">l</span><span class="letra-reveal" style="--d:3">t</span><span class="letra-reveal" style="--d:4">a</span>&nbsp;<span class="letra-reveal" style="--d:5">p</span><span class="letra-reveal" style="--d:6">o</span><span class="letra-reveal" style="--d:7">c</span><span class="letra-reveal" style="--d:8">o</span>
-    </h1>
-    <p class="bloqueo-subtitulo">Cada segundo que pasa, te pienso más</p>
+        <p class="bloqueo-eyebrow">✦ Una sorpresa te espera ✦</p>
+        <h1 class="bloqueo-titulo">
+          <span class="letra-reveal" style="--d:0">F</span><span class="letra-reveal" style="--d:1">a</span><span class="letra-reveal" style="--d:2">l</span><span class="letra-reveal" style="--d:3">t</span><span class="letra-reveal" style="--d:4">a</span>&nbsp;<span class="letra-reveal" style="--d:5">p</span><span class="letra-reveal" style="--d:6">o</span><span class="letra-reveal" style="--d:7">c</span><span class="letra-reveal" style="--d:8">o</span>
+        </h1>
+        <p class="bloqueo-subtitulo">Cada segundo que pasa, te pienso más</p>
 
-    <div id="flipCounter" class="flip-counter">
-      <div class="flip-grupo">
-        <div class="flip-label">Días</div>
-        <div class="flip-digitos" id="flip-dias">
-          <div class="flip-card"><div class="flip-top" id="fd-t"></div><div class="flip-bot" id="fd-b"></div></div>
-          <div class="flip-card"><div class="flip-top" id="fd2-t"></div><div class="flip-bot" id="fd2-b"></div></div>
-          <div class="flip-card"><div class="flip-top" id="fd3-t"></div><div class="flip-bot" id="fd3-b"></div></div>
+        <div id="flipCounter" class="flip-counter">
+          <div class="flip-grupo">
+            <div class="flip-label">Días</div>
+            <div class="flip-digitos" id="flip-dias">
+              <div class="flip-card"><div class="flip-top" id="fd-t"></div><div class="flip-bot" id="fd-b"></div></div>
+              <div class="flip-card"><div class="flip-top" id="fd2-t"></div><div class="flip-bot" id="fd2-b"></div></div>
+              <div class="flip-card"><div class="flip-top" id="fd3-t"></div><div class="flip-bot" id="fd3-b"></div></div>
+            </div>
+          </div>
+          <div class="flip-sep">:</div>
+          <div class="flip-grupo">
+            <div class="flip-label">Horas</div>
+            <div class="flip-digitos" id="flip-horas">
+              <div class="flip-card"><div class="flip-top" id="fh-t"></div><div class="flip-bot" id="fh-b"></div></div>
+              <div class="flip-card"><div class="flip-top" id="fh2-t"></div><div class="flip-bot" id="fh2-b"></div></div>
+            </div>
+          </div>
+          <div class="flip-sep">:</div>
+          <div class="flip-grupo">
+            <div class="flip-label">Min</div>
+            <div class="flip-digitos" id="flip-min">
+              <div class="flip-card"><div class="flip-top" id="fm-t"></div><div class="flip-bot" id="fm-b"></div></div>
+              <div class="flip-card"><div class="flip-top" id="fm2-t"></div><div class="flip-bot" id="fm2-b"></div></div>
+            </div>
+          </div>
+          <div class="flip-sep">:</div>
+          <div class="flip-grupo">
+            <div class="flip-label">Seg</div>
+            <div class="flip-digitos" id="flip-seg">
+              <div class="flip-card"><div class="flip-top" id="fs-t"></div><div class="flip-bot" id="fs-b"></div></div>
+              <div class="flip-card"><div class="flip-top" id="fs2-t"></div><div class="flip-bot" id="fs2-b"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="juegoConstelacion" class="juego-constelacion">
+          <p class="juego-titulo">✦ Mientras esperas... ✦</p>
+          <p class="juego-subtitulo">Conecta las estrellas en orden para descubrir algo especial</p>
+          <canvas id="canvasJuego" width="320" height="280"></canvas>
+          <p id="juegoStatus" class="juego-status">Toca la estrella <span id="juegoNumActual">1</span> ✨</p>
+        </div>
+
+        <div class="buzon buzon-bloqueo">
+          <h3>Buzón Secreto 💌</h3>
+          <p>Mientras esperas, escríbeme algo...</p>
+          <textarea id="textoSecretoBloqueo" placeholder="Escribe tu mensaje mágico aquí..."></textarea>
+          <button id="btnEnviarBloqueo">Enviar a las estrellas ✨</button>
+        </div>
+        <p class="bloqueo-scroll-hint">Desliza con la rueda del mouse para bajar al estreno ✦</p>
+      </div>
+    </section>
+
+    <section class="bloqueo-slide bloqueo-slide-net" id="slideCineNet" data-slide-index="1">
+      <div class="net-cine-wrap">
+        <p class="net-tag">Modo NET · capítulo especial</p>
+        <h2 class="net-title">Acompáñame a ver esta película</h2>
+        <p class="net-sub">
+          Hagamos estreno juntos: verla, comentarla y quedarnos con esa sensación bonita de "quiero repetir esta noche contigo".
+        </p>
+
+        <article class="net-feature" aria-labelledby="netFeatureTitle">
+          <img src="/static/DEFAULT_RECUERDOS/foto5.png" alt="Poster de Entre Lima y Medellín">
+          <div class="net-feature-copy">
+            <p class="net-kicker">Luna Originals presenta</p>
+            <h3 id="netFeatureTitle">Entre Lima y Medellín</h3>
+            <p class="net-sinopsis">
+              Sinopsis: dos personas separadas por kilómetros convierten videollamadas, música y pequeños rituales en una ruta emocional que desafía la distancia.
+              Cada escena es una promesa de encuentro, hasta llegar al estreno de su propia historia.
+            </p>
+            <div class="net-meta-row">
+              <span class="net-pill">Romance</span>
+              <span class="net-pill">Drama suave</span>
+              <span class="net-pill">Larga distancia</span>
+            </div>
+          </div>
+        </article>
+
+        <div class="net-estreno">
+          <div>
+            <p class="net-estreno-label">Fecha de estreno</p>
+            <p class="net-estreno-date">30/08/2026</p>
+          </div>
+          <div class="net-eta" id="netEstrenoCuenta" aria-live="polite">
+            <span><strong id="netEstrenoDias">--</strong>d</span>
+            <span><strong id="netEstrenoHoras">--</strong>h</span>
+            <span><strong id="netEstrenoMin">--</strong>m</span>
+            <span><strong id="netEstrenoSeg">--</strong>s</span>
+          </div>
+        </div>
+
+        <p class="net-estado" id="netEstadoLinea">Sincronizando cuenta regresiva...</p>
+
+        <div class="net-actions">
+          <a href="/series?series_theme=net" class="net-btn">Abrir experiencia NET</a>
+          <button type="button" id="btnVolverArribaBloqueo" class="net-btn net-btn-ghost">Volver al contador ↑</button>
         </div>
       </div>
-      <div class="flip-sep">:</div>
-      <div class="flip-grupo">
-        <div class="flip-label">Horas</div>
-        <div class="flip-digitos" id="flip-horas">
-          <div class="flip-card"><div class="flip-top" id="fh-t"></div><div class="flip-bot" id="fh-b"></div></div>
-          <div class="flip-card"><div class="flip-top" id="fh2-t"></div><div class="flip-bot" id="fh2-b"></div></div>
-        </div>
-      </div>
-      <div class="flip-sep">:</div>
-      <div class="flip-grupo">
-        <div class="flip-label">Min</div>
-        <div class="flip-digitos" id="flip-min">
-          <div class="flip-card"><div class="flip-top" id="fm-t"></div><div class="flip-bot" id="fm-b"></div></div>
-          <div class="flip-card"><div class="flip-top" id="fm2-t"></div><div class="flip-bot" id="fm2-b"></div></div>
-        </div>
-      </div>
-      <div class="flip-sep">:</div>
-      <div class="flip-grupo">
-        <div class="flip-label">Seg</div>
-        <div class="flip-digitos" id="flip-seg">
-          <div class="flip-card"><div class="flip-top" id="fs-t"></div><div class="flip-bot" id="fs-b"></div></div>
-          <div class="flip-card"><div class="flip-top" id="fs2-t"></div><div class="flip-bot" id="fs2-b"></div></div>
-        </div>
-      </div>
-    </div>
-
-    <div id="juegoConstelacion" class="juego-constelacion">
-      <p class="juego-titulo">✦ Mientras esperas... ✦</p>
-      <p class="juego-subtitulo">Conecta las estrellas en orden para descubrir algo especial</p>
-      <canvas id="canvasJuego" width="320" height="280"></canvas>
-      <p id="juegoStatus" class="juego-status">Toca la estrella <span id="juegoNumActual">1</span> ✨</p>
-    </div>
-
-    <div class="buzon buzon-bloqueo">
-      <h3>Buzón Secreto 💌</h3>
-      <p>Mientras esperas, escríbeme algo...</p>
-      <textarea id="textoSecretoBloqueo" placeholder="Escribe tu mensaje mágico aquí..."></textarea>
-      <button id="btnEnviarBloqueo">Enviar a las estrellas ✨</button>
-    </div>
-
-  </div></div><div id="pantallaAuth" class="oculto">
+    </section>
+  </div>
+</div>
+<div id="pantallaAuth" class="oculto">
   <div class="bloqueo-contenido" style="background: var(--glass); border: 1px solid var(--glass-borde); border-radius: 20px; padding: 40px;">
     <h2 style="font-family: var(--fuente-titulo); color: var(--rosa); font-size: 2.2rem;">Seguridad Estelar 🔒</h2>
     <p style="margin: 15px 0; font-size: 1.1rem;">El universo necesita confirmar tu identidad para entregarte este regalo.</p>

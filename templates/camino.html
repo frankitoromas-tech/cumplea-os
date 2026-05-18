@@ -111,7 +111,8 @@
     }
     .panel-mensaje {
       font-style: italic; font-size: 0.9rem; color: rgba(255, 255, 255, 0.78);
-      line-height: 1.5; max-width: 360px;
+      line-height: 1.5; max-width: 360px; min-height: 60px;
+      transition: color 0.4s ease, opacity 0.4s ease;
     }
     .fotos-strip {
       display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;
@@ -126,6 +127,59 @@
       transform: scale(1.18);
       border-color: var(--rosa);
       box-shadow: 0 0 18px rgba(255, 107, 129, 0.5);
+    }
+    .destinos-deseados {
+      width: 100%;
+      margin-top: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: rgba(11, 16, 40, 0.45);
+    }
+    .destinos-deseados-titulo {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.86rem;
+      color: rgba(255, 205, 221, 0.95);
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+    }
+    .destinos-deseados-lista {
+      list-style: none;
+      display: grid;
+      gap: 5px;
+      padding: 0;
+      margin: 0;
+      text-align: left;
+    }
+    .destinos-deseados-lista li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.82);
+      opacity: 0.5;
+      transform: translateX(-6px);
+      transition: opacity 0.4s ease, transform 0.4s ease, color 0.4s ease;
+      line-height: 1.3;
+    }
+    .destinos-deseados-lista li.revelado {
+      opacity: 1;
+      transform: translateX(0);
+      color: rgba(255, 239, 245, 0.98);
+    }
+    .destinos-deseados-lista .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.35);
+      box-shadow: 0 0 0 rgba(255, 107, 129, 0);
+      transition: background 0.4s ease, box-shadow 0.4s ease;
+      flex-shrink: 0;
+    }
+    .destinos-deseados-lista li.revelado .dot {
+      background: #ff7d94;
+      box-shadow: 0 0 9px rgba(255, 107, 129, 0.8);
     }
 
     /* ── Pin sobre el globo (HTML element) ──────────────────── */
@@ -161,26 +215,62 @@
        individual desde JS para que el trazado fluya de Lima a Medellín. */
     .corazon-camino {
       position: relative;
-      transform: translate(-50%, -50%) scale(0.2);
-      opacity: 0;
       pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+    .corazon-camino .corazon-nucleo {
+      opacity: 0;
       font-size: 1.4rem;
       line-height: 1;
+      transform: scale(0.2);
       filter: drop-shadow(0 0 8px rgba(255, 107, 129, 0.85))
               drop-shadow(0 0 16px rgba(255, 107, 129, 0.35));
       transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
                   opacity 0.45s ease;
       will-change: transform, opacity;
     }
-    .corazon-camino.aparece {
-      transform: translate(-50%, -50%) scale(1);
+    .corazon-camino.aparece .corazon-nucleo {
+      transform: scale(1);
       opacity: 1;
-      animation: latido-camino 1.6s ease-in-out infinite;
-      animation-delay: 0.5s; /* arranca el latido tras el bounce */
+      animation: latido-camino-nucleo 1.6s ease-in-out infinite;
+      animation-delay: 0.45s;
     }
-    @keyframes latido-camino {
-      0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.78; }
-      50%      { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+    @keyframes latido-camino-nucleo {
+      0%, 100% { transform: scale(0.86); opacity: 0.8; }
+      50%      { transform: scale(1.14); opacity: 1; }
+    }
+
+    .destino-sueno {
+      pointer-events: none;
+      transform: translate(-50%, -100%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      text-align: center;
+    }
+    .destino-sueno.revelado {
+      opacity: 1;
+    }
+    .destino-sueno .icono {
+      font-size: 1.25rem;
+      display: block;
+      animation: destino-float 2.8s ease-in-out infinite;
+      filter: drop-shadow(0 0 10px rgba(255, 190, 210, 0.55));
+    }
+    .destino-sueno .nombre {
+      display: inline-block;
+      margin-top: 3px;
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-size: 0.74rem;
+      letter-spacing: 0.3px;
+      color: rgba(255, 242, 248, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(8, 12, 30, 0.78);
+      backdrop-filter: blur(6px);
+    }
+    @keyframes destino-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
     }
 
     /* ── Botón "Trazar nuestro camino" ─────────────────────── */
@@ -443,12 +533,12 @@
 </div>
 
 <div class="panel-camino">
-  <div class="panel-titulo">Lima, Perú → Medellín, Colombia</div>
+  <div class="panel-titulo" id="panelTituloRuta">Lima, Perú → Medellín, Colombia</div>
   <div class="panel-distancia">
     <span class="km">2,040 km</span>
     <span class="lbl">en línea recta</span>
   </div>
-  <p class="panel-mensaje">
+  <p class="panel-mensaje" id="panelMensaje">
     Una distancia que no fue distancia — porque tú ya la habías cruzado
     primero en mi corazón.
   </p>
@@ -462,6 +552,11 @@
   </div>
 
   <div class="fotos-strip" id="fotosStrip"></div>
+
+  <div class="destinos-deseados" id="destinosDeseados" aria-live="polite">
+    <div class="destinos-deseados-titulo">Siguientes abrazos en el mapa</div>
+    <ul class="destinos-deseados-lista" id="destinosLista"></ul>
+  </div>
 </div>
 
 <div class="toast-camino" id="toastCamino" role="status" aria-live="polite">
@@ -523,6 +618,7 @@ for (let i = 1; i < N_CORAZONES; i++) {
   const t = i / N_CORAZONES;
   const punto = slerpGeo(LIMA, MEDELLIN, t);
   CORAZONES.push({
+    id: `corazon-${i}`,
     lat: punto.lat,
     lng: punto.lng,
     tipo: 'corazon',
@@ -530,6 +626,32 @@ for (let i = 1; i < N_CORAZONES; i++) {
     emoji: EMOJIS_CORAZON[i % EMOJIS_CORAZON.length],
   });
 }
+
+const DESTINOS_SONADOS = [
+  { id: 'tailandia', nombre: 'Tailandia', descripcion: 'Bangkok y templos dorados', lat: 13.7563, lng: 100.5018, emoji: '🌺', frase: 'Promesa de atardeceres nuevos con tu mano en la mía.' },
+  { id: 'bolivia', nombre: 'Bolivia', descripcion: 'Salar de Uyuni', lat: -20.1338, lng: -67.4891, emoji: '🪞', frase: 'Donde el cielo se refleja y también nosotros.' },
+  { id: 'dubrovnik', nombre: 'Dubrovnik, Croacia', descripcion: 'Murallas frente al mar', lat: 42.6507, lng: 18.0944, emoji: '🏰', frase: 'Piedra antigua, mar infinito y nosotros escribiendo futuro.' },
+  { id: 'kioto', nombre: 'Kioto, Japón', descripcion: 'Cerezos y té', lat: 35.0116, lng: 135.7681, emoji: '🌸', frase: 'Pausa, calma y amor en cada estación.' },
+  { id: 'santorini', nombre: 'Santorini, Grecia', descripcion: 'Azul sobre azul', lat: 36.3932, lng: 25.4615, emoji: '🌅', frase: 'Una luz dorada para besarnos sin reloj.' },
+];
+
+const PIN_BASE = [
+  { id: 'lima-pin', lat: LIMA.lat, lng: LIMA.lng, label: LIMA.ciudad, tipo: 'pin' },
+  { id: 'medellin-pin', lat: MEDELLIN.lat, lng: MEDELLIN.lng, label: MEDELLIN.ciudad, tipo: 'pin' },
+];
+
+const DESTINOS_DATA = DESTINOS_SONADOS.map((destino, idx) => ({
+  ...destino,
+  tipo: 'destino',
+  ordenDestino: idx + 1,
+}));
+
+const ELEMENTOS_GLOBO = [...CORAZONES, ...PIN_BASE, ...DESTINOS_DATA];
+const ARCO_CAMINO = [{ startLat: LIMA.lat, startLng: LIMA.lng, endLat: MEDELLIN.lat, endLng: MEDELLIN.lng }];
+const corazonesTrazados = new Set();
+const destinosRevelados = new Set();
+let destinosSecuenciaIniciada = false;
+let arcoVisible = false;
 
 /* ── Fotos del usuario en el strip + lightbox ──────────────── */
 const FOTOS = [
@@ -543,24 +665,49 @@ const FOTOS = [
 const strip   = document.getElementById('fotosStrip');
 const lb      = document.getElementById('lightbox');
 const lbImg   = document.getElementById('lightboxImg');
+const panelTituloRuta = document.getElementById('panelTituloRuta');
+const panelMensaje = document.getElementById('panelMensaje');
+const destinosListaEl = document.getElementById('destinosLista');
+const destinoListItems = new Map();
 
-FOTOS.forEach((src, i) => {
-  const img = document.createElement('img');
-  img.src = src; img.alt = 'Recuerdo ' + (i + 1);
-  img.addEventListener('click', () => {
-    lbImg.src = src;
-    lb.classList.add('abierto');
+function setPanel(titulo, mensaje) {
+  if (panelTituloRuta && titulo) panelTituloRuta.textContent = titulo;
+  if (panelMensaje && mensaje) panelMensaje.textContent = mensaje;
+}
+
+if (destinosListaEl) {
+  destinosListaEl.innerHTML = '';
+  DESTINOS_DATA.forEach((destino) => {
+    const li = document.createElement('li');
+    li.dataset.destinoId = destino.id;
+    li.innerHTML = `<span class="dot" aria-hidden="true"></span><span>${destino.nombre} · ${destino.descripcion}</span>`;
+    destinosListaEl.appendChild(li);
+    destinoListItems.set(destino.id, li);
   });
-  strip.appendChild(img);
-});
+}
 
-lb.addEventListener('click', () => {
-  lb.classList.remove('abierto');
-  setTimeout(() => { lbImg.src = ''; }, 320);
-});
+if (strip) {
+  FOTOS.forEach((src, i) => {
+    const img = document.createElement('img');
+    img.src = src; img.alt = 'Recuerdo ' + (i + 1);
+    img.addEventListener('click', () => {
+      if (!lb || !lbImg) return;
+      lbImg.src = src;
+      lb.classList.add('abierto');
+    });
+    strip.appendChild(img);
+  });
+}
+
+if (lb) {
+  lb.addEventListener('click', () => {
+    lb.classList.remove('abierto');
+    if (lbImg) setTimeout(() => { lbImg.src = ''; }, 320);
+  });
+}
 
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && lb.classList.contains('abierto')) {
+  if (e.key === 'Escape' && lb && lb.classList.contains('abierto')) {
     lb.classList.remove('abierto');
   }
 });
@@ -580,20 +727,39 @@ const globe = Globe()
   .showAtmosphere(true)
   .atmosphereColor('#7ba8ff')
   .atmosphereAltitude(0.18)
-  /* La línea Lima → Medellín es una constelación de corazones que pulsan,
-     no un arco normal. Cada elemento HTML se posa sobre el gran círculo
-     interpolado con slerp. */
-  .htmlElementsData([
-    ...CORAZONES,
-    { lat: LIMA.lat,     lng: LIMA.lng,     label: LIMA.ciudad,     tipo: 'pin' },
-    { lat: MEDELLIN.lat, lng: MEDELLIN.lng, label: MEDELLIN.ciudad, tipo: 'pin' },
-  ])
+  .arcsData(ARCO_CAMINO)
+  .arcColor(() => (
+    arcoVisible
+      ? ['rgba(255, 125, 148, 0.96)', 'rgba(245, 200, 66, 0.94)']
+      : ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)']
+  ))
+  .arcAltitude(0.16)
+  .arcStroke(0.85)
+  .arcDashLength(1)
+  .arcDashGap(0)
+  .arcDashAnimateTime(0)
+  .htmlAltitude((d) => (d.tipo === 'destino' ? 0.03 : 0))
+  .htmlTransitionDuration(0)
+  .htmlElementsData(ELEMENTOS_GLOBO)
   .htmlElement((d) => {
     if (d.tipo === 'corazon') {
       const el = document.createElement('div');
       el.className = 'corazon-camino';
       el.dataset.orden = String(d.orden);
-      el.textContent = d.emoji;
+      el.dataset.heartId = d.id;
+      const nucleo = document.createElement('span');
+      nucleo.className = 'corazon-nucleo';
+      nucleo.textContent = d.emoji;
+      el.appendChild(nucleo);
+      if (corazonesTrazados.has(d.id)) el.classList.add('aparece');
+      return el;
+    }
+    if (d.tipo === 'destino') {
+      const el = document.createElement('div');
+      el.className = 'destino-sueno';
+      el.dataset.destinoId = d.id;
+      if (destinosRevelados.has(d.id)) el.classList.add('revelado');
+      el.innerHTML = `<span class="icono">${d.emoji}</span><span class="nombre">${d.nombre}</span>`;
       return el;
     }
     const el = document.createElement('div');
@@ -601,6 +767,26 @@ const globe = Globe()
     el.innerHTML = `<div class="nombre">${d.label}</div><div class="punto"></div>`;
     return el;
   });
+
+function actualizarArco() {
+  globe.arcsData([...ARCO_CAMINO]);
+}
+
+function sincronizarEstadoVisual() {
+  document.querySelectorAll('.corazon-camino').forEach((el) => {
+    const id = el.dataset.heartId;
+    if (id && corazonesTrazados.has(id)) el.classList.add('aparece');
+  });
+  document.querySelectorAll('.destino-sueno').forEach((el) => {
+    const id = el.dataset.destinoId;
+    if (id && destinosRevelados.has(id)) el.classList.add('revelado');
+  });
+}
+
+if (typeof MutationObserver !== 'undefined') {
+  const observer = new MutationObserver(() => sincronizarEstadoVisual());
+  observer.observe(globoEl, { childList: true, subtree: true });
+}
 
 /* ── Trazado del camino: se dispara con el botón o autoplay ──── */
 const btnTrazar = document.getElementById('btnTrazar');
@@ -678,33 +864,85 @@ function lluviaDeCorazones(cantidad) {
   }
 }
 
+function actualizarDestinoLista(destinoId) {
+  const li = destinoListItems.get(destinoId);
+  if (li) li.classList.add('revelado');
+}
+
+function revelarDestino(destino, ultimo) {
+  destinosRevelados.add(destino.id);
+  actualizarDestinoLista(destino.id);
+  sincronizarEstadoVisual();
+
+  setPanel(`${LIMA.ciudad} → ${destino.nombre}`, destino.frase);
+  globe.pointOfView({ lat: destino.lat, lng: destino.lng, altitude: 1.7 }, reducedMotion ? 0 : 1600);
+
+  if (!reducedMotion) lluviaDeCorazones(ultimo ? 10 : 4);
+
+  if (ultimo) {
+    setTimeout(() => {
+      setPanel('Lima, Perú → Medellín, Colombia', 'Y después, todo lo que soñemos juntos: sin fronteras y con el corazón adelante.');
+      globe.pointOfView({ lat: -3, lng: -76, altitude: 1.95 }, reducedMotion ? 0 : 1800);
+    }, reducedMotion ? 0 : 1600);
+  }
+}
+
+function iniciarSecuenciaDestinos() {
+  if (destinosSecuenciaIniciada) return;
+  destinosSecuenciaIniciada = true;
+
+  DESTINOS_DATA.forEach((destino, idx) => {
+    const delay = reducedMotion ? 0 : 900 + idx * 1800;
+    setTimeout(() => revelarDestino(destino, idx === DESTINOS_DATA.length - 1), delay);
+  });
+}
+
 function trazarCamino() {
-  if (trazadoIniciado) return;
+  if (trazadoIniciado || !btnTrazar) return;
   trazadoIniciado = true;
 
   btnTrazar.classList.add('trazando');
   btnTrazar.textContent = '✦ Trazando…';
 
-  // Cogemos los corazones del DOM (los crea globe.gl), los ordenamos
-  // por data-orden y les agregamos .aparece en cascada.
-  const corazonesDom = Array.from(document.querySelectorAll('.corazon-camino'))
-    .sort((a, b) => Number(a.dataset.orden) - Number(b.dataset.orden));
+  CORAZONES
+    .slice()
+    .sort((a, b) => a.orden - b.orden)
+    .forEach((corazon, idx) => {
+      setTimeout(() => {
+        corazonesTrazados.add(corazon.id);
+        sincronizarEstadoVisual();
+      }, reducedMotion ? 0 : idx * STEP_MS);
+    });
 
-  corazonesDom.forEach((el, idx) => {
-    setTimeout(() => el.classList.add('aparece'), idx * STEP_MS);
-  });
-
-  const totalMs = corazonesDom.length * STEP_MS + BOUNCE_MS;
+  const totalMs = reducedMotion ? 0 : CORAZONES.length * STEP_MS + BOUNCE_MS;
   setTimeout(() => {
+    arcoVisible = true;
+    actualizarArco();
+    sincronizarEstadoVisual();
+
     btnTrazar.classList.remove('trazando');
     btnTrazar.classList.add('trazado');
     btnTrazar.textContent = '✦ Camino trazado ✦';
+
     if (toastEl) {
+      toastEl.textContent = 'Nuestro camino quedó escrito en el cielo 💗';
       toastEl.classList.add('visible');
       setTimeout(() => toastEl.classList.remove('visible'), 4000);
     }
+
+    const controls = globe.controls();
+    controls.autoRotate = false;
+    globe.pointOfView({ lat: -3, lng: -76, altitude: 1.85 }, reducedMotion ? 0 : 1400);
+    if (!reducedMotion) {
+      setTimeout(() => {
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.22;
+      }, 6200);
+    }
+
     lluviaDeCorazones(14);
     chimeCompletado();
+    iniciarSecuenciaDestinos();
   }, totalMs);
 }
 
@@ -771,6 +1009,7 @@ function fit() {
 }
 window.addEventListener('resize', fit);
 fit();
+sincronizarEstadoVisual();
 
 /* Pequeña animación de "vuelo de bienvenida" */
 if (!reducedMotion) {

@@ -53,11 +53,9 @@ body {
    ══════════════════════════════════════════════════════════ */
 .pantalla-bloqueo {
   position: fixed; inset: 0; z-index: 200;
-  display: flex; flex-direction: column;
-  justify-content: center; align-items: center;
+  display: block;
   background: var(--fondo);
   overflow: hidden;
-  overflow-y: auto;
 }
 
 #canvasBloqueo {
@@ -66,12 +64,227 @@ body {
   pointer-events: none; z-index: 0;
 }
 
+.bloqueo-scroll-track {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  outline: none;
+}
+
+.bloqueo-slide {
+  min-height: 100vh;
+  width: 100%;
+  padding: calc(18px + env(safe-area-inset-top, 0px))
+           max(14px, env(safe-area-inset-right, 0px))
+           calc(24px + env(safe-area-inset-bottom, 0px))
+           max(14px, env(safe-area-inset-left, 0px));
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bloqueo-slide-principal {
+  align-items: flex-start;
+}
+
 .bloqueo-contenido {
   position: relative; z-index: 1;
   display: flex; flex-direction: column;
   align-items: center; gap: 16px;
-  padding: 40px 20px 60px;
+  padding: 28px 20px 44px;
   width: 100%; max-width: 680px;
+  margin: 0 auto;
+}
+
+.bloqueo-slide-net {
+  padding-top: max(22px, env(safe-area-inset-top, 0px));
+}
+
+.net-cine-wrap {
+  width: min(920px, calc(100vw - 26px));
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  background:
+    linear-gradient(140deg, rgba(11, 14, 34, 0.92), rgba(18, 11, 28, 0.9));
+  border-radius: 20px;
+  padding: clamp(18px, 3vw, 30px);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.net-tag {
+  font-family: var(--fuente-titulo);
+  color: #ff5f70;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  font-size: 0.76rem;
+}
+
+.net-title {
+  font-family: var(--fuente-titulo);
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  color: #fff4f6;
+  margin: 8px 0 10px;
+  line-height: 1.12;
+}
+
+.net-sub {
+  color: rgba(234, 236, 255, 0.86);
+  line-height: 1.5;
+  margin-bottom: 16px;
+  max-width: 65ch;
+}
+
+.net-feature {
+  display: grid;
+  grid-template-columns: minmax(150px, 220px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.net-feature img {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.net-feature-copy {
+  background: rgba(6, 8, 22, 0.56);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.net-kicker {
+  color: rgba(255, 255, 255, 0.62);
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+.net-feature-copy h3 {
+  font-family: var(--fuente-titulo);
+  color: #fff;
+  font-size: clamp(1.4rem, 2.8vw, 2rem);
+  margin: 8px 0;
+  line-height: 1.2;
+}
+
+.net-sinopsis {
+  color: rgba(235, 239, 255, 0.9);
+  line-height: 1.55;
+  font-size: 1rem;
+}
+
+.net-meta-row {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.net-pill {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.net-estreno {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 12px;
+}
+
+.net-estreno-label {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.net-estreno-date {
+  font-family: var(--fuente-titulo);
+  font-size: clamp(1.2rem, 2.2vw, 1.6rem);
+  color: #f5c842;
+}
+
+.net-eta {
+  display: flex;
+  gap: 8px;
+}
+
+.net-eta span {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(11, 16, 38, 0.88);
+  border-radius: 10px;
+  min-width: 54px;
+  text-align: center;
+  padding: 6px 8px;
+  color: #d7e0ff;
+  font-size: 0.82rem;
+  line-height: 1.1;
+}
+
+.net-eta strong {
+  display: block;
+  font-family: var(--fuente-titulo);
+  font-size: 1.05rem;
+  color: #fff;
+}
+
+.net-estado {
+  margin-top: 10px;
+  color: rgba(255, 224, 232, 0.92);
+  font-style: italic;
+}
+
+.net-actions {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.net-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 9px 16px;
+  background: linear-gradient(120deg, #d12743, #ff5f70);
+  color: #fff;
+  font-family: var(--fuente-titulo);
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+}
+
+.net-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(231, 65, 96, 0.42);
+}
+
+.net-btn-ghost {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .bloqueo-eyebrow {
@@ -104,6 +317,13 @@ body {
   font-family: var(--fuente-poema); font-style: italic;
   color: var(--rosa); font-size: 1.1rem;
   opacity: 0; animation: aparecer 1s .8s ease both;
+}
+.bloqueo-scroll-hint {
+  margin-top: 2px;
+  font-size: 0.9rem;
+  color: rgba(210, 219, 255, 0.76);
+  letter-spacing: 0.3px;
+  font-style: italic;
 }
 @keyframes aparecer {
   from { opacity: 0; transform: translateY(10px); }
@@ -765,14 +985,22 @@ body {
   #canvasJuego { width: 100%; height: auto; }
   .flip-counter { gap: 4px; }
   .flip-sep { padding-bottom: 4px; }
+  .bloqueo-slide { padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+  .bloqueo-contenido { padding: 18px 10px 24px; }
+  .net-feature { grid-template-columns: 1fr; }
+  .net-feature img { min-height: 170px; max-height: 220px; }
+  .net-feature-copy { padding: 12px; }
+  .net-estreno { flex-direction: column; align-items: flex-start; }
+  .net-eta { width: 100%; justify-content: space-between; }
+  .net-eta span { flex: 1; min-width: 0; }
+  .net-actions { width: 100%; }
+  .net-btn { width: 100%; }
 }
 /* ══════════════════════════════════════════════════════════
    NUEVAS MEJORAS (SCROLL FIX Y PANTALLA AUTH)
    ══════════════════════════════════════════════════════════ */
 .pantalla-bloqueo {
-  /* Al cambiar a flex-start y dar padding, permitimos que el scroll funcione perfectamente */
-  justify-content: flex-start !important;
-  padding-top: 8vh !important;
+  padding-top: 0 !important;
 }
 
 #pantallaAuth {

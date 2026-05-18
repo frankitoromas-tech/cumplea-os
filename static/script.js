@@ -604,8 +604,158 @@ function entrarFiestaDirecto() {
    ══════════════════════════════════════════════════════════════ */
 let canvasBloqueo = null;
 let juegoConstelacion = null;
+let bloqueoWheelLockUntil = 0;
+let bloqueoSlideActiva = 0;
+
+function pad2(n) {
+  return String(Math.max(0, Math.floor(n))).padStart(2, '0');
+}
+
+function actualizarIndicadoresEstrenoNet(dias, horas, minutos, segundos, totalSegundos) {
+  const set = (id, val) => {
+    const el = $(id);
+    if (el) el.textContent = val;
+  };
+
+  set('netEstrenoDias', pad2(dias));
+  set('netEstrenoHoras', pad2(horas));
+  set('netEstrenoMin', pad2(minutos));
+  set('netEstrenoSeg', pad2(segundos));
+
+  const estado = $('netEstadoLinea');
+  if (!estado) return;
+
+  if (totalSegundos <= 0) {
+    estado.textContent = 'Hoy es el estreno. Luces bajas, cobija y tú.';
+    return;
+  }
+
+  const hTxt = pad2(horas);
+  const mTxt = pad2(minutos);
+  const sTxt = pad2(segundos);
+  estado.textContent = `Faltan ${dias} día(s), ${hTxt}:${mTxt}:${sTxt} para el estreno del 30/08/2026.`;
+}
+
+function obtenerSlidesBloqueo(track) {
+  if (!track) return [];
+  return Array.from(track.querySelectorAll('.bloqueo-slide'));
+}
+
+function scrollBloqueoASlide(index, behavior = 'smooth') {
+  const track = $('bloqueoScrollTrack');
+  if (!track) return;
+  const slides = obtenerSlidesBloqueo(track);
+  if (!slides.length) return;
+
+  const idx = Math.max(0, Math.min(slides.length - 1, index));
+  bloqueoSlideActiva = idx;
+  track.scrollTo({ top: slides[idx].offsetTop, behavior });
+}
+
+function initBloqueoScrollExperiencia() {
+  const track = $('bloqueoScrollTrack');
+  if (!track || track.dataset.scrollInit === '1') return;
+  track.dataset.scrollInit = '1';
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const btnVolverArriba = $('btnVolverArribaBloqueo');
+
+  const actualizarSlideActiva = () => {
+    const slides = obtenerSlidesBloqueo(track);
+    if (!slides.length) return;
+    const pos = track.scrollTop + track.clientHeight * 0.45;
+    let idx = 0;
+    let best = Infinity;
+    slides.forEach((slide, i) => {
+      const dist = Math.abs(slide.offsetTop - pos);
+      if (dist < best) {
+        best = dist;
+        idx = i;
+      }
+    });
+    bloqueoSlideActiva = idx;
+  };
+
+  const irASlide = (idx) => {
+    scrollBloqueoASlide(idx, prefersReducedMotion ? 'auto' : 'smooth');
+  };
+
+  track.addEventListener('scroll', actualizarSlideActiva, { passive: true });
+  actualizarSlideActiva();
+
+  track.addEventListener('wheel', (event) => {
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    if (event.target && event.target.closest('textarea, input')) return;
+    if (Math.abs(event.deltaY) < 18) return;
+
+    const now = Date.now();
+    if (now < bloqueoWheelLockUntil) {
+      event.preventDefault();
+      return;
+    }
+
+    const slides = obtenerSlidesBloqueo(track);
+    if (!slides.length) return;
+
+    const current = slides[bloqueoSlideActiva];
+    if (current) {
+      const viewTop = track.scrollTop;
+      const viewBottom = viewTop + track.clientHeight;
+      const slideTop = current.offsetTop;
+      const slideBottom = slideTop + current.offsetHeight;
+      const puedeSeguirDentro =
+        (event.deltaY > 0 && viewBottom < slideBottom - 2) ||
+        (event.deltaY < 0 && viewTop > slideTop + 2);
+      if (puedeSeguirDentro) return;
+    }
+
+    const dir = event.deltaY > 0 ? 1 : -1;
+    const target = Math.max(0, Math.min(slides.length - 1, bloqueoSlideActiva + dir));
+    if (target === bloqueoSlideActiva) return;
+
+    event.preventDefault();
+    bloqueoWheelLockUntil = now + 520;
+    irASlide(target);
+  }, { passive: false });
+
+  track.addEventListener('keydown', (event) => {
+    if (event.target && event.target.closest('textarea, input')) return;
+    if (!['ArrowDown', 'PageDown', 'ArrowUp', 'PageUp', 'Home', 'End'].includes(event.key)) return;
+    const slides = obtenerSlidesBloqueo(track);
+    if (!slides.length) return;
+
+    if (event.key === 'ArrowDown' || event.key === 'PageDown') {
+      event.preventDefault();
+      irASlide(Math.min(slides.length - 1, bloqueoSlideActiva + 1));
+      return;
+    }
+    if (event.key === 'ArrowUp' || event.key === 'PageUp') {
+      event.preventDefault();
+      irASlide(Math.max(0, bloqueoSlideActiva - 1));
+      return;
+    }
+    if (event.key === 'Home') {
+      event.preventDefault();
+      irASlide(0);
+      return;
+    }
+    if (event.key === 'End') {
+      event.preventDefault();
+      irASlide(slides.length - 1);
+    }
+  });
+
+  if (btnVolverArriba) {
+    btnVolverArriba.addEventListener('click', () => {
+      irASlide(0);
+    });
+  }
+
+  scrollBloqueoASlide(0, 'auto');
+}
 
 function iniciarBloqueo(segundosTotales) {
+  initBloqueoScrollExperiencia();
   canvasBloqueo = new CanvasBloqueo('canvasBloqueo');
   canvasBloqueo.start();
   juegoConstelacion = new JuegoConstelacion('canvasJuego');
@@ -626,6 +776,7 @@ function iniciarBloqueo(segundosTotales) {
     const m = Math.floor((secs % 3600) / 60);
     const s = secs % 60;
     flip.update(d, h, m, s);
+    actualizarIndicadoresEstrenoNet(d, h, m, s, secs);
     // Próximo tick alineado al siguiente segundo del reloj real
     setTimeout(tick, 1000 - (Date.now() % 1000));
   }
@@ -731,7 +882,7 @@ function mostrarEstadoBloqueadoPreview(segundos) {
   $('contenedorPrincipal').style.display = 'none';
   if (bloq) {
     bloq.classList.remove('oculto');
-    bloq.style.cssText += ';display:flex !important;opacity:1 !important;visibility:visible !important;';
+    bloq.style.cssText += ';display:block !important;opacity:1 !important;visibility:visible !important;';
   }
   try {
     iniciarBloqueo(Math.max(1, Math.floor(segundos || 1)));
@@ -875,8 +1026,8 @@ function cruzarEstado() {
         $('contenedorPrincipal').style.display = 'none';
         if (bloq) {
           bloq.classList.remove('oculto');
-          bloq.style.cssText += ';display:flex !important;opacity:1 !important;visibility:visible !important;';
-          console.info('[flujo] pantallaBloqueo desocultada y forzada display:flex');
+          bloq.style.cssText += ';display:block !important;opacity:1 !important;visibility:visible !important;';
+          console.info('[flujo] pantallaBloqueo desocultada y forzada display:block');
         } else {
           console.error('[flujo] #pantallaBloqueo NO existe en DOM!');
         }
