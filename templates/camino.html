@@ -43,23 +43,36 @@
 
     #globo { position: fixed; inset: 0; z-index: 1; }
 
-    /* ── Título superior ────────────────────────────────────── */
+    /* ── Título superior: píldora con blur para destacar sobre el globo ── */
     .titulo {
-      position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
-      text-align: center; pointer-events: none; z-index: 10;
+      position: fixed;
+      top: calc(20px + env(safe-area-inset-top, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center; pointer-events: none; z-index: 12;
+      background: rgba(8, 12, 30, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 22px;
+      padding: 12px 28px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+      max-width: min(92vw, 540px);
       animation: fade-in 1.6s ease both;
     }
     .titulo h1 {
       font-family: 'Playfair Display', serif; font-style: italic;
-      font-size: clamp(1.6rem, 3.5vw, 2.6rem); letter-spacing: 3px;
-      color: rgba(255, 255, 255, 0.92);
+      font-size: clamp(1.4rem, 3vw, 2.2rem);
+      letter-spacing: 3px;
+      color: #fff;
       text-shadow:
-        0 0 30px rgba(255, 107, 129, 0.4),
-        0 0 60px rgba(255, 255, 255, 0.15);
+        0 0 24px rgba(255, 107, 129, 0.5),
+        0 0 48px rgba(255, 255, 255, 0.18);
+      line-height: 1.1;
     }
     .titulo p {
-      font-style: italic; font-size: 1rem; color: rgba(255, 255, 255, 0.65);
-      margin-top: 6px; letter-spacing: 1px;
+      font-style: italic; font-size: 0.92rem; color: rgba(255, 220, 230, 0.85);
+      margin-top: 4px; letter-spacing: 1px;
     }
 
     /* ── Panel inferior con datos ───────────────────────────── */
@@ -135,23 +148,45 @@
       50%      { box-shadow: 0 0 22px var(--rosa), 0 0 60px rgba(255, 107, 129, 0.7); }
     }
 
-    /* ── Botón volver ───────────────────────────────────────── */
+    /* ── Corazones que forman la línea Lima → Medellín ───────── */
+    .corazon-camino {
+      position: relative;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      font-size: 1.35rem;
+      line-height: 1;
+      filter: drop-shadow(0 0 8px rgba(255, 107, 129, 0.85))
+              drop-shadow(0 0 16px rgba(255, 107, 129, 0.35));
+      animation: latido-camino 1.6s ease-in-out infinite;
+      will-change: transform, opacity;
+    }
+    @keyframes latido-camino {
+      0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.7; }
+      50%      { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+    }
+
+    /* ── Botón volver: bottom-left para no chocar con la píldora del título ── */
     .btn-volver {
-      position: fixed; top: 24px; left: 24px; z-index: 30;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      color: rgba(255, 255, 255, 0.85);
-      padding: 8px 18px; border-radius: 50px;
+      position: fixed;
+      bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+      left:   calc(18px + env(safe-area-inset-left, 0px));
+      z-index: 30;
+      background: rgba(8, 12, 30, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 10px 18px; border-radius: 50px;
       font-family: 'Cormorant Garamond', serif; font-style: italic;
       font-size: 0.95rem; text-decoration: none;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       transition: all 0.3s;
       animation: fade-in 1.4s ease both;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+      white-space: nowrap;
     }
     .btn-volver:hover {
-      background: rgba(255, 107, 129, 0.25);
-      border-color: rgba(255, 107, 129, 0.5);
-      color: white;
+      background: rgba(255, 107, 129, 0.3);
+      border-color: rgba(255, 107, 129, 0.55);
       transform: translateY(-2px);
     }
 
@@ -172,16 +207,20 @@
 
     /* ── Responsive ─────────────────────────────────────────── */
     @media (max-width: 560px) {
-      .titulo { top: 14px; }
+      .titulo {
+        top: calc(12px + env(safe-area-inset-top, 0px));
+        padding: 9px 18px;
+      }
       .titulo h1 { letter-spacing: 2px; }
+      .titulo p { font-size: 0.82rem; }
       .panel-camino {
-        bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+        bottom: calc(70px + env(safe-area-inset-bottom, 0px));
         padding: 14px 18px;
         min-width: 0; width: calc(100% - 28px);
       }
       .btn-volver {
-        top: calc(14px + env(safe-area-inset-top, 0px));
-        left: 14px; padding: 7px 14px; font-size: 0.85rem;
+        bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+        left: 14px; padding: 8px 14px; font-size: 0.85rem;
       }
       .fotos-strip img { width: 38px; height: 38px; }
     }
@@ -222,6 +261,56 @@
 
 const LIMA     = { lat: -12.0464, lng: -77.0428, ciudad: 'Lima, Perú' };
 const MEDELLIN = { lat:   6.2476, lng: -75.5658, ciudad: 'Medellín, Colombia' };
+
+/* ── Interpolación esférica (slerp) entre dos coordenadas geo ──
+   Distribuye n-1 puntos sobre el gran círculo que las une, así
+   los corazones se posan sobre la superficie siguiendo la curvatura
+   real del planeta (no una línea recta proyectada). */
+function slerpGeo(p1, p2, t) {
+  const toRad = (d) => d * Math.PI / 180;
+  const toDeg = (r) => r * 180 / Math.PI;
+  const lat1 = toRad(p1.lat), lng1 = toRad(p1.lng);
+  const lat2 = toRad(p2.lat), lng2 = toRad(p2.lng);
+
+  const cx1 = Math.cos(lat1) * Math.cos(lng1);
+  const cy1 = Math.cos(lat1) * Math.sin(lng1);
+  const cz1 = Math.sin(lat1);
+  const cx2 = Math.cos(lat2) * Math.cos(lng2);
+  const cy2 = Math.cos(lat2) * Math.sin(lng2);
+  const cz2 = Math.sin(lat2);
+
+  const dot = Math.max(-1, Math.min(1, cx1*cx2 + cy1*cy2 + cz1*cz2));
+  const omega = Math.acos(dot);
+  if (omega < 1e-6) return { lat: p1.lat, lng: p1.lng };
+  const s = Math.sin(omega);
+  const a = Math.sin((1 - t) * omega) / s;
+  const b = Math.sin(t * omega) / s;
+
+  const x = a*cx1 + b*cx2;
+  const y = a*cy1 + b*cy2;
+  const z = a*cz1 + b*cz2;
+  return {
+    lat: toDeg(Math.asin(z / Math.sqrt(x*x + y*y + z*z))),
+    lng: toDeg(Math.atan2(y, x)),
+  };
+}
+
+/* 16 corazones entre Lima y Medellín (excluye los extremos
+   porque allí ya viven los pins de las ciudades). */
+const N_CORAZONES = 16;
+const CORAZONES = [];
+const EMOJIS_CORAZON = ['💗', '💖', '💕', '🤍'];
+for (let i = 1; i < N_CORAZONES; i++) {
+  const t = i / N_CORAZONES;
+  const punto = slerpGeo(LIMA, MEDELLIN, t);
+  CORAZONES.push({
+    lat: punto.lat,
+    lng: punto.lng,
+    tipo: 'corazon',
+    delay: i * 0.09,
+    emoji: EMOJIS_CORAZON[i % EMOJIS_CORAZON.length],
+  });
+}
 
 /* ── Fotos del usuario en el strip + lightbox ──────────────── */
 const FOTOS = [
@@ -272,22 +361,22 @@ const globe = Globe()
   .showAtmosphere(true)
   .atmosphereColor('#7ba8ff')
   .atmosphereAltitude(0.18)
-  .arcsData([{
-    startLat: LIMA.lat,     startLng: LIMA.lng,
-    endLat:   MEDELLIN.lat, endLng:   MEDELLIN.lng,
-    color: [['#ff6b81', '#ffd6e0'], ['#ffd6e0', '#f5c842']],
-  }])
-  .arcColor('color')
-  .arcAltitude(0.32)
-  .arcStroke(0.7)
-  .arcDashLength(0.45)
-  .arcDashGap(2)
-  .arcDashAnimateTime(2600)
+  /* La línea Lima → Medellín es una constelación de corazones que pulsan,
+     no un arco normal. Cada elemento HTML se posa sobre el gran círculo
+     interpolado con slerp. */
   .htmlElementsData([
-    { lat: LIMA.lat,     lng: LIMA.lng,     label: LIMA.ciudad     },
-    { lat: MEDELLIN.lat, lng: MEDELLIN.lng, label: MEDELLIN.ciudad },
+    ...CORAZONES,
+    { lat: LIMA.lat,     lng: LIMA.lng,     label: LIMA.ciudad,     tipo: 'pin' },
+    { lat: MEDELLIN.lat, lng: MEDELLIN.lng, label: MEDELLIN.ciudad, tipo: 'pin' },
   ])
   .htmlElement((d) => {
+    if (d.tipo === 'corazon') {
+      const el = document.createElement('div');
+      el.className = 'corazon-camino';
+      el.style.animationDelay = `${d.delay}s`;
+      el.textContent = d.emoji;
+      return el;
+    }
     const el = document.createElement('div');
     el.className = 'pin-ciudad';
     el.innerHTML = `<div class="nombre">${d.label}</div><div class="punto"></div>`;
