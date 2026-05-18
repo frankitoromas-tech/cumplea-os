@@ -5,7 +5,7 @@ Gestiona frases románticas, poemas y datos del regalo.
 """
 from __future__ import annotations
 import random
-from datetime import datetime
+from datetime import date, datetime
 from flask import request
 from api import APIModule
 
@@ -87,11 +87,22 @@ POEMAS = [
 ]
 
 
+_PALETAS_DIA = [
+    {"nombre": "amanecer",  "primario": "#ff8fa3", "acento": "#ffd6a5"},
+    {"nombre": "luna",      "primario": "#a0c4ff", "acento": "#bdb2ff"},
+    {"nombre": "aurora",    "primario": "#74c69d", "acento": "#90e0ef"},
+    {"nombre": "nebulosa",  "primario": "#cdb4db", "acento": "#ffc8dd"},
+    {"nombre": "atardecer", "primario": "#f4978e", "acento": "#f8edeb"},
+    {"nombre": "constelacion", "primario": "#f5c842", "acento": "#ff6b81"},
+]
+
+_EMOJIS_DIA = ["🌙", "✨", "💫", "🌟", "💖", "🌌", "🌠", "🪐", "💞"]
+
+
 class ContenidoModule(APIModule):
     """
     Módulo de contenido romántico.
     Hereda de APIModule → BaseModule.
-    Rutas: /api/frase_del_dia, /api/poema, /api/frase_aleatoria, /api/poema/<n>
     """
     nombre = "contenido"
 
@@ -101,6 +112,7 @@ class ContenidoModule(APIModule):
         self.bp.route("/api/frase_aleatoria")(self.frase_aleatoria)
         self.bp.route("/api/poema/<int:idx>")(self.poema_por_indice)
         self.bp.route("/api/todas_frases")(self.todas_las_frases)
+        self.bp.route("/api/regalo_diario")(self.regalo_diario)
 
     # ── rutas ────────────────────────────────────────────────
     def frase_del_dia(self):
@@ -129,6 +141,61 @@ class ContenidoModule(APIModule):
     def todas_las_frases(self):
         """Nueva ruta: devuelve todas las frases para el selector de frases."""
         return self._ok({"frases": FRASES, "total": len(FRASES)})
+
+    def regalo_diario(self):
+        """
+        Daily deterministic gift: every day produces a unique payload that
+        combines a phrase, a short poem stanza, a daily fact and a palette.
+        Same day -> same result (seeded). Different day -> guaranteed
+        rotation thanks to the prime-stride indexing.
+        """
+        hoy = date.today()
+        seed = hoy.toordinal()
+        # `random.Random(seed)` keeps the global RNG untouched.
+        rng = random.Random(seed)
+
+        # Use prime strides so consecutive days don't repeat the same
+        # phrase / poem even when the lists are short.
+        frase_idx = (seed * 7) % len(FRASES)
+        poema = POEMAS[(seed * 11) % len(POEMAS)]
+        verso_idx = (seed * 13) % max(len(poema["versos"]), 1)
+        verso = poema["versos"][verso_idx] or poema["versos"][0]
+        paleta = _PALETAS_DIA[(seed * 5) % len(_PALETAS_DIA)]
+        emoji = _EMOJIS_DIA[(seed * 17) % len(_EMOJIS_DIA)]
+
+        dias_vividos = self._dias_vividos()
+        dias_juntos = self._dias_juntos()
+        proximo = self._proximo_cumple()
+        dias_para_cumple = (proximo - hoy).days
+
+        # Pick one of several voice templates so the daily payload varies
+        # in tone too, not just data.
+        plantillas = [
+            "Hoy es el dia {ord} en que el universo nos deja seguir.",
+            "{dias_juntos} dias juntos, y todavia te elijo.",
+            "Faltan {dias_para_cumple} dias para tu vuelta al sol numero 23.",
+            "Una orbita mas, una galaxia entera de razones para quererte.",
+            "Cada noche cuento {dias_vividos} dias y todavia me parecen pocos.",
+        ]
+        plantilla = rng.choice(plantillas)
+        dato = plantilla.format(
+            ord=dias_vividos,
+            dias_juntos=dias_juntos,
+            dias_para_cumple=max(dias_para_cumple, 0),
+            dias_vividos=dias_vividos,
+        )
+
+        return self._ok(
+            {
+                "fecha": hoy.isoformat(),
+                "frase": FRASES[frase_idx],
+                "verso": verso,
+                "poema_titulo": poema["titulo"],
+                "dato_del_dia": dato,
+                "emoji": emoji,
+                "paleta": paleta,
+            }
+        )
 
 
 # Instancia lista para importar

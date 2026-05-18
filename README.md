@@ -57,6 +57,13 @@ python app.py
 
 App: <http://127.0.0.1:5000>
 
+### Features destacadas
+
+- **Cartas Selladas**: desde `/admin` puedes crear mensajes con fecha de apertura específica. Luna solo los ve cuando llega su momento. Persistencia atómica, cifrada en reposo si `APP_ENCRYPTION_KEY` está configurado.
+- **Regalo del día**: `GET /api/regalo_diario` devuelve cada día un payload único (frase + verso + dato personal + paleta + emoji), determinista por fecha — el mismo día siempre produce el mismo regalo, distintos días garantizan variación.
+- **PWA**: La app es instalable en móvil (Android/iOS) gracias al manifest y al service worker que cachea el app-shell para uso offline.
+- **Contador de visitas real**: cada visita a `/` se persiste atómicamente (`ServicioBase.actualizar(callback)`).
+
 Healthchecks:
 
 - `GET /healthz` — incluye `encryption_enabled` y `admin_protected`.
@@ -77,7 +84,7 @@ Las APIs admin (`/api/salud`, `/api/test_telegram`) aceptan la cookie, un header
 python -m unittest discover -s tests -v
 ```
 
-La suite (49 tests) cubre:
+La suite (62 tests) cubre:
 
 - Renderizado publico, healthchecks, CSP estricta en `/admin` (`test_api_smoke.py`).
 - Contador de visitas: `GET /` incrementa el bucket del día.
@@ -87,6 +94,9 @@ La suite (49 tests) cubre:
 - Persistencia: roundtrip plaintext y cifrado, JSON corrupto, fallo de filesystem, **escritura concurrente de 4 hilos sin corrupcion**, `actualizar(callback)` atómico (`test_base_service.py`, `test_visitas_service.py`).
 - Admin: cookie firmada, rechazo de token erroneo, 503 si no configurado, tampering detectado (`test_admin_auth.py`).
 - Telegram: retry en 5xx, honra `Retry-After` en 429, no reintenta en 4xx que no sea 429, da por vencido tras 3 intentos (`test_telegram_retry.py`).
+- Cartas selladas: validación de campos, unlock por fecha (incluido formato Zulu), borrado, sanitización de control chars, límite de 200 cartas (`test_cartas_service.py`).
+- Regalo diario: determinismo por día y forma del payload.
+- PWA: manifest válido, service worker servido en root con `Service-Worker-Allowed`.
 
 ## Despliegue en Railway
 

@@ -63,6 +63,26 @@
     <button data-action="cargarCapsula" type="button">Consultar cápsula</button>
   </div>
 
+  <div class="card card-wide">
+    <h3>Cartas Selladas</h3>
+    <p class="hint">Mensajes con fecha de apertura. Luna solo los ve cuando llega su momento.</p>
+    <form id="formCarta" class="form-stack" autocomplete="off">
+      <input name="titulo" type="text" placeholder="Título de la carta" maxlength="120" required>
+      <textarea name="contenido" placeholder="Escribe el mensaje que Luna leerá ese día…" rows="3" maxlength="4000" required></textarea>
+      <input name="fecha_apertura" type="datetime-local" required>
+      <button type="submit">Sellar carta</button>
+    </form>
+    <div id="cartasStatus" class="hint" role="status"></div>
+    <ul id="listaCartas" class="cartas-list"></ul>
+    <button data-action="cargarCartas" type="button">Refrescar</button>
+  </div>
+
+  <div class="card">
+    <h3>Regalo de hoy</h3>
+    <div id="regaloDiario"><div class="stat"><span>Cargando…</span></div></div>
+    <button data-action="cargarRegaloDiario" type="button">Refrescar</button>
+  </div>
+
 </div>
 
 <script src="{{ url_for('static', filename='js/admin.js') }}"></script>

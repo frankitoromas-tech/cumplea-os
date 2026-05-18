@@ -97,7 +97,92 @@
         .map(([k, v]) => `<div class="stat"><span>${escapeText(k)}</span><span class="valor">${escapeText(v)}</span></div>`)
         .join('');
     },
+
+    cargarCartas: async () => {
+      const d = await fetchJSON('/admin/api/cartas');
+      const lista = $('listaCartas');
+      lista.innerHTML = '';
+      const cartas = (d.cartas || []).slice().reverse();
+      if (!cartas.length) {
+        lista.innerHTML = '<li class="meta">Aún no hay cartas selladas.</li>';
+        return;
+      }
+      const ahora = new Date();
+      for (const carta of cartas) {
+        const fecha = new Date(carta.fecha_apertura);
+        const desbloqueada = !Number.isNaN(fecha.valueOf()) && fecha <= ahora;
+        const li = document.createElement('li');
+        const left = document.createElement('div');
+        const titulo = document.createElement('div');
+        titulo.className = 'titulo';
+        titulo.textContent = carta.titulo;
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        const estado = desbloqueada ? 'estado-ok' : 'estado-lock';
+        meta.innerHTML =
+          `<span class="${estado}">${desbloqueada ? '✦ Desbloqueada' : '◌ Sellada hasta'}</span> ` +
+          escapeText(fecha.toLocaleString('es'));
+        left.appendChild(titulo);
+        left.appendChild(meta);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = 'Borrar';
+        btn.addEventListener('click', async () => {
+          if (!confirm(`Borrar la carta "${carta.titulo}"?`)) return;
+          const r = await fetch(`/admin/api/cartas/${encodeURIComponent(carta.id)}`, {
+            method: 'DELETE',
+            credentials: 'same-origin',
+          });
+          if (r.ok) ACTIONS.cargarCartas();
+        });
+        li.appendChild(left);
+        li.appendChild(btn);
+        lista.appendChild(li);
+      }
+    },
+
+    cargarRegaloDiario: async () => {
+      const d = await fetchJSON('/api/regalo_diario');
+      $('regaloDiario').innerHTML = `
+        <div class="regalo-diario">
+          <div class="stat"><span>${escapeText(d.fecha)}</span><span class="valor">${escapeText(d.emoji)}</span></div>
+          <p class="verso">"${escapeText(d.verso)}"</p>
+          <p class="dato">${escapeText(d.dato_del_dia)}</p>
+          <p class="meta" style="color:#94a3b8;font-size:.8rem;">Paleta del día: <strong style="color:${escapeText(d.paleta?.primario || '#fff')}">${escapeText(d.paleta?.nombre || '')}</strong></p>
+        </div>`;
+    },
   };
+
+  function submitCarta(event) {
+    event.preventDefault();
+    const form = event.target;
+    const body = {
+      titulo: form.titulo.value,
+      contenido: form.contenido.value,
+      fecha_apertura: form.fecha_apertura.value,
+    };
+    const status = $('cartasStatus');
+    status.textContent = 'Sellando…';
+    fetch('/admin/api/cartas', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+      .then((r) => r.json().then((d) => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        if (!ok) {
+          status.textContent = '⚠ ' + (d.mensaje || 'Error.');
+          return;
+        }
+        status.textContent = '✦ Carta sellada.';
+        form.reset();
+        ACTIONS.cargarCartas();
+      })
+      .catch(() => {
+        status.textContent = 'Error de red.';
+      });
+  }
 
   function bindActions() {
     document.querySelectorAll('button[data-action]').forEach((btn) => {
@@ -120,12 +205,16 @@
 
   function autoload() {
     bindActions();
+    const form = document.getElementById('formCarta');
+    if (form) form.addEventListener('submit', submitCarta);
     ACTIONS.cargarSalud();
     ACTIONS.cargarVisitas();
     ACTIONS.cargarAmor();
     ACTIONS.cargarFrase();
     ACTIONS.cargarCapsula();
     ACTIONS.cargarMetricas();
+    ACTIONS.cargarCartas();
+    ACTIONS.cargarRegaloDiario();
   }
 
   if (document.readyState === 'loading') {

@@ -179,11 +179,13 @@ def create_app() -> Flask:
     # Blueprints
     from controllers.api_auth import auth_module
     from controllers.api_capsula import capsula_bp
+    from controllers.api_cartas import cartas_bp
     from controllers.api_constelaciones import creador_bp
     from controllers.api_contenido import contenido_module
     from controllers.api_efectos import efectos_module
     from controllers.api_estadisticas import estadisticas_module
     from controllers.api_mensajes import mensajes_module
+    from controllers.api_pwa import pwa_bp
     from controllers.api_regalo import regalo_module
 
     app.register_blueprint(auth_module.bp)
@@ -194,6 +196,8 @@ def create_app() -> Flask:
     app.register_blueprint(efectos_module.bp)
     app.register_blueprint(creador_bp)
     app.register_blueprint(capsula_bp)
+    app.register_blueprint(cartas_bp)
+    app.register_blueprint(pwa_bp)
 
     @app.before_request
     def _attach_id():

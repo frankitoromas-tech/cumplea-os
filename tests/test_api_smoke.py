@@ -92,6 +92,77 @@ class APISmokeTests(unittest.TestCase):
         after = self.app.extensions["visitas_service"].leer().get("total", 0)
         self.assertEqual(after, before + 1)
 
+    def test_regalo_diario_is_deterministic_per_day(self):
+        first = self.client.get("/api/regalo_diario").get_json()
+        second = self.client.get("/api/regalo_diario").get_json()
+        self.assertEqual(first, second)
+        for key in ("fecha", "frase", "verso", "poema_titulo", "dato_del_dia", "emoji", "paleta"):
+            self.assertIn(key, first)
+
+    def test_pwa_manifest_served(self):
+        response = self.client.get("/manifest.webmanifest")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("manifest", response.headers.get("Content-Type", ""))
+        body = response.get_json()
+        self.assertEqual(body["name"], "Para mi Luna")
+        self.assertEqual(body["start_url"], "/")
+
+    def test_service_worker_served_with_root_scope(self):
+        response = self.client.get("/sw.js")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("javascript", response.headers.get("Content-Type", ""))
+        self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
+        self.assertIn("self.skipWaiting", response.get_data(as_text=True))
+
+    def test_cartas_admin_create_then_public_lists(self):
+        from datetime import datetime, timedelta
+
+        ayer = (datetime.now() - timedelta(hours=1)).isoformat(timespec="seconds")
+        create = self.client.post(
+            "/admin/api/cartas",
+            headers={"X-Admin-Token": _ADMIN_TOKEN, "Content-Type": "application/json"},
+            json={"titulo": "Smoke", "contenido": "hola Luna", "fecha_apertura": ayer},
+        )
+        self.assertEqual(create.status_code, 201)
+        carta_id = create.get_json()["carta"]["id"]
+
+        publicas = self.client.get("/api/cartas").get_json()
+        ids = [c["id"] for c in publicas["disponibles"]]
+        self.assertIn(carta_id, ids)
+
+        individual = self.client.get(f"/api/cartas/{carta_id}")
+        self.assertEqual(individual.status_code, 200)
+        self.assertEqual(individual.get_json()["titulo"], "Smoke")
+
+        delete = self.client.delete(
+            f"/admin/api/cartas/{carta_id}",
+            headers={"X-Admin-Token": _ADMIN_TOKEN},
+        )
+        self.assertEqual(delete.status_code, 200)
+
+    def test_cartas_admin_create_requires_token(self):
+        response = self.client.post(
+            "/admin/api/cartas",
+            json={"titulo": "x", "contenido": "y", "fecha_apertura": "2026-01-01T00:00:00"},
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_cartas_locked_returns_404_individual(self):
+        from datetime import datetime, timedelta
+
+        future = (datetime.now() + timedelta(days=2)).isoformat(timespec="seconds")
+        create = self.client.post(
+            "/admin/api/cartas",
+            headers={"X-Admin-Token": _ADMIN_TOKEN, "Content-Type": "application/json"},
+            json={"titulo": "sellada", "contenido": "x", "fecha_apertura": future},
+        )
+        carta_id = create.get_json()["carta"]["id"]
+        single = self.client.get(f"/api/cartas/{carta_id}")
+        self.assertEqual(single.status_code, 404)
+        publicas = self.client.get("/api/cartas").get_json()
+        self.assertNotIn(carta_id, [c["id"] for c in publicas["disponibles"]])
+        self.assertIsNotNone(publicas.get("proxima_en_segundos"))
+
     def test_healthcheck_endpoints(self):
         for path in ["/healthz", "/api/healthz"]:
             with self.subTest(path=path):
@@ -129,11 +200,13 @@ class APISmokeTests(unittest.TestCase):
             "/api/frase_aleatoria",
             "/api/poema/0",
             "/api/todas_frases",
+            "/api/regalo_diario",
             "/api/aurora_data",
             "/api/timeline",
             "/api/juego_corazones_config",
             "/api/capsula",
             "/api/constelaciones",
+            "/api/cartas",
         ]:
             with self.subTest(path=path):
                 response = self.client.get(path)

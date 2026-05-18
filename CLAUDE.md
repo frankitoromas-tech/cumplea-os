@@ -28,6 +28,12 @@ flowchart LR
     Efx --> R9["/aurora · /timeline<br/>/api/aurora_data · /api/timeline · /api/juego_corazones_config"]
     Crea --> R10["/api/guardar_constelacion · /api/constelaciones"]
     Cap --> R11["/api/capsula"]
+    Flask --> Cartas[cartas_bp<br/>api_cartas.py]
+    Flask --> Pwa[pwa_bp<br/>api_pwa.py]
+    Cartas -.public.-> R12["/api/cartas · /api/cartas/&lt;id&gt;"]
+    Cartas -.admin only.-> R13["/admin/api/cartas (CRUD)"]
+    Pwa -.public.-> R14["/manifest.webmanifest · /sw.js"]
+    Cont --> R15["/api/regalo_diario"]
 ```
 
 ## Jerarquía de clases
@@ -117,20 +123,23 @@ sequenceDiagram
 | [services/security_service.py](services/security_service.py) | `require_admin_token`, `require_admin_session`, cookie firmada, `attach_request_id` |
 | [services/metrics_service.py](services/metrics_service.py) | Contadores in-process para `/api/healthz/details` |
 | [services/visitas_service.py](services/visitas_service.py) | `ServicioVisitas.registrar()` (atómico, bounded a 365 días) |
+| [services/cartas_service.py](services/cartas_service.py) | `ServicioCartas` — cartas selladas con apertura temporizada |
 | [services/buzon_service.py](services/buzon_service.py) | Persistencia del buzón secreto |
 | [services/capsule_service.py](services/capsule_service.py) | Persistencia + modelo `MensajeCapsula` |
 | [services/constelacion_service.py](services/constelacion_service.py) | Persistencia de constelaciones |
 | [controllers/api_auth.py](controllers/api_auth.py) | `/api/verificar_nombre` + flujo login/logout admin |
 | [controllers/api_mensajes.py](controllers/api_mensajes.py) | Telegram (mixin con retry/backoff + cache de health) + buzón |
 | [controllers/api_constelaciones.py](controllers/api_constelaciones.py) | CRUD constelaciones con merge legacy plaintext |
-| [controllers/api_capsula.py](controllers/api_capsula.py) | Cápsula del tiempo (abre 2026-08-30) |
+| [controllers/api_capsula.py](controllers/api_capsula.py) | Cápsula del tiempo (mensaje hardcoded del cumple) |
+| [controllers/api_cartas.py](controllers/api_cartas.py) | Cartas selladas (CRUD admin + lectura pública según fecha) |
+| [controllers/api_pwa.py](controllers/api_pwa.py) | Manifest + service worker para instalación PWA |
 | [controllers/api_estadisticas.py](controllers/api_estadisticas.py) | Stats con TTL cache acotado |
 | [controllers/api_contenido.py](controllers/api_contenido.py) | Frases + poemas (datos in-source) |
 | [controllers/api_efectos.py](controllers/api_efectos.py) | Páginas aurora/timeline + config juego |
 | [controllers/api_regalo.py](controllers/api_regalo.py) | Vistas HTML principales + `/admin` (gated) |
 | [templates/admin.html](templates/admin.html) | Panel admin — CSP `script-src 'self'`, JS externo |
 | [static/js/admin.js](static/js/admin.js) | Lógica del panel admin (sin inline) |
-| [tests/](tests/) | `unittest` — 49 tests: smoke, crypto, base_service concurrente, admin auth, visitas, Telegram retry |
+| [tests/](tests/) | `unittest` — 62 tests: smoke, crypto, base_service concurrente, admin auth, visitas, Telegram retry, cartas selladas, regalo diario, PWA |
 
 ## Variables de entorno relevantes
 
@@ -170,3 +179,6 @@ python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().d
 7. **Read-modify-write** sobre disco usa `ServicioBase.actualizar(callback)` — los pares `leer()` + `guardar()` separados pierden updates bajo concurrencia.
 8. **Admin frontend** (`templates/admin.html`) corre bajo CSP `script-src 'self'`: nunca añadir `<script>` inline ni handlers `onclick=...` — bind via `data-action` en [static/js/admin.js](static/js/admin.js).
 9. **Telegram** se llama exclusivamente via `TelegramMixin._telegram` — provee retry (timeouts y 5xx, hasta 3 intentos, backoff exponencial con jitter; respeta `Retry-After` en 429).
+10. **Cartas selladas** se persisten via `ServicioCartas`. La lista pública nunca devuelve cartas con `fecha_apertura` futura — esa garantía es el corazón del feature; no añadir un atajo de admin que la vulnere.
+11. **Regalo diario** (`/api/regalo_diario`) es determinista por fecha (seed = `date.today().toordinal()`). Si cambias el algoritmo, considera que Luna puede haber visto el resultado de hoy ya — pruébalo manualmente.
+12. **PWA**: `/sw.js` debe servirse desde la raíz con `Service-Worker-Allowed: /`. Si lo mueves a `/static/`, su scope queda restringido y deja de funcionar offline.
