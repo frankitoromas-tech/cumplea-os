@@ -129,11 +129,18 @@
       line-height: 1.4;
     }
     .tips strong { color: var(--text); }
+    .rev {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      letter-spacing: 0.02em;
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>Preview Lab</h1>
+    <p class="rev">Revision: <strong id="buildRev">{{ preview_lab_rev }}</strong></p>
     <p class="muted">Panel de pruebas para validar cambios, estados y rutas sin tocar codigo cada vez.</p>
 
     <div class="grid">
@@ -214,6 +221,7 @@
     const lineEl = document.getElementById('estadoLinea');
     const btnCopiar = document.getElementById('btnCopiar');
     const btnResetCache = document.getElementById('btnResetCache');
+    const buildRevEl = document.getElementById('buildRev');
 
     let previewBackendEnabled = false;
 
@@ -266,6 +274,17 @@
       const resp = await fetch(`/api/preview_estado${query}`);
       if (!resp.ok) throw new Error(`preview_estado ${resp.status}`);
       return resp.json();
+    }
+
+    async function loadBuildInfo() {
+      try {
+        const resp = await fetch('/api/build_info', { cache: 'no-store' });
+        if (!resp.ok) return;
+        const data = await resp.json();
+        if (buildRevEl && data.preview_lab_rev) {
+          buildRevEl.textContent = String(data.preview_lab_rev);
+        }
+      } catch (_) {}
     }
 
     async function loadEstado() {
@@ -362,6 +381,7 @@
 
     dateEl.value = new Date(Date.now() + 86400000).toISOString().slice(0, 16);
     refreshUrlBox();
+    loadBuildInfo().catch(console.error);
     loadEstado().catch(console.error);
   </script>
 </body>

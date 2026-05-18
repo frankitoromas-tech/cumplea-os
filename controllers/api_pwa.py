@@ -56,7 +56,7 @@ def service_worker():
 # first for static assets so the app opens instantly and works offline. API
 # calls always go to the network so dynamic content stays fresh.
 _SW_TEMPLATE = """\
-const CACHE = 'cumpleaos-shell-v3';
+const CACHE = 'cumpleaos-shell-v4';
 const HOME = '{home}';
 const SHELL = [
   HOME,
@@ -107,6 +107,21 @@ self.addEventListener('fetch', (event) => {{
   const isMutableStaticAsset =
     url.pathname.startsWith('/static/') &&
     (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'));
+  const isPreviewLikePage =
+    url.pathname === '/preview' ||
+    url.pathname === '/preview-lab' ||
+    url.pathname === '/preview_lab' ||
+    url.pathname === '/series' ||
+    url.pathname === '/universo';
+
+  // Preview/Test pages should always come from network when possible, without
+  // writing runtime cache entries that could mask recent deploys.
+  if (isNavigation && isPreviewLikePage) {{
+    event.respondWith(
+      fetch(req).catch(() => caches.match(req).then((hit) => hit || caches.match(HOME)))
+    );
+    return;
+  }}
 
   // Network-first for HTML + mutable assets so deploys are reflected quickly.
   if (isNavigation || isMutableStaticAsset) {{

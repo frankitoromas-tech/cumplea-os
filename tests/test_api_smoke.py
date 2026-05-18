@@ -49,13 +49,13 @@ class APISmokeTests(unittest.TestCase):
     def test_public_pages_render(self):
         # /admin redirects to /admin/login (covered by test_admin_requires_login)
         # so it's not part of the public-render list.
-        for path in ["/", "/preview", "/carta", "/series", "/universo", "/aurora", "/timeline"]:
+        for path in ["/", "/preview", "/preview-lab", "/carta", "/series", "/universo", "/aurora", "/timeline"]:
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
 
     def test_preview_family_pages_no_store(self):
-        for path in ["/preview", "/series", "/universo"]:
+        for path in ["/preview", "/preview-lab", "/series", "/universo"]:
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
@@ -230,6 +230,7 @@ class APISmokeTests(unittest.TestCase):
             "/api/cartas",
             "/api/preview_estado",
             "/api/recuerdos_media",
+            "/api/build_info",
         ]:
             with self.subTest(path=path):
                 response = self.client.get(path)
@@ -245,6 +246,13 @@ class APISmokeTests(unittest.TestCase):
         self.assertIsInstance(data["recuerdos"], list)
         self.assertGreaterEqual(len(data["recuerdos"]), 1)
         self.assertTrue(all(str(item).startswith("/static/") for item in data["recuerdos"]))
+
+    def test_build_info_payload_shape(self):
+        response = self.client.get("/api/build_info")
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertIn("preview_lab_rev", data)
+        self.assertIn("server_time", data)
 
     def test_verificar_nombre_valido(self):
         # AuthModule is side-effect free; no Telegram mock required.

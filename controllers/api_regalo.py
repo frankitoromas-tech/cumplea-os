@@ -4,8 +4,9 @@ RegaloModule — hereda de ContenidoModule (herencia en cadena)
 Gestiona la apertura del regalo y las páginas principales.
 """
 from __future__ import annotations
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
+import os
 import re
 
 from flask import current_app, make_response, render_template
@@ -32,6 +33,13 @@ class RegaloBase(ContenidoModule):
         "/static/DEFAULT_RECUERDOS/foto4.png",
         "/static/DEFAULT_RECUERDOS/foto5.png",
     ]
+    _PREVIEW_REV = (
+        os.getenv("RAWLY_GIT_COMMIT_SHA")
+        or os.getenv("RAILWAY_GIT_COMMIT_SHA")
+        or os.getenv("VERCEL_GIT_COMMIT_SHA")
+        or os.getenv("GIT_COMMIT_SHA")
+        or datetime.now(UTC).strftime("local-%Y%m%d%H%M%S")
+    )
 
     def __init__(self):
         super().__init__()
@@ -52,11 +60,14 @@ class RegaloBase(ContenidoModule):
         self.bp.route("/"                )(self.index)
         self.bp.route("/admin"           )(require_admin_session(self.admin))
         self.bp.route("/preview"         )(self.preview)
+        self.bp.route("/preview-lab"     )(self.preview)
+        self.bp.route("/preview_lab"     )(self.preview)
         self.bp.route("/carta"           )(self.carta)
         self.bp.route("/series"          )(self.series)
         self.bp.route("/universo"        )(self.universo)
         self.bp.route("/api/abrir_regalo")(self.abrir_regalo)
         self.bp.route("/api/recuerdos_media")(self.recuerdos_media)
+        self.bp.route("/api/build_info")(self.build_info)
 
     def empaquetar(self) -> dict:
         dias = (datetime.now() - self.FECHA_NACIMIENTO).days
@@ -69,20 +80,20 @@ class RegaloBase(ContenidoModule):
         }
 
     # ── rutas ────────────────────────────────────────────────
-    def _render_template_compat(self, *nombres: str):
+    def _render_template_compat(self, *nombres: str, **context):
         """
         Render robusto ante diferencias de mayus/minus entre Windows y Linux.
         """
         for nombre in nombres:
             try:
-                return render_template(nombre)
+                return render_template(nombre, **context)
             except TemplateNotFound:
                 continue
         self.log.error("No se encontro ninguna plantilla valida: %s", nombres)
         return self._error("Plantilla no encontrada", 500)
 
-    def _render_template_nocache(self, *nombres: str):
-        response = make_response(self._render_template_compat(*nombres))
+    def _render_template_nocache(self, *nombres: str, **context):
+        response = make_response(self._render_template_compat(*nombres, **context))
         response.headers["Cache-Control"] = "no-store, max-age=0"
         response.headers["Pragma"] = "no-cache"
         return response
@@ -94,7 +105,10 @@ class RegaloBase(ContenidoModule):
         return self._render_template_compat("admin.html")
 
     def preview(self):
-        return self._render_template_nocache("preview.html")
+        return self._render_template_nocache(
+            "preview.html",
+            preview_lab_rev=self._PREVIEW_REV,
+        )
 
     def carta(self):
         return self._render_template_compat("carta.html")
@@ -141,6 +155,14 @@ class RegaloBase(ContenidoModule):
             {
                 "recuerdos": recuerdos,
                 "total": len(recuerdos),
+            }
+        )
+
+    def build_info(self):
+        return self._ok(
+            {
+                "preview_lab_rev": self._PREVIEW_REV,
+                "server_time": datetime.now(UTC).isoformat(),
             }
         )
 

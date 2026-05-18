@@ -178,6 +178,13 @@ def create_app() -> Flask:
     _configure_logging()
 
     app = Flask(__name__)
+    logging.getLogger(__name__).info(
+        "Flask app root=%s template_folder=%s static_folder=%s cwd=%s",
+        app.root_path,
+        app.template_folder,
+        app.static_folder,
+        os.getcwd(),
+    )
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)  # type: ignore[assignment]
     app.json.ensure_ascii = False
     app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_CONTENT_LENGTH_BYTES", str(256 * 1024)))
