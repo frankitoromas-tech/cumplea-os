@@ -39,3 +39,4 @@ Thumbs.db
 
 # Vercel local link metadata (kept ignored even though vercel.json is gone)
 .vercel/
+.claude/
