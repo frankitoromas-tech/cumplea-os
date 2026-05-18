@@ -34,8 +34,7 @@ class RegaloBase(ContenidoModule):
         "/static/DEFAULT_RECUERDOS/foto5.png",
     ]
     _PREVIEW_REV = (
-        os.getenv("RAWLY_GIT_COMMIT_SHA")
-        or os.getenv("RAILWAY_GIT_COMMIT_SHA")
+        os.getenv("RAILWAY_GIT_COMMIT_SHA")
         or os.getenv("VERCEL_GIT_COMMIT_SHA")
         or os.getenv("GIT_COMMIT_SHA")
         or datetime.now(timezone.utc).strftime("local-%Y%m%d%H%M%S")
@@ -59,9 +58,8 @@ class RegaloBase(ContenidoModule):
         # generaba rutas duplicadas (/api/frase_del_dia, /api/poema, etc.).
         self.bp.route("/"                )(self.index)
         self.bp.route("/admin"           )(require_admin_session(self.admin))
-        self.bp.route("/preview"         )(self.preview)
-        self.bp.route("/preview-lab"     )(self.preview)
-        self.bp.route("/preview_lab"     )(self.preview)
+        for preview_path in ("/preview", "/preview-lab", "/preview_lab"):
+            self.bp.route(preview_path, strict_slashes=False)(self.preview)
         self.bp.route("/carta"           )(self.carta)
         self.bp.route("/series"          )(self.series)
         self.bp.route("/universo"        )(self.universo)

@@ -49,10 +49,15 @@ class APISmokeTests(unittest.TestCase):
     def test_public_pages_render(self):
         # /admin redirects to /admin/login (covered by test_admin_requires_login)
         # so it's not part of the public-render list.
-        for path in ["/", "/preview", "/preview-lab", "/carta", "/series", "/universo", "/aurora", "/timeline"]:
+        for path in ["/", "/preview", "/preview-lab", "/preview-lab/", "/carta", "/series", "/universo", "/aurora", "/timeline"]:
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
+
+    def test_favicon_not_404(self):
+        response = self.client.get("/favicon.ico")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("svg", response.mimetype)
 
     def test_preview_family_pages_no_store(self):
         for path in ["/preview", "/preview-lab", "/series", "/universo"]:

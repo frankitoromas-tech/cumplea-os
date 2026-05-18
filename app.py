@@ -174,8 +174,17 @@ def _admin_csp_policy() -> str:
     )
 
 
+def _ensure_data_dir() -> None:
+    base = Path(os.getenv("APP_DATA_DIR", "."))
+    try:
+        base.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        logging.getLogger(__name__).warning("Cannot create APP_DATA_DIR %s: %s", base, exc)
+
+
 def create_app() -> Flask:
     _configure_logging()
+    _ensure_data_dir()
 
     app = Flask(__name__)
     logging.getLogger(__name__).info(
@@ -224,6 +233,8 @@ def create_app() -> Flask:
 
     @app.before_request
     def _enforce_write_origin():
+        if request.path in {"/healthz", "/api/healthz"}:
+            return None
         ok, _kind = validate_write_origin()
         if ok:
             return None
@@ -315,6 +326,55 @@ def create_app() -> Flask:
             response.headers.setdefault("Cache-Control", "no-store, max-age=0")
 
         return response
+
+    @app.get("/favicon.ico")
+    def favicon():
+        from flask import Response
+
+        svg = (
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+            '<text y="0.9em" font-size="90">🌙</text></svg>'
+        )
+        return Response(svg, mimetype="image/svg+xml")
+
+    @app.errorhandler(404)
+    def _not_found(_exc):
+        from flask import request
+
+        path = (request.path or "").lower().rstrip("/")
+        hints = {
+            "/preview-lab": "/preview-lab",
+            "/preview_lab": "/preview-lab",
+            "/preview": "/preview-lab",
+            "/admin": "/admin/login",
+        }
+        hint = hints.get(path)
+        if request.path.startswith("/api/"):
+            return (
+                jsonify(
+                    {
+                        "status": "error",
+                        "mensaje": "Endpoint no encontrado.",
+                        "path": request.path,
+                    }
+                ),
+                404,
+            )
+        body = (
+            "<h1>404 — No encontrado</h1>"
+            f"<p>Ruta: <code>{request.path}</code></p>"
+        )
+        if hint:
+            body += f'<p>Prueba: <a href="{hint}">{hint}</a></p>'
+        else:
+            body += (
+                "<p>Rutas utiles:</p><ul>"
+                '<li><a href="/">Home</a></li>'
+                '<li><a href="/preview-lab">Preview Lab</a></li>'
+                '<li><a href="/admin/login">Admin login</a></li>'
+                "</ul>"
+            )
+        return body, 404
 
     @app.errorhandler(413)
     def _too_large(_):

@@ -295,7 +295,17 @@
       if (mode === 'custom' && dateEl.value) probeParams.set('preview_open_at', dateEl.value);
       const probeQuery = probeParams.toString() ? `?${probeParams.toString()}` : '';
 
-      const backendData = await fetchPreviewState(probeQuery);
+      let backendData;
+      try {
+        backendData = await fetchPreviewState(probeQuery);
+      } catch (err) {
+        lineEl.innerHTML = '<span class="tag warn">Error de API</span> ' + err.message;
+        jsonEl.textContent = JSON.stringify({
+          error: String(err),
+          hint: 'Comprueba que el servidor este actualizado y que /api/preview_estado exista.',
+        }, null, 2);
+        return;
+      }
       previewBackendEnabled = !!backendData.preview_mode_enabled;
       refreshUrlBox();
 

@@ -115,6 +115,7 @@ La suite (62 tests) cubre:
 2. Variables de entorno obligatorias:
    - `ADMIN_TOKEN`
    - `APP_DATA_DIR=/app/data` (recomendado con volumen)
+   - (Opcional) `GUNICORN_WORKERS=2` — en Railway el default ya se limita a 2 workers para evitar OOM
 3. Variables opcionales pero recomendadas:
    - `TELEGRAM_TOKEN`, `TELEGRAM_CHAT_ID`
    - `APP_ENCRYPTION_KEY`
