@@ -40,6 +40,7 @@ class RegaloBase(ContenidoModule):
         # generaba rutas duplicadas (/api/frase_del_dia, /api/poema, etc.).
         self.bp.route("/"                )(self.index)
         self.bp.route("/admin"           )(self.admin)
+        self.bp.route("/preview"         )(self.preview)
         self.bp.route("/carta"           )(self.carta)
         self.bp.route("/universo"        )(self.universo)
         self.bp.route("/api/abrir_regalo")(self.abrir_regalo)
@@ -72,6 +73,9 @@ class RegaloBase(ContenidoModule):
 
     def admin(self):
         return self._render_template_compat("admin.html", "ADMIN.HTML")
+
+    def preview(self):
+        return self._render_template_compat("preview.html")
 
     def carta(self):
         return self._render_template_compat("carta.html")

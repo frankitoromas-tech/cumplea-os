@@ -19,14 +19,42 @@
   if (window.__previewMode) return;
   window.__previewMode = true;
 
-  function go() {
-    // 1) Esconder pantallas bloqueantes
-    document.getElementById('pantallaBloqueo')?.classList.add('oculto');
-    document.getElementById('pantallaAuth')?.classList.add('oculto');
+  function forceVisibleState() {
+    const bloqueo = document.getElementById('pantallaBloqueo');
+    const auth = document.getElementById('pantallaAuth');
+    const principal = document.getElementById('contenedorPrincipal');
 
-    // 2) Mostrar contenedor principal
-    const main = document.getElementById('contenedorPrincipal');
-    if (main) main.classList.remove('oculto');
+    if (bloqueo) {
+      bloqueo.classList.add('oculto');
+      bloqueo.style.setProperty('display', 'none', 'important');
+      bloqueo.style.setProperty('opacity', '0', 'important');
+      bloqueo.style.setProperty('visibility', 'hidden', 'important');
+    }
+    if (auth) {
+      auth.classList.add('oculto');
+      auth.style.setProperty('display', 'none', 'important');
+      auth.style.setProperty('opacity', '0', 'important');
+      auth.style.setProperty('visibility', 'hidden', 'important');
+    }
+    if (principal) {
+      principal.classList.remove('oculto');
+      principal.style.setProperty('display', 'block', 'important');
+      principal.style.setProperty('opacity', '1', 'important');
+      principal.style.setProperty('visibility', 'visible', 'important');
+    }
+  }
+
+  function go() {
+    // 1) Esconder pantallas bloqueantes y forzar estado visual "abierto"
+    forceVisibleState();
+    // Reforzar de forma reactiva por si otro módulo altera clases/estilos.
+    const observer = new MutationObserver(forceVisibleState);
+    observer.observe(document.body, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class', 'style'],
+    });
+    window.addEventListener('beforeunload', () => observer.disconnect(), { once: true });
 
     // 3) Mostrar contenido sorpresa y poblarlo
     const sorpresa = document.getElementById('contenidoSorpresa');
