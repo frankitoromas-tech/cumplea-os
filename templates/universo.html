@@ -142,6 +142,29 @@
       text-wrap: balance;
     }
 
+    .btn-camino-realista {
+      display: block;
+      margin-top: 12px;
+      padding: 9px 14px;
+      background: linear-gradient(135deg, rgba(255,107,129,.85), rgba(245,200,66,.7));
+      border: 1px solid rgba(255,255,255,.18);
+      color: #0a0512;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 600;
+      font-size: .9rem;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 50px;
+      box-shadow: 0 6px 18px rgba(255,107,129,.3);
+      pointer-events: auto;
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .btn-camino-realista:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(255,107,129,.45);
+    }
+
     #tooltip {
       position:fixed; pointer-events:none; z-index:20;
       background:rgba(8,12,32,.92); border:1px solid rgba(255,255,255,.12);
@@ -235,6 +258,10 @@
     <img src="/static/DEFAULT_RECUERDOS/foto2.png" alt="Recuerdo de viaje">
     <p>Dos ciudades, una sola dirección: seguir encontrándonos, aunque el mapa nos dibuje lejos.</p>
   </div>
+
+  <a href="/camino" class="btn-camino-realista">
+    🌍 Ver el camino en el globo →
+  </a>
 </section>
 
 <div id="tooltip"></div>

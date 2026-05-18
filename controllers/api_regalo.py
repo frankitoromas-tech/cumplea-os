@@ -63,6 +63,7 @@ class RegaloBase(ContenidoModule):
         self.bp.route("/carta"           )(self.carta)
         self.bp.route("/series"          )(self.series)
         self.bp.route("/universo"        )(self.universo)
+        self.bp.route("/camino"          )(self.camino)
         self.bp.route("/api/abrir_regalo")(self.abrir_regalo)
         self.bp.route("/api/recuerdos_media")(self.recuerdos_media)
         self.bp.route("/api/build_info")(self.build_info)
@@ -117,6 +118,10 @@ class RegaloBase(ContenidoModule):
 
     def universo(self):
         return self._render_template_nocache("universo.html")
+
+    def camino(self):
+        """Globo terraqueo realista con el arco Lima -> Medellin."""
+        return self._render_template_nocache("camino.html")
 
     def abrir_regalo(self):
         return self._ok(self.empaquetar())

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Nuestro Camino — Lima → Medellín</title>
+  <meta name="theme-color" content="#02040e">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,300;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --rosa: #ff6b81;
+      --dorado: #f5c842;
+      --texto: #e8eaff;
+      --panel-bg: rgba(8, 12, 30, 0.72);
+      --panel-border: rgba(255, 255, 255, 0.15);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: #02040e;
+      color: var(--texto);
+      font-family: 'Cormorant Garamond', serif;
+    }
+
+    /* Cielo estrellado de fondo (3 capas radiales sutiles) */
+    body::before {
+      content: "";
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(2px 2px at 20% 30%,  rgba(255,255,255,0.6) 50%, transparent 51%),
+        radial-gradient(1px 1px at 70% 40%,  rgba(255,255,255,0.5) 50%, transparent 51%),
+        radial-gradient(1px 1px at 35% 75%,  rgba(255,255,255,0.4) 50%, transparent 51%),
+        radial-gradient(1px 1px at 85% 80%,  rgba(255,255,255,0.5) 50%, transparent 51%),
+        radial-gradient(1px 1px at 50% 15%,  rgba(255,255,255,0.3) 50%, transparent 51%),
+        radial-gradient(ellipse at 50% 50%, rgba(40, 25, 80, 0.35) 0%, transparent 65%);
+      background-size: 240px 240px, 320px 320px, 180px 180px, 280px 280px, 200px 200px, 100% 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #globo { position: fixed; inset: 0; z-index: 1; }
+
+    /* ── Título superior ────────────────────────────────────── */
+    .titulo {
+      position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+      text-align: center; pointer-events: none; z-index: 10;
+      animation: fade-in 1.6s ease both;
+    }
+    .titulo h1 {
+      font-family: 'Playfair Display', serif; font-style: italic;
+      font-size: clamp(1.6rem, 3.5vw, 2.6rem); letter-spacing: 3px;
+      color: rgba(255, 255, 255, 0.92);
+      text-shadow:
+        0 0 30px rgba(255, 107, 129, 0.4),
+        0 0 60px rgba(255, 255, 255, 0.15);
+    }
+    .titulo p {
+      font-style: italic; font-size: 1rem; color: rgba(255, 255, 255, 0.65);
+      margin-top: 6px; letter-spacing: 1px;
+    }
+
+    /* ── Panel inferior con datos ───────────────────────────── */
+    .panel-camino {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--panel-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 16px 22px;
+      min-width: 280px; max-width: min(92vw, 520px);
+      z-index: 10;
+      animation: fade-in 1.8s 0.6s ease both; opacity: 0;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      text-align: center;
+    }
+    .panel-titulo {
+      font-family: 'Playfair Display', serif; font-style: italic;
+      color: var(--rosa); font-size: 1.05rem; letter-spacing: 1px;
+    }
+    .panel-distancia {
+      font-family: 'Playfair Display', serif;
+    }
+    .panel-distancia .km { color: var(--dorado); font-size: 1.6rem; }
+    .panel-distancia .lbl {
+      font-size: 0.65rem; color: rgba(255, 255, 255, 0.55);
+      letter-spacing: 2px; text-transform: uppercase; display: block; margin-top: 2px;
+    }
+    .panel-mensaje {
+      font-style: italic; font-size: 0.9rem; color: rgba(255, 255, 255, 0.78);
+      line-height: 1.5; max-width: 360px;
+    }
+    .fotos-strip {
+      display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;
+    }
+    .fotos-strip img {
+      width: 42px; height: 42px; border-radius: 50%; object-fit: cover;
+      border: 2px solid rgba(255, 107, 129, 0.55); cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      background: #1a1530;
+    }
+    .fotos-strip img:hover {
+      transform: scale(1.18);
+      border-color: var(--rosa);
+      box-shadow: 0 0 18px rgba(255, 107, 129, 0.5);
+    }
+
+    /* ── Pin sobre el globo (HTML element) ──────────────────── */
+    .pin-ciudad {
+      position: relative; pointer-events: none;
+      text-align: center;
+      transform: translate(-50%, -100%);
+    }
+    .pin-ciudad .nombre {
+      background: rgba(8, 12, 30, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: white; font-size: 0.78rem;
+      font-family: 'Cormorant Garamond', serif; font-style: italic;
+      padding: 3px 9px; border-radius: 8px; margin-bottom: 6px;
+      white-space: nowrap; letter-spacing: 0.5px;
+      backdrop-filter: blur(6px);
+    }
+    .pin-ciudad .punto {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--rosa); border: 2.5px solid white;
+      box-shadow: 0 0 14px var(--rosa), 0 0 36px rgba(255, 107, 129, 0.45);
+      margin: 0 auto;
+      animation: pin-pulse 2s ease-in-out infinite;
+    }
+    @keyframes pin-pulse {
+      0%, 100% { box-shadow: 0 0 14px var(--rosa), 0 0 36px rgba(255, 107, 129, 0.45); }
+      50%      { box-shadow: 0 0 22px var(--rosa), 0 0 60px rgba(255, 107, 129, 0.7); }
+    }
+
+    /* ── Botón volver ───────────────────────────────────────── */
+    .btn-volver {
+      position: fixed; top: 24px; left: 24px; z-index: 30;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: rgba(255, 255, 255, 0.85);
+      padding: 8px 18px; border-radius: 50px;
+      font-family: 'Cormorant Garamond', serif; font-style: italic;
+      font-size: 0.95rem; text-decoration: none;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s;
+      animation: fade-in 1.4s ease both;
+    }
+    .btn-volver:hover {
+      background: rgba(255, 107, 129, 0.25);
+      border-color: rgba(255, 107, 129, 0.5);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    /* ── Lightbox para fotos ───────────────────────────────── */
+    .lightbox {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(2, 4, 14, 0.92); backdrop-filter: blur(12px);
+      display: none; align-items: center; justify-content: center;
+      cursor: zoom-out; opacity: 0; transition: opacity 0.3s;
+    }
+    .lightbox.abierto { display: flex; opacity: 1; }
+    .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 14px; box-shadow: 0 18px 60px rgba(0, 0, 0, 0.6); }
+
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    /* ── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 560px) {
+      .titulo { top: 14px; }
+      .titulo h1 { letter-spacing: 2px; }
+      .panel-camino {
+        bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+        padding: 14px 18px;
+        min-width: 0; width: calc(100% - 28px);
+      }
+      .btn-volver {
+        top: calc(14px + env(safe-area-inset-top, 0px));
+        left: 14px; padding: 7px 14px; font-size: 0.85rem;
+      }
+      .fotos-strip img { width: 38px; height: 38px; }
+    }
+  </style>
+</head>
+<body data-music="luna" data-music-src="{{ url_for('static', filename='audio/universo.mp3') }}">
+
+<a href="/universo" class="btn-volver">← Volver al universo</a>
+
+<div id="globo"></div>
+
+<div class="titulo">
+  <h1>Nuestro Camino</h1>
+  <p>Cuéntame qué venció la distancia ✦</p>
+</div>
+
+<div class="panel-camino">
+  <div class="panel-titulo">Lima, Perú → Medellín, Colombia</div>
+  <div class="panel-distancia">
+    <span class="km">2,040 km</span>
+    <span class="lbl">en línea recta</span>
+  </div>
+  <p class="panel-mensaje">
+    Una distancia que no fue distancia — porque tú ya la habías cruzado
+    primero en mi corazón.
+  </p>
+  <div class="fotos-strip" id="fotosStrip"></div>
+</div>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-label="Foto ampliada">
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.149/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/globe.gl@2.41.0/dist/globe.gl.min.js"></script>
+<script>
+'use strict';
+
+const LIMA     = { lat: -12.0464, lng: -77.0428, ciudad: 'Lima, Perú' };
+const MEDELLIN = { lat:   6.2476, lng: -75.5658, ciudad: 'Medellín, Colombia' };
+
+/* ── Fotos del usuario en el strip + lightbox ──────────────── */
+const FOTOS = [
+  '/static/DEFAULT_RECUERDOS/foto1.png',
+  '/static/DEFAULT_RECUERDOS/foto2.png',
+  '/static/DEFAULT_RECUERDOS/foto3.png',
+  '/static/DEFAULT_RECUERDOS/foto4.png',
+  '/static/DEFAULT_RECUERDOS/foto5.png',
+];
+
+const strip   = document.getElementById('fotosStrip');
+const lb      = document.getElementById('lightbox');
+const lbImg   = document.getElementById('lightboxImg');
+
+FOTOS.forEach((src, i) => {
+  const img = document.createElement('img');
+  img.src = src; img.alt = 'Recuerdo ' + (i + 1);
+  img.addEventListener('click', () => {
+    lbImg.src = src;
+    lb.classList.add('abierto');
+  });
+  strip.appendChild(img);
+});
+
+lb.addEventListener('click', () => {
+  lb.classList.remove('abierto');
+  setTimeout(() => { lbImg.src = ''; }, 320);
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && lb.classList.contains('abierto')) {
+    lb.classList.remove('abierto');
+  }
+});
+
+/* ── Globo realista con arco animado ───────────────────────── */
+const globoEl = document.getElementById('globo');
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* CDN base para las texturas; jsdelivr está permitido por la CSP. */
+const TEX = 'https://cdn.jsdelivr.net/npm/three-globe@2.31.0/example/img/';
+
+const globe = Globe()
+  (globoEl)
+  .globeImageUrl(TEX + 'earth-blue-marble.jpg')
+  .bumpImageUrl(TEX + 'earth-topology.png')
+  .backgroundColor('rgba(0,0,0,0)')                      // dejamos ver el cielo CSS
+  .showAtmosphere(true)
+  .atmosphereColor('#7ba8ff')
+  .atmosphereAltitude(0.18)
+  .arcsData([{
+    startLat: LIMA.lat,     startLng: LIMA.lng,
+    endLat:   MEDELLIN.lat, endLng:   MEDELLIN.lng,
+    color: [['#ff6b81', '#ffd6e0'], ['#ffd6e0', '#f5c842']],
+  }])
+  .arcColor('color')
+  .arcAltitude(0.32)
+  .arcStroke(0.7)
+  .arcDashLength(0.45)
+  .arcDashGap(2)
+  .arcDashAnimateTime(2600)
+  .htmlElementsData([
+    { lat: LIMA.lat,     lng: LIMA.lng,     label: LIMA.ciudad     },
+    { lat: MEDELLIN.lat, lng: MEDELLIN.lng, label: MEDELLIN.ciudad },
+  ])
+  .htmlElement((d) => {
+    const el = document.createElement('div');
+    el.className = 'pin-ciudad';
+    el.innerHTML = `<div class="nombre">${d.label}</div><div class="punto"></div>`;
+    return el;
+  });
+
+/* Cámara: punto medio (~ entre Lima y Medellín) */
+globe.pointOfView({ lat: -3, lng: -76, altitude: 2.2 }, 0);
+
+/* Rotación lenta + zoom suave de arranque */
+const ctrl = globe.controls();
+ctrl.autoRotate = !reducedMotion;
+ctrl.autoRotateSpeed = 0.35;
+ctrl.enableDamping = true;
+ctrl.dampingFactor = 0.08;
+ctrl.minDistance = 200;
+ctrl.maxDistance = 600;
+
+/* Responsive: ajustamos width/height al viewport */
+function fit() {
+  globe.width(window.innerWidth).height(window.innerHeight);
+}
+window.addEventListener('resize', fit);
+fit();
+
+/* Pequeña animación de "vuelo de bienvenida" */
+if (!reducedMotion) {
+  setTimeout(() => {
+    globe.pointOfView({ lat: -3, lng: -76, altitude: 1.9 }, 2400);
+  }, 600);
+}
+</script>
+
+<!-- Música de fondo (control-musica.js maneja autoplay/mute) -->
+<script src="{{ url_for('static', filename='js/control-musica.js') }}" defer></script>
+</body>
+</html>
