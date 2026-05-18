@@ -27,9 +27,12 @@ logger = logging.getLogger(__name__)
 
 ADMIN_COOKIE = "admin_session"
 ADMIN_COOKIE_MAX_AGE = 60 * 60 * 8  # 8 hours
+PREVIEW_LAB_COOKIE = "preview_lab_session"
+PREVIEW_LAB_MAX_AGE = 60 * 60 * 12  # 12 hours
 _ADMIN_HEADER = "X-Admin-Token"
 _ADMIN_QUERY = "admin_token"
 _SIGNER_SALT = "cumpleaos-admin-v1"
+_PREVIEW_LAB_SALT = "cumpleaos-preview-lab-v1"
 _CSRF_SALT = "cumpleaos-csrf-v1"
 _CSRF_MAX_AGE = 60 * 30  # 30 minutes
 
@@ -125,6 +128,57 @@ def mint_admin_cookie() -> str:
     if signer is None:
         raise RuntimeError("ADMIN_TOKEN no configurado.")
     return signer.dumps({"admin": True})
+
+
+def _preview_lab_secret() -> str:
+    token = _expected_admin_token()
+    if token:
+        return token
+    return (os.getenv("PREVIEW_LAB_SECRET") or os.getenv("FLASK_SECRET_KEY") or "").strip()
+
+
+def _preview_lab_signer() -> URLSafeTimedSerializer | None:
+    secret = _preview_lab_secret()
+    if not secret:
+        return None
+    return URLSafeTimedSerializer(secret_key=secret, salt=_PREVIEW_LAB_SALT)
+
+
+def mint_preview_lab_cookie() -> str:
+    signer = _preview_lab_signer()
+    if signer is None:
+        raise RuntimeError(
+            "Preview Lab cookie requires ADMIN_TOKEN or PREVIEW_LAB_SECRET."
+        )
+    return signer.dumps({"preview_lab": True})
+
+
+def verify_preview_lab_cookie(value: str) -> bool:
+    signer = _preview_lab_signer()
+    if signer is None or not value:
+        return False
+    try:
+        payload = signer.loads(value, max_age=PREVIEW_LAB_MAX_AGE)
+    except (BadSignature, SignatureExpired):
+        return False
+    return bool(payload.get("preview_lab"))
+
+
+def attach_preview_lab_cookie(response):
+    """Mint a short-lived session so Preview Lab can drive backend state on Railway."""
+    try:
+        response.set_cookie(
+            PREVIEW_LAB_COOKIE,
+            mint_preview_lab_cookie(),
+            max_age=PREVIEW_LAB_MAX_AGE,
+            httponly=True,
+            samesite="Lax",
+            secure=request.is_secure,
+            path="/",
+        )
+    except RuntimeError:
+        logger.warning("Preview Lab cookie not set (no signing secret).")
+    return response
 
 
 def verify_admin_cookie(value: str) -> bool:

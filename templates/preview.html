@@ -306,7 +306,10 @@
         }, null, 2);
         return;
       }
-      previewBackendEnabled = !!backendData.preview_mode_enabled;
+      previewBackendEnabled = !!(
+        backendData.preview_mode_enabled ||
+        backendData.preview_lab_session
+      );
       refreshUrlBox();
 
       const effectiveParams = new URLSearchParams(probeParams);
@@ -319,9 +322,9 @@
         effectiveData = await fetchPreviewState(effectiveQuery);
       }
 
-      const backendTag = backendData.preview_mode_enabled
-        ? '<span class="tag ok">Preview backend habilitado</span>'
-        : '<span class="tag warn">Preview backend deshabilitado</span>';
+      const backendTag = previewBackendEnabled
+        ? '<span class="tag ok">Preview backend sincronizado</span>'
+        : '<span class="tag warn">Preview backend deshabilitado (visita /preview-lab de nuevo)</span>';
       const syncTag = effectiveData.preview_client_fallback_active
         ? '<span class="tag warn">Fallback cliente activo</span>'
         : '<span class="tag ok">Sin fallback cliente</span>';

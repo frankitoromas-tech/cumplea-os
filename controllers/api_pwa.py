@@ -56,15 +56,15 @@ def service_worker():
 # first for static assets so the app opens instantly and works offline. API
 # calls always go to the network so dynamic content stays fresh.
 _SW_TEMPLATE = """\
-const CACHE = 'cumpleaos-shell-v5';
+const CACHE = 'cumpleaos-shell-v6';
 const HOME = '{home}';
 const SHELL = [
   HOME,
-  '/static/styless.css?v=20260518d',
+  '/static/styless.css?v=20260519a',
   '/static/css/immersive.css',
-  '/static/js/preview-sync.js?v=20260518d',
-  '/static/script.js?v=20260518d',
-  '/static/js/control-musica.js?v=20260518d',
+  '/static/js/preview-sync.js?v=20260519a',
+  '/static/script.js?v=20260519a',
+  '/static/js/control-musica.js?v=20260519a',
   '/static/DEFAULT_RECUERDOS/foto5.png',
   '/manifest.webmanifest',
 ];

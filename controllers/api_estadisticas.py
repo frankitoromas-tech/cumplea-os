@@ -11,7 +11,12 @@ from datetime import datetime, date
 from flask import request
 
 from api import APIModule
-from services.preview_service import preview_mode_enabled, resolve_from_request_args
+from services.preview_service import (
+    preview_env_enabled,
+    preview_mode_enabled,
+    resolve_from_request_args,
+)
+from services.security_service import PREVIEW_LAB_COOKIE, verify_preview_lab_cookie
 from services.visitas_service import ServicioVisitas
 
 
@@ -149,6 +154,10 @@ class EstadisticasModule(APIModule):
         return self._ok(
             {
                 "preview_mode_enabled": preview_mode_enabled(),
+                "preview_env_enabled": preview_env_enabled(),
+                "preview_lab_session": verify_preview_lab_cookie(
+                    request.cookies.get(PREVIEW_LAB_COOKIE, "")
+                ),
                 "preview_client_requested": flag_true(request.args.get("preview_client")),
                 "preview_client_fallback_active": usa_fallback_cliente,
                 "now": ahora.isoformat(),

@@ -22,8 +22,38 @@ class PreviewResolution:
     capa: str  # real | backend | client
 
 
-def preview_mode_enabled() -> bool:
+def preview_env_enabled() -> bool:
     return (os.getenv("PREVIEW_MODE_ENABLED") or "").strip() == "1"
+
+
+def preview_mode_enabled() -> bool:
+    """
+    Backend preview (preview_state / preview_open_at) is active when:
+    - PREVIEW_MODE_ENABLED=1, or
+    - signed Preview Lab cookie (set visiting /preview-lab), or
+    - signed admin session cookie.
+    """
+    if preview_env_enabled():
+        return True
+    try:
+        from flask import has_request_context, request
+
+        if not has_request_context():
+            return False
+        from services.security_service import (
+            ADMIN_COOKIE,
+            PREVIEW_LAB_COOKIE,
+            verify_admin_cookie,
+            verify_preview_lab_cookie,
+        )
+
+        if verify_preview_lab_cookie(request.cookies.get(PREVIEW_LAB_COOKIE, "")):
+            return True
+        if verify_admin_cookie(request.cookies.get(ADMIN_COOKIE, "")):
+            return True
+    except Exception:
+        pass
+    return False
 
 
 def flag_true(raw: str | None) -> bool:

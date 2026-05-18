@@ -12,7 +12,7 @@ import re
 from flask import current_app, make_response, render_template
 from jinja2 import TemplateNotFound
 from controllers.api_contenido import ContenidoModule
-from services.security_service import require_admin_session
+from services.security_service import attach_preview_lab_cookie, require_admin_session
 
 
 class RegaloBase(ContenidoModule):
@@ -103,10 +103,11 @@ class RegaloBase(ContenidoModule):
         return self._render_template_compat("admin.html")
 
     def preview(self):
-        return self._render_template_nocache(
+        response = self._render_template_nocache(
             "preview.html",
             preview_lab_rev=self._PREVIEW_REV,
         )
+        return attach_preview_lab_cookie(response)
 
     def carta(self):
         return self._render_template_compat("carta.html")

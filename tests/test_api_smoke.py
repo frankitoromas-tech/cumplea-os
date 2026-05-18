@@ -321,6 +321,27 @@ class APISmokeTests(unittest.TestCase):
         self.assertFalse(r_open.get_json()["bloqueado"])
         self.assertTrue(r_locked.get_json()["bloqueado"])
 
+    def test_preview_lab_sets_cookie_and_enables_backend(self):
+        old = os.environ.get("PREVIEW_MODE_ENABLED")
+        os.environ["PREVIEW_MODE_ENABLED"] = "0"
+        try:
+            lab = self.client.get("/preview-lab")
+            self.assertEqual(lab.status_code, 200)
+            self.assertIn("preview_lab_session", lab.headers.get("Set-Cookie", ""))
+
+            estado = self.client.get("/api/preview_estado?preview_state=open")
+            self.assertEqual(estado.status_code, 200)
+            data = estado.get_json()
+            self.assertTrue(data.get("preview_lab_session"))
+            self.assertTrue(data.get("preview_mode_enabled"))
+            self.assertEqual(data.get("capa_efectiva"), "backend")
+            self.assertFalse(data.get("bloqueado"))
+        finally:
+            if old is None:
+                os.environ.pop("PREVIEW_MODE_ENABLED", None)
+            else:
+                os.environ["PREVIEW_MODE_ENABLED"] = old
+
     def test_preview_estado_expone_fallback_cliente_efectivo(self):
         with patch.dict(os.environ, {"PREVIEW_MODE_ENABLED": "0"}):
             response = self.client.get("/api/preview_estado?preview_state=locked&preview_client=1")
