@@ -4,7 +4,7 @@ RegaloModule — hereda de ContenidoModule (herencia en cadena)
 Gestiona la apertura del regalo y las páginas principales.
 """
 from __future__ import annotations
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 import os
 import re
@@ -38,7 +38,7 @@ class RegaloBase(ContenidoModule):
         or os.getenv("RAILWAY_GIT_COMMIT_SHA")
         or os.getenv("VERCEL_GIT_COMMIT_SHA")
         or os.getenv("GIT_COMMIT_SHA")
-        or datetime.now(UTC).strftime("local-%Y%m%d%H%M%S")
+        or datetime.now(timezone.utc).strftime("local-%Y%m%d%H%M%S")
     )
 
     def __init__(self):
@@ -162,7 +162,7 @@ class RegaloBase(ContenidoModule):
         return self._ok(
             {
                 "preview_lab_rev": self._PREVIEW_REV,
-                "server_time": datetime.now(UTC).isoformat(),
+                "server_time": datetime.now(timezone.utc).isoformat(),
             }
         )
 

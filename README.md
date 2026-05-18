@@ -151,6 +151,16 @@ Si ves el countdown cuando esperabas modo abierto:
 - Para `open/locked/custom`, confirma `PREVIEW_MODE_ENABLED=1` en tu `.env` y reinicia la app.
 - Verifica estado real en `GET /api/preview_estado`.
 
+## Auditoría de despliegue
+
+Para auditar si el hosting realmente está sirviendo la última build (DNS/TCP/health/build-info):
+
+```bash
+python scripts/deploy_audit.py https://tu-dominio
+```
+
+Si `/api/build_info` falla o responde sin `preview_lab_rev`, estás viendo una instancia antigua o caída.
+
 ## Persistencia de datos
 
 - Lectura principal: `data/<recurso>.json` (cifrado si hay key).
