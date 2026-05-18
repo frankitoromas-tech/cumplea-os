@@ -629,11 +629,19 @@ function actualizarIndicadoresEstrenoNet(dias, horas, minutos, segundos, totalSe
     estado.textContent = 'Hoy es el estreno. Luces bajas, cobija y tú.';
     return;
   }
-
-  const hTxt = pad2(horas);
-  const mTxt = pad2(minutos);
-  const sTxt = pad2(segundos);
-  estado.textContent = `Faltan ${dias} día(s), ${hTxt}:${mTxt}:${sTxt} para el estreno del 30/08/2026.`;
+  if (dias >= 10) {
+    estado.textContent = `Cuenta regresiva activa: ${dias} días para nuestra función privada.`;
+    return;
+  }
+  if (dias >= 2) {
+    estado.textContent = `Ya se siente cerca: en ${dias} días la vemos juntos.`;
+    return;
+  }
+  if (dias === 1) {
+    estado.textContent = 'Mañana es el estreno. Prepara plan, snacks y abrazo largo.';
+    return;
+  }
+  estado.textContent = 'Es hoy: solo falta darle play.';
 }
 
 function obtenerSlidesBloqueo(track) {
@@ -659,6 +667,13 @@ function initBloqueoScrollExperiencia() {
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const btnVolverArriba = $('btnVolverArribaBloqueo');
+  const netWrap = $('netCineWrap');
+  const netPlayMini = document.querySelector('.net-play-mini');
+
+  const syncNetActive = () => {
+    if (!netWrap) return;
+    netWrap.classList.toggle('is-active', bloqueoSlideActiva === 1);
+  };
 
   const actualizarSlideActiva = () => {
     const slides = obtenerSlidesBloqueo(track);
@@ -674,6 +689,7 @@ function initBloqueoScrollExperiencia() {
       }
     });
     bloqueoSlideActiva = idx;
+    syncNetActive();
   };
 
   const irASlide = (idx) => {
@@ -751,7 +767,15 @@ function initBloqueoScrollExperiencia() {
     });
   }
 
+  if (netPlayMini) {
+    netPlayMini.addEventListener('click', () => {
+      showToast('🎬 Lista de reproducción emocional: activada');
+      window.location.href = '/series?series_theme=net';
+    });
+  }
+
   scrollBloqueoASlide(0, 'auto');
+  syncNetActive();
 }
 
 function iniciarBloqueo(segundosTotales) {

@@ -92,35 +92,35 @@
     </section>
 
     <section class="bloqueo-slide bloqueo-slide-net" id="slideCineNet" data-slide-index="1">
-      <div class="net-cine-wrap">
-        <p class="net-tag">Modo NET · capítulo especial</p>
+      <div class="net-cine-wrap" id="netCineWrap">
+        <div class="net-cine-backdrop" aria-hidden="true"></div>
+        <p class="net-tag">Luna Originals · estreno privado</p>
         <h2 class="net-title">Acompáñame a ver esta película</h2>
-        <p class="net-sub">
-          Hagamos estreno juntos: verla, comentarla y quedarnos con esa sensación bonita de "quiero repetir esta noche contigo".
-        </p>
+        <p class="net-sub">Plan oficial: play, manta y nosotros comentando cada escena.</p>
 
         <article class="net-feature" aria-labelledby="netFeatureTitle">
-          <img src="/static/DEFAULT_RECUERDOS/foto5.png" alt="Poster de Entre Lima y Medellín">
+          <div class="net-poster-shell">
+            <img src="/static/DEFAULT_RECUERDOS/foto5.png" alt="Poster de Entre Lima y Medellín">
+            <button type="button" class="net-play-mini" aria-label="Reproducir avance">▶</button>
+          </div>
           <div class="net-feature-copy">
             <p class="net-kicker">Luna Originals presenta</p>
             <h3 id="netFeatureTitle">Entre Lima y Medellín</h3>
             <p class="net-sinopsis">
-              Sinopsis: dos personas separadas por kilómetros convierten videollamadas, música y pequeños rituales en una ruta emocional que desafía la distancia.
-              Cada escena es una promesa de encuentro, hasta llegar al estreno de su propia historia.
+              Dos personas separadas por kilómetros convierten videollamadas, música y pequeños rituales en una ruta emocional que desafía la distancia.
+              Cada escena es una promesa de encuentro hasta llegar al capítulo más esperado: verse por fin.
             </p>
             <div class="net-meta-row">
               <span class="net-pill">Romance</span>
               <span class="net-pill">Drama suave</span>
               <span class="net-pill">Larga distancia</span>
+              <span class="net-pill">Estreno: 30/08/2026</span>
             </div>
           </div>
         </article>
 
-        <div class="net-estreno">
-          <div>
-            <p class="net-estreno-label">Fecha de estreno</p>
-            <p class="net-estreno-date">30/08/2026</p>
-          </div>
+        <div class="net-estreno" aria-label="Cuenta regresiva al estreno">
+          <p class="net-estreno-label">Cuenta regresiva al estreno</p>
           <div class="net-eta" id="netEstrenoCuenta" aria-live="polite">
             <span><strong id="netEstrenoDias">--</strong>d</span>
             <span><strong id="netEstrenoHoras">--</strong>h</span>
