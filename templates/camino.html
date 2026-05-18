@@ -602,13 +602,52 @@ const globe = Globe()
     return el;
   });
 
-/* ── Trazado del camino: se dispara con el botón ───────────── */
+/* ── Trazado del camino: se dispara con el botón o autoplay ──── */
 const btnTrazar = document.getElementById('btnTrazar');
 const hintEl    = document.getElementById('btnTrazarHint');
 const toastEl   = document.getElementById('toastCamino');
 const STEP_MS   = 130;   // delay entre cada corazón
 const BOUNCE_MS = 520;   // duración del bounce de aparición
+const AUTOPLAY_MS = 5500; // si no toca el botón, traza solo a los 5.5s
 let trazadoIniciado = false;
+let autoplayTimer = null;
+
+/* Chime sutil de 3 notas (A4 → C5 → E5) generado con Web Audio API,
+   sin pisar la música de fondo. Volumen muy bajo (0.06) y notas
+   cortas con envelope ADSR. Falla silenciosamente si el AudioContext
+   no se puede crear (políticas de autoplay sin gesto del usuario). */
+function chimeCompletado() {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+
+    const ahora = ctx.currentTime;
+    const master = ctx.createGain();
+    master.gain.value = 0.06;
+    master.connect(ctx.destination);
+
+    [
+      { freq: 440.00, when: 0.00 },  // A4
+      { freq: 523.25, when: 0.12 },  // C5
+      { freq: 659.25, when: 0.24 },  // E5
+    ].forEach(({ freq, when }) => {
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0, ahora + when);
+      gain.gain.linearRampToValueAtTime(1, ahora + when + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, ahora + when + 1.4);
+      osc.connect(gain).connect(master);
+      osc.start(ahora + when);
+      osc.stop(ahora + when + 1.5);
+    });
+
+    setTimeout(() => ctx.close().catch(() => {}), 2200);
+  } catch (_) { /* no-op */ }
+}
 
 function lluviaDeCorazones(cantidad) {
   if (reducedMotion) return;
@@ -665,7 +704,26 @@ function trazarCamino() {
       setTimeout(() => toastEl.classList.remove('visible'), 4000);
     }
     lluviaDeCorazones(14);
+    chimeCompletado();
   }, totalMs);
+}
+
+/* Autoplay: si Luna no toca el botón en AUTOPLAY_MS, lo activamos
+   solos para que nunca se quede sin ver el camino. Cualquier
+   interacción previa (hover, foco, click) lo cancela para no
+   atropellar una acción deliberada. */
+function programarAutoplay() {
+  if (reducedMotion) return;
+  autoplayTimer = setTimeout(() => {
+    if (!trazadoIniciado) trazarCamino();
+  }, AUTOPLAY_MS);
+}
+
+function cancelarAutoplay() {
+  if (autoplayTimer) {
+    clearTimeout(autoplayTimer);
+    autoplayTimer = null;
+  }
 }
 
 if (btnTrazar) {
@@ -674,11 +732,18 @@ if (btnTrazar) {
     const rect = btnTrazar.getBoundingClientRect();
     btnTrazar.style.setProperty('--mx', `${e.clientX - rect.left}px`);
   });
-  /* Apagamos el hint al primer mouseenter aunque no haga click */
+  /* Apagamos el hint y cancelamos el autoplay al primer hover */
   btnTrazar.addEventListener('mouseenter', () => {
-    if (hintEl) hintEl.style.animation = 'none', hintEl.style.opacity = '0';
+    if (hintEl) { hintEl.style.animation = 'none'; hintEl.style.opacity = '0'; }
+    cancelarAutoplay();
   });
-  btnTrazar.addEventListener('click', trazarCamino);
+  btnTrazar.addEventListener('focus', cancelarAutoplay);
+  btnTrazar.addEventListener('click', () => {
+    cancelarAutoplay();
+    trazarCamino();
+  });
+
+  programarAutoplay();
 }
 
 /* Si el usuario prefiere reduced motion, mostramos el trazado completo
