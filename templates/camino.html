@@ -252,26 +252,88 @@
       color: #1a0512;
       font-family: 'Playfair Display', serif;
       font-style: italic;
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       padding: 18px 32px;
       border-radius: 18px;
       box-shadow: 0 20px 60px rgba(255, 107, 129, 0.5);
       pointer-events: none;
       opacity: 0;
       z-index: 50;
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
       text-align: center;
       max-width: 92vw;
+      line-height: 1.35;
     }
     .toast-camino.visible {
-      animation: toast-aparece 3.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      animation: toast-aparece 4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
     @keyframes toast-aparece {
       0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
-      18%  { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
-      28%  { transform: translate(-50%, -50%) scale(1); }
-      82%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      14%  { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+      24%  { transform: translate(-50%, -50%) scale(1); }
+      85%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
       100% { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+    }
+
+    /* Hint sutil que llama la atención al botón en el primer load.
+       Aparece a los ~2s tras la carga; se oculta al primer hover/click. */
+    .btn-trazar-hint {
+      position: absolute;
+      top: -22px;
+      right: 14px;
+      background: rgba(255, 107, 129, 0.92);
+      color: #fff;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.78rem;
+      padding: 3px 10px;
+      border-radius: 10px;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      box-shadow: 0 4px 12px rgba(255, 107, 129, 0.5);
+      animation: hint-aparece 0.6s 2s ease forwards,
+                 hint-flota 1.8s 2.6s ease-in-out infinite;
+    }
+    .btn-trazar-hint::after {
+      content: "";
+      position: absolute;
+      bottom: -6px; right: 18px;
+      border: 6px solid transparent;
+      border-top-color: rgba(255, 107, 129, 0.92);
+      border-bottom: 0;
+    }
+    .btn-trazar.hint-off + .btn-trazar-hint,
+    .btn-trazar:hover + .btn-trazar-hint,
+    .btn-trazar.trazando + .btn-trazar-hint,
+    .btn-trazar.trazado  + .btn-trazar-hint {
+      opacity: 0 !important; animation: none !important;
+    }
+    @keyframes hint-aparece {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes hint-flota {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-3px); }
+    }
+
+    /* Lluvia de corazones que sube tras completar el camino */
+    .corazon-volando {
+      position: fixed;
+      pointer-events: none;
+      z-index: 40;
+      font-size: 1.8rem;
+      opacity: 0;
+      filter: drop-shadow(0 0 10px rgba(255, 107, 129, 0.85));
+      animation: volar-corazon 3.4s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+      will-change: transform, opacity;
+    }
+    @keyframes volar-corazon {
+      0%   { opacity: 0; transform: translate(0, 0) scale(0.5) rotate(0deg); }
+      12%  { opacity: 1; }
+      80%  { opacity: 1; }
+      100% { opacity: 0;
+             transform: translate(var(--dx, 0), var(--dy, -100vh)) scale(1.2) rotate(var(--rot, 0deg)); }
     }
 
     /* ── Botón volver: top-left, lejos del reproductor de música ───
@@ -391,16 +453,19 @@
     primero en mi corazón.
   </p>
 
-  <button type="button" class="btn-trazar" id="btnTrazar"
-          aria-label="Dibujar la línea de corazones entre Lima y Medellín">
-    ✨ Trazar nuestro camino
-  </button>
+  <div style="position:relative; width:100%;">
+    <button type="button" class="btn-trazar" id="btnTrazar"
+            aria-label="Dibujar la línea de corazones entre Lima y Medellín">
+      ✨ Trazar nuestro camino
+    </button>
+    <span class="btn-trazar-hint" id="btnTrazarHint" aria-hidden="true">Tócame ✨</span>
+  </div>
 
   <div class="fotos-strip" id="fotosStrip"></div>
 </div>
 
 <div class="toast-camino" id="toastCamino" role="status" aria-live="polite">
-  💗 Te encontré, aunque el mapa nos dibujara lejos 💗
+  Mi camino siempre llevó a ti, mi Luna 💗
 </div>
 
 <div class="lightbox" id="lightbox" role="dialog" aria-label="Foto ampliada">
@@ -539,10 +604,40 @@ const globe = Globe()
 
 /* ── Trazado del camino: se dispara con el botón ───────────── */
 const btnTrazar = document.getElementById('btnTrazar');
+const hintEl    = document.getElementById('btnTrazarHint');
 const toastEl   = document.getElementById('toastCamino');
 const STEP_MS   = 130;   // delay entre cada corazón
 const BOUNCE_MS = 520;   // duración del bounce de aparición
 let trazadoIniciado = false;
+
+function lluviaDeCorazones(cantidad) {
+  if (reducedMotion) return;
+  const emojis = ['💗', '💖', '💕', '🤍', '💞', '💘'];
+  for (let i = 0; i < cantidad; i++) {
+    const el = document.createElement('div');
+    el.className = 'corazon-volando';
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+    /* Parten desde el botón (zona del panel) hacia el cielo, con
+       deriva horizontal aleatoria — siente como un suspiro romántico. */
+    const startX = window.innerWidth - 180 + (Math.random() * 120 - 60);
+    const startY = window.innerHeight / 2 + (Math.random() * 180 - 90);
+    const dx = (Math.random() * 360 - 180);
+    const dy = -(window.innerHeight * 0.7 + Math.random() * 200);
+    const rot = (Math.random() * 60 - 30);
+
+    el.style.left = `${startX}px`;
+    el.style.top  = `${startY}px`;
+    el.style.setProperty('--dx', `${dx}px`);
+    el.style.setProperty('--dy', `${dy}px`);
+    el.style.setProperty('--rot', `${rot}deg`);
+    el.style.animationDelay = `${i * 80}ms`;
+    el.style.fontSize = `${1.2 + Math.random() * 1.4}rem`;
+
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3800 + i * 80);
+  }
+}
 
 function trazarCamino() {
   if (trazadoIniciado) return;
@@ -567,8 +662,9 @@ function trazarCamino() {
     btnTrazar.textContent = '✦ Camino trazado ✦';
     if (toastEl) {
       toastEl.classList.add('visible');
-      setTimeout(() => toastEl.classList.remove('visible'), 3600);
+      setTimeout(() => toastEl.classList.remove('visible'), 4000);
     }
+    lluviaDeCorazones(14);
   }, totalMs);
 }
 
@@ -577,6 +673,10 @@ if (btnTrazar) {
   btnTrazar.addEventListener('mousemove', (e) => {
     const rect = btnTrazar.getBoundingClientRect();
     btnTrazar.style.setProperty('--mx', `${e.clientX - rect.left}px`);
+  });
+  /* Apagamos el hint al primer mouseenter aunque no haga click */
+  btnTrazar.addEventListener('mouseenter', () => {
+    if (hintEl) hintEl.style.animation = 'none', hintEl.style.opacity = '0';
   });
   btnTrazar.addEventListener('click', trazarCamino);
 }
