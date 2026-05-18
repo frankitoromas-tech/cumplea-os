@@ -162,9 +162,14 @@
 
 .vela {
   position: relative;
-  width: 16px;
-  height: 60px;
-  border-radius: 3px;
+  width: 14px;
+  height: 64px;
+  /* padding + margin negativo expande el área tactil sin afectar el visual.
+     Más limpio que un pseudo-elemento absoluto y funciona en touch. */
+  padding: 24px 15px 0;
+  margin: -24px -15px 0;
+  touch-action: manipulation;
+  border-radius: 4px;
   background: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.55) 0%,
@@ -212,14 +217,6 @@
   );
   border-radius: 2px;
   pointer-events: none;
-}
-
-/* Hit area invisible para que tocar la llama también apague */
-.vela::after {
-  content: "";
-  position: absolute;
-  inset: -34px -10px -4px -10px;
-  pointer-events: auto;
 }
 
 /* Mecha */

@@ -252,7 +252,7 @@ class EasterEggClic extends EasterEggBase {
   new EasterEggKonami();
 
   // EE: 7 clics en el pastel
-  new EasterEggClic('pastel7', '.pastel-animado', 7, () => {
+  new EasterEggClic('pastel7', '.pastel-escena, .pastel-animado', 7, () => {
     const el = document.getElementById('eePastelMsg');
     if (el) {
       el.classList.add('visible');

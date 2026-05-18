@@ -33,9 +33,15 @@ class APISmokeTests(unittest.TestCase):
         cls.client = cls.app.test_client()
 
     def _login_admin(self) -> None:
+        import re
+
+        form = self.client.get("/admin/login")
+        body = form.get_data(as_text=True)
+        match = re.search(r'name="csrf" value="([^"]+)"', body)
+        self.assertIsNotNone(match, "CSRF token missing from login form")
         response = self.client.post(
             "/admin/login",
-            data={"token": _ADMIN_TOKEN},
+            data={"token": _ADMIN_TOKEN, "csrf": match.group(1)},
             follow_redirects=False,
         )
         self.assertIn(response.status_code, (302, 303))
@@ -176,6 +182,12 @@ class APISmokeTests(unittest.TestCase):
     def test_healthz_reports_admin_protected(self):
         response = self.client.get("/healthz")
         self.assertTrue(response.get_json().get("admin_protected"))
+
+    def test_permissions_policy_allows_microphone(self):
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        policy = response.headers.get("Permissions-Policy", "")
+        self.assertIn("microphone=(self)", policy)
 
     def test_security_headers_exist(self):
         response = self.client.get("/")

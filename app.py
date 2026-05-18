@@ -15,15 +15,26 @@ from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from services import metrics_service
-from services.security_service import attach_request_id, require_admin_token
+from services.request_guards import validate_write_origin
+from services.security_service import (
+    admin_panel_enabled,
+    attach_request_id,
+    require_admin_token,
+)
 from services.visitas_service import ServicioVisitas
 
-try:
-    from dotenv import load_dotenv
+def _load_env_files() -> None:
+    """Load .env from the project root (works with gunicorn any cwd)."""
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        return
+    root = Path(__file__).resolve().parent
+    load_dotenv(root / ".env")
+    load_dotenv(root / ".env.local", override=True)
 
-    load_dotenv()
-except ImportError:
-    pass
+
+_load_env_files()
 
 
 class _RequestIdLogFilter(logging.Filter):
@@ -125,6 +136,7 @@ _API_LIMITS: dict[str, tuple[int, int]] = {
     "/api/test_telegram": (5, 60),
     "/test_telegram": (5, 60),
     "/api/guardar_constelacion": (12, 60),
+    "/admin/login": (10, 60),
 }
 
 
@@ -204,6 +216,22 @@ def create_app() -> Flask:
         attach_request_id()
 
     @app.before_request
+    def _enforce_write_origin():
+        ok, _kind = validate_write_origin()
+        if ok:
+            return None
+        metrics_service.bump("security.origin_blocked")
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "mensaje": "Origen no permitido para esta operacion.",
+                }
+            ),
+            403,
+        )
+
+    @app.before_request
     def _apply_rate_limits():
         if request.method not in {"POST", "PUT", "PATCH", "DELETE"}:
             return None
@@ -249,9 +277,15 @@ def create_app() -> Flask:
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         response.headers.setdefault("X-Frame-Options", "DENY")
         response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
-        response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+        # microphone=(self): pastel.js / cake-3d soplan velas con getUserMedia.
+        response.headers.setdefault(
+            "Permissions-Policy",
+            "camera=(), microphone=(self), geolocation=()",
+        )
         response.headers.setdefault("Cross-Origin-Opener-Policy", "same-origin")
         response.headers.setdefault("Cross-Origin-Resource-Policy", "same-origin")
+        response.headers.setdefault("X-Permitted-Cross-Domain-Policies", "none")
+        response.headers.setdefault("X-DNS-Prefetch-Control", "off")
 
         request_id = getattr(g, "request_id", None)
         if request_id:
@@ -294,7 +328,7 @@ def create_app() -> Flask:
                 {
                     "status": "ok",
                     "encryption_enabled": bool(os.getenv("APP_ENCRYPTION_KEY")),
-                    "admin_protected": bool(os.getenv("ADMIN_TOKEN")),
+                    "admin_protected": admin_panel_enabled(),
                 }
             ),
             200,
@@ -313,7 +347,7 @@ def create_app() -> Flask:
         snap.update(
             {
                 "encryption_enabled": bool(os.getenv("APP_ENCRYPTION_KEY")),
-                "admin_protected": bool(os.getenv("ADMIN_TOKEN")),
+                "admin_protected": admin_panel_enabled(),
                 "telegram": "conectado" if _mensajes._tg_ok() else "sin conexion",
                 "visitas": visitas_service.leer(),
                 "rate_limit_active_keys": len(limiter._events),

@@ -14,9 +14,14 @@ class ServicioConstelacion(ServicioBase):
         super().__init__("data/constelaciones_creadas.json")
 
     def guardar_constelacion(self, nombre: str, estrellas: list) -> bool:
-        datos = self.leer_datos()
-        datos.append({"nombre": nombre, "estrellas": estrellas})
-        return self.guardar_datos(datos)
+        registro = {"nombre": nombre, "estrellas": estrellas}
+
+        def append(current):
+            datos = list(current) if isinstance(current, list) else []
+            datos.append(registro)
+            return datos
+
+        return self.actualizar(append, default=[]) is not None
 
     def listar(self) -> list:
         return self.leer_datos()

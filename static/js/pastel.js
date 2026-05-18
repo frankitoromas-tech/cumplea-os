@@ -1,39 +1,25 @@
 /* ─────────────────────────────────────────────────────────────
- * pastel.js — Lógica del pastel 3D + detección de soplido.
- *
- * Estrategia:
- * 1. Click / touch / hover en una vela siempre la apaga (fallback).
- * 2. Botón "Soplar de verdad" pide permiso de micrófono. Si lo concede,
- *    analizamos el espectro de audio buscando la firma de un soplido:
- *       - mucha energía en banda baja (50-300 Hz)
- *       - poca energía relativa en banda alta (>2 kHz, donde vive la voz)
- *       - sostenido por ≥150 ms
- *    Por cada "soplido detectado" apagamos una vela. La señal del medidor
- *    visual sirve de feedback (ves la barrita subir mientras soplás).
- * 3. Cuando todas las velas se apagan se dispara `pastel:deseo-cumplido`
- *    para que el resto de la página reaccione (confeti, mensaje, etc).
- * 4. Respeta `prefers-reduced-motion`: ni humo ni jitter.
+ * pastel.js — Pastel 3D CSS + detección de soplido por micrófono.
  * ───────────────────────────────────────────────────────────── */
 
 (function () {
   'use strict';
 
-  if (window.__pastelInicializado) return;
-  window.__pastelInicializado = true;
-
   const reducedMotion =
     window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  function $(id) { return document.getElementById(id); }
-
   function init() {
     const escena = document.querySelector('.pastel-escena');
-    if (!escena) return;
+    if (!escena || escena.dataset.pastelBound === '1') return;
+    escena.dataset.pastelBound = '1';
 
     const velas = Array.from(escena.querySelectorAll('.vela'));
-    const instruccion = escena.querySelector('.instruccion-pastel');
-    const btnMic = escena.querySelector('.btn-soplar');
-    const medidor = escena.querySelector('.medidor-soplido');
+    const instruccion =
+      document.getElementById('instruccionPastel') ||
+      escena.querySelector('.instruccion-pastel');
+    const btnMic = escena.closest('#contenidoSorpresa')?.querySelector('.btn-soplar') ||
+      document.querySelector('.pastel-controles .btn-soplar');
+    const medidor = document.querySelector('.medidor-soplido');
     const barra = medidor ? medidor.querySelector('.barra') : null;
 
     if (!velas.length) return;
@@ -77,42 +63,75 @@
         instruccion.textContent = '✨ Deseo concedido. Que se cumpla, mi luna.';
         instruccion.classList.add('cumplido');
       }
-      if (btnMic) { btnMic.disabled = true; btnMic.style.opacity = '0.5'; }
+      if (btnMic) {
+        btnMic.disabled = true;
+        btnMic.style.opacity = '0.5';
+      }
       stopMic();
       document.dispatchEvent(new CustomEvent('pastel:deseo-cumplido'));
     }
 
-    // ─── Fallback: click / touch / hover apagan una vela ─────
+    // Click / touch en la vela (sin mouseenter: evitaba apagarlas al pasar el ratón).
     velas.forEach((vela) => {
-      const handler = () => apagarVela(vela);
+      const handler = (e) => {
+        if (e.type === 'touchstart') e.preventDefault();
+        apagarVela(vela);
+      };
       vela.addEventListener('click', handler);
-      vela.addEventListener('touchstart', handler, { passive: true });
-      vela.addEventListener('mouseenter', handler);
+      vela.addEventListener('touchstart', handler, { passive: false });
       vela.style.cursor = 'pointer';
     });
 
-    // ─── Detección de soplido por micrófono ──────────────────
+    async function resumeAudioCtx(ctx) {
+      if (!ctx) return;
+      if (ctx.state === 'suspended') {
+        try {
+          await ctx.resume();
+        } catch (err) {
+          console.warn('[pastel] AudioContext.resume failed:', err);
+        }
+      }
+    }
+
     async function startMic() {
-      if (micActivo) { stopMic(); return; }
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        if (instruccion) instruccion.textContent = 'Tu navegador no permite microfono. Toca las velas para soplar.';
+      if (micActivo) {
+        stopMic();
         return;
       }
-      if (!window.AudioContext && !window.webkitAudioContext) {
-        if (instruccion) instruccion.textContent = 'Tu navegador no soporta Web Audio. Toca las velas.';
+      if (!navigator.mediaDevices?.getUserMedia) {
+        if (instruccion) {
+          instruccion.textContent =
+            'Tu navegador no permite micrófono. Toca las velas para apagarlas.';
+        }
         return;
       }
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) {
+        if (instruccion) {
+          instruccion.textContent =
+            'Tu navegador no soporta Web Audio. Toca las velas.';
+        }
+        return;
+      }
+
       try {
         if (btnMic) {
           btnMic.disabled = true;
           btnMic.textContent = '🎙️ Pidiendo permiso…';
         }
         micStream = await navigator.mediaDevices.getUserMedia({
-          audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+          },
         });
       } catch (err) {
         console.warn('[pastel] mic denied or unavailable:', err);
-        if (instruccion) instruccion.textContent = 'No puedo escucharte. Toca las velas para apagarlas.';
+        if (instruccion) {
+          instruccion.textContent =
+            'No puedo escucharte. Toca las velas para apagarlas.';
+        }
         if (btnMic) {
           btnMic.disabled = false;
           btnMic.textContent = '🎙️ Soplar con micrófono';
@@ -120,12 +139,13 @@
         return;
       }
 
-      const Ctx = window.AudioContext || window.webkitAudioContext;
       audioCtx = new Ctx();
+      await resumeAudioCtx(audioCtx);
+
       const source = audioCtx.createMediaStreamSource(micStream);
       analyser = audioCtx.createAnalyser();
       analyser.fftSize = 1024;
-      analyser.smoothingTimeConstant = 0.6;
+      analyser.smoothingTimeConstant = 0.55;
       source.connect(analyser);
 
       micActivo = true;
@@ -137,13 +157,15 @@
       }
       if (medidor) medidor.classList.add('activo');
       if (instruccion) instruccion.textContent = 'Sopla cerca del micrófono…';
-
       loopAnalisis();
     }
 
     function stopMic() {
       micActivo = false;
-      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
       if (micStream) {
         micStream.getTracks().forEach((t) => t.stop());
         micStream = null;
@@ -169,46 +191,38 @@
       const bins = new Uint8Array(analyser.frequencyBinCount);
       analyser.getByteFrequencyData(bins);
 
-      // FFT: 0..1024/2 bins, Nyquist = sampleRate/2.
       const sampleRate = audioCtx ? audioCtx.sampleRate : 48000;
       const binWidth = sampleRate / 2 / bins.length;
       const idxFor = (hz) => Math.min(bins.length - 1, Math.floor(hz / binWidth));
 
-      const lowStart = idxFor(40);
-      const lowEnd   = idxFor(300);   // soplido: pico aquí
-      const midStart = idxFor(300);
-      const midEnd   = idxFor(2000);  // voz humana
-      const highStart = idxFor(2000);
-      const highEnd   = idxFor(8000); // sibilantes / música
+      const low = avg(bins, idxFor(40), idxFor(300));
+      const mid = avg(bins, idxFor(300), idxFor(2000));
+      const high = avg(bins, idxFor(2000), idxFor(8000));
 
-      const avg = (a, b) => {
-        let sum = 0;
-        for (let i = a; i < b; i++) sum += bins[i];
-        return sum / Math.max(b - a, 1);
-      };
+      const esSoplido = low > 72 && low > mid * 1.25 && high < low * 0.9;
 
-      const low  = avg(lowStart, lowEnd);
-      const mid  = avg(midStart, midEnd);
-      const high = avg(highStart, highEnd);
-
-      // Soplido: low dominante y banda alta moderada+ (el aire genera ruido blanco).
-      // Voz: mid alta. Silbar: high muy alta.
-      const esSoplido = low > 95 && low > mid * 1.4 && high < low * 0.85;
-
-      const intensidad = Math.min(1, low / 200);
+      const intensidad = Math.min(1, low / 180);
       if (barra) barra.style.width = `${(intensidad * 100).toFixed(0)}%`;
 
       if (esSoplido) {
-        soploSostenido += 16; // ~ms por frame a 60fps
-        if (soploSostenido > 180) {
+        soploSostenido += 16;
+        if (soploSostenido > 160) {
           apagarSiguienteVela();
-          soploSostenido = -250; // pequeño cooldown
+          soploSostenido = -220;
         }
       } else {
         soploSostenido = Math.max(0, soploSostenido - 25);
       }
 
       rafId = requestAnimationFrame(loopAnalisis);
+    }
+
+    function avg(bins, start, end) {
+      let sum = 0;
+      const a = Math.max(0, start);
+      const b = Math.max(a + 1, end);
+      for (let i = a; i < b; i++) sum += bins[i];
+      return sum / (b - a);
     }
 
     if (btnMic) {
@@ -219,9 +233,26 @@
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
+  function tryInit() {
+    const escena = document.querySelector('.pastel-escena');
+    const sorpresa = document.getElementById('contenidoSorpresa');
+    if (!escena) return;
+    if (sorpresa && sorpresa.classList.contains('oculto')) return;
     init();
+  }
+
+  function boot() {
+    tryInit();
+    const sorpresa = document.getElementById('contenidoSorpresa');
+    if (!sorpresa) return;
+    const obs = new MutationObserver(() => tryInit());
+    obs.observe(sorpresa, { attributes: true, attributeFilter: ['class'] });
+    document.addEventListener('pastel:reinit', tryInit);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
   }
 })();

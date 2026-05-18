@@ -21,6 +21,7 @@ from flask import request
 
 from api import APIModule
 from services.buzon_service import ServicioBuzon
+from services.request_guards import reject_honeypot, require_json_body
 from services.security_service import require_admin_token
 
 logger = logging.getLogger(__name__)
@@ -156,7 +157,12 @@ class MensajesModule(TelegramMixin, APIModule):
             ("notificar", self.notificar_evento, ["POST"], False),
         ]
         for path, handler, methods, admin_only in routes:
-            view = require_admin_token(handler) if admin_only else handler
+            view = handler
+            if path in {"responder", "notificar", "constelacion_completada"}:
+                view = reject_honeypot(view)
+                view = require_json_body(view)
+            if admin_only:
+                view = require_admin_token(view)
             self.bp.route(f"/{path}", methods=methods, endpoint=f"{path}_alt")(view)
             self.bp.route(f"/api/{path}", methods=methods, endpoint=path)(view)
 

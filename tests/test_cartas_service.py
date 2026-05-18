@@ -64,7 +64,7 @@ class CartasServiceTests(unittest.TestCase):
 
     def test_acepta_fecha_con_z_zulu(self):
         service = ServicioCartas()
-        ayer_z = (datetime.utcnow() - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        ayer_z = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
         service.crear(titulo="z", contenido="c", fecha_apertura=ayer_z)
         self.assertEqual(len(service.listar_disponibles()), 1)
 

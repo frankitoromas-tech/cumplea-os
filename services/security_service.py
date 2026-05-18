@@ -17,6 +17,7 @@ import logging
 import os
 import secrets
 from functools import wraps
+from pathlib import Path
 from typing import Callable
 
 from flask import g, jsonify, make_response, request
@@ -29,10 +30,58 @@ ADMIN_COOKIE_MAX_AGE = 60 * 60 * 8  # 8 hours
 _ADMIN_HEADER = "X-Admin-Token"
 _ADMIN_QUERY = "admin_token"
 _SIGNER_SALT = "cumpleaos-admin-v1"
+_CSRF_SALT = "cumpleaos-csrf-v1"
+_CSRF_MAX_AGE = 60 * 30  # 30 minutes
+
+
+def _read_admin_token_file() -> str:
+    """
+    Optional file-based token for Railway volumes or local testing
+    without pasting secrets into the dashboard.
+
+    Checked paths (first hit wins):
+      - ADMIN_TOKEN_FILE env (explicit path)
+      - {APP_DATA_DIR}/admin_token
+    """
+    explicit = (os.getenv("ADMIN_TOKEN_FILE") or "").strip()
+    candidates: list[Path] = []
+    if explicit:
+        candidates.append(Path(explicit))
+    base = Path(os.getenv("APP_DATA_DIR", "."))
+    candidates.append(base / "admin_token")
+
+    for path in candidates:
+        try:
+            if not path.is_file():
+                continue
+            line = path.read_text(encoding="utf-8").strip().splitlines()[0].strip()
+            if line:
+                return line
+        except OSError:
+            logger.warning("Cannot read admin token file %s.", path)
+    return ""
 
 
 def _expected_admin_token() -> str:
-    return (os.getenv("ADMIN_TOKEN") or "").strip()
+    direct = (os.getenv("ADMIN_TOKEN") or "").strip()
+    if direct:
+        return direct
+
+    from_file = _read_admin_token_file()
+    if from_file:
+        return from_file
+
+    # Explicit testing mode (Railway/local): ENABLE_TEST_ADMIN=1 + TEST_ADMIN_TOKEN
+    if (os.getenv("ENABLE_TEST_ADMIN") or "").strip() == "1":
+        test = (os.getenv("TEST_ADMIN_TOKEN") or "").strip()
+        if test:
+            return test
+
+    return ""
+
+
+def admin_panel_enabled() -> bool:
+    return bool(_expected_admin_token())
 
 
 def _provided_admin_token() -> str:
@@ -50,6 +99,25 @@ def _signer() -> URLSafeTimedSerializer | None:
     if not expected:
         return None
     return URLSafeTimedSerializer(secret_key=expected, salt=_SIGNER_SALT)
+
+
+def mint_csrf_token() -> str:
+    """Short-lived token for POST /admin/login (double-submit)."""
+    signer = _signer()
+    if signer is None:
+        raise RuntimeError("ADMIN_TOKEN no configurado.")
+    return signer.dumps({"csrf": True})
+
+
+def verify_csrf_token(value: str) -> bool:
+    signer = _signer()
+    if signer is None or not value:
+        return False
+    try:
+        payload = signer.loads(value, max_age=_CSRF_MAX_AGE)
+    except (BadSignature, SignatureExpired):
+        return False
+    return bool(payload.get("csrf"))
 
 
 def mint_admin_cookie() -> str:
@@ -105,6 +173,23 @@ def require_admin_token(view: Callable):
         if verify_admin_cookie(cookie):
             return view(*args, **kwargs)
 
+        if (os.getenv("ADMIN_TOKEN_QUERY_ALLOWED") or "0").strip() != "1":
+            if request.args.get(_ADMIN_QUERY):
+                logger.warning(
+                    "Admin token via query string rejected on %s from %s.",
+                    request.path,
+                    request.remote_addr or "unknown",
+                )
+                return (
+                    jsonify(
+                        {
+                            "status": "error",
+                            "mensaje": "Usa el header X-Admin-Token o la cookie de sesion.",
+                        }
+                    ),
+                    403,
+                )
+
         provided = _provided_admin_token()
         if not provided:
             return (
@@ -134,10 +219,11 @@ def require_admin_session(view: Callable):
 
     @wraps(view)
     def wrapper(*args, **kwargs):
-        if not _expected_admin_token():
+        if not admin_panel_enabled():
             return (
                 "<h1>Admin desactivado</h1>"
-                "<p>Configura <code>ADMIN_TOKEN</code> en el entorno.</p>"
+                "<p>Configura <code>ADMIN_TOKEN</code>, <code>data/admin_token</code> "
+                "o <code>ENABLE_TEST_ADMIN=1</code> + <code>TEST_ADMIN_TOKEN</code>.</p>"
             ), 503
 
         cookie = request.cookies.get(ADMIN_COOKIE, "")

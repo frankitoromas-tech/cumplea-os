@@ -15,12 +15,17 @@ class ServicioBuzon(ServicioBase):
         super().__init__("data/mensajes.json")
 
     def guardar_mensaje(self, texto: str) -> bool:
-        mensajes = self.leer_datos()
-        mensajes.append({
-            "fecha":   datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        entrada = {
+            "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "mensaje": texto,
-        })
-        return self.guardar_datos(mensajes)
+        }
+
+        def append(current):
+            mensajes = list(current) if isinstance(current, list) else []
+            mensajes.append(entrada)
+            return mensajes
+
+        return self.actualizar(append, default=[]) is not None
 
     def total_mensajes(self) -> int:
         return len(self.leer_datos())
